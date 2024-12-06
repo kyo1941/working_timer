@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/statusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/timerTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/timerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="56sp"
+        android:text="00:00"
+        app:layout_constraintVertical_bias="0.4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/timerTextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="1.0">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/startButton"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="開始"
+            android:textSize="20sp"
+            android:visibility="visible"
+            android:backgroundTint="@color/start_button_color"
+            app:cornerRadius="50dp"
+            android:layout_gravity="center" />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/stopButton"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:text="終了"
+                android:textSize="20sp"
+                android:visibility="gone"
+                android:backgroundTint="@color/stop_button_color"
+                app:cornerRadius="50dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/pauseButton"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/pauseButton"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:text="休憩"
+                android:textSize="20sp"
+                android:visibility="gone"
+                android:backgroundTint="@color/pause_button_color"
+                app:cornerRadius="50dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/stopButton"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="再開"
+            android:textSize="20sp"
+            android:visibility="gone"
+            android:backgroundTint="@color/resume_button_color"
+            app:cornerRadius="50dp"
+            android:layout_gravity="center"/>
+
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resumeButton"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="再開"
+            android:textSize="20sp"
+            android:visibility="gone"
+            android:backgroundTint="@color/resume_button_color"
+            app:cornerRadius="50dp"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

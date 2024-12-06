@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="start_button_color">#6180E7</color>
+    <color name="stop_button_color">#E76161</color>
+    <color name="pause_button_color">#34A02F</color>
+    <color name="resume_button_color">#C7A934</color>
+</resources>

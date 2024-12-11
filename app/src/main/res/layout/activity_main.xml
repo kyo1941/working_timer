@@ -93,19 +93,6 @@
 
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/bottomNavigationView"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:text="再開"
-            android:textSize="20sp"
-            android:visibility="gone"
-            android:backgroundTint="@color/resume_button_color"
-            app:cornerRadius="50dp"
-            android:layout_gravity="center"/>
-
-
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/resumeButton"
             android:layout_width="100dp"
             android:layout_height="100dp"

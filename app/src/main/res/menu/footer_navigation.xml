@@ -3,10 +3,10 @@
     <item
         android:id="@+id/navigation_timer"
         android:icon="@drawable/ic_timer"
-        android:title="タイマー" />
+        android:title="記録" />
 
     <item
-        android:id="@+id/navigation_other"
-        android:icon="@drawable/ic_other"
-        android:title="その他" />
+        android:id="@+id/navigation_log"
+        android:icon="@drawable/ic_calender"
+        android:title="履歴" />
 </menu>

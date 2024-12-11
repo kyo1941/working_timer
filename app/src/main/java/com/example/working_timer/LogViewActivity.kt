@@ -1,8 +1,10 @@
 package com.example.working_timer
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.CalendarView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class LogViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,6 +16,24 @@ class LogViewActivity : AppCompatActivity() {
         // 例: 選択された日付のリスナーを設定する
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             // 選択された日付に基づいて履歴データを取得・表示する処理を追加
+        }
+
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNavigationView.selectedItemId = R.id.navigation_log
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_timer -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.navigation_log -> {
+                    // 現在の画面なので何もしない
+                    true
+                }
+                else -> false
+            }
         }
 
     }

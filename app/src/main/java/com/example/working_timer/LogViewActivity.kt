@@ -22,17 +22,24 @@ class LogViewActivity : AppCompatActivity() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.navigation_log
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.navigation_timer -> {
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    true
+            if(item.itemId != bottomNavigationView.selectedItemId) {
+                when (item.itemId) {
+                    R.id.navigation_timer -> {
+                        val intent = Intent(this, MainActivity::class.java)
+                        startActivity(intent)
+                        overridePendingTransition(0, 0)
+                        true
+                    }
+
+                    R.id.navigation_log -> {
+                        // 現在の画面なので何もしない
+                        true
+                    }
+
+                    else -> false
                 }
-                R.id.navigation_log -> {
-                    // 現在の画面なので何もしない
-                    true
-                }
-                else -> false
+            } else {
+                true
             }
         }
 

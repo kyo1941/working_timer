@@ -1,12 +1,15 @@
 package com.example.working_timer
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
 import android.widget.TextView
+import android.transition.TransitionValues
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,6 +54,30 @@ class MainActivity : AppCompatActivity() {
         }
         resumeButton.setOnClickListener {
             resumeTimer()
+        }
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNavigationView.selectedItemId = R.id.navigation_timer
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            if(item.itemId != bottomNavigationView.selectedItemId) {
+                when (item.itemId) {
+                    R.id.navigation_timer -> {
+                        // 現在の画面なので何もしない
+                        true
+                    }
+
+                    R.id.navigation_log -> {
+                        val intent = Intent(this, LogViewActivity::class.java)
+                        startActivity(intent)
+                        overridePendingTransition(0, 0)
+                        true
+                    }
+
+                    else -> false
+                }
+            } else {
+                true
+            }
         }
     }
 

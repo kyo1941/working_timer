@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     private var timerService: TimerService? = null
     private var isBound = false
 
+
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as TimerService.LocalBinder
@@ -90,6 +91,11 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 true
             }
         }
+
+        // SharedPreferences から elapsedTime を読み込む
+        val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
+        val elapsedTime = prefs.getLong("elapsedTime", 0L)
+        updateTimerText(elapsedTime) // 読み込んだ elapsedTime で UI を更新
     }
 
     override fun onStart() {

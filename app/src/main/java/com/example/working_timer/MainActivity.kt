@@ -111,9 +111,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateTimerText() {
-        val hours = (elapsedTime / 1000 / 3600).toInt()
-        val minutes = (elapsedTime / 1000 / 60).toInt()
-        val seconds = (elapsedTime / 1000 % 60).toInt()
+        val rep_sec_time = elapsedTime / 1000
+        val hours = (rep_sec_time / 3600).toInt()
+        val minutes = ((rep_sec_time / 60) % 60).toInt()
+        val seconds = (rep_sec_time % 60).toInt()
         val formattedTime = if (hours > 0) {
             String.format("%02d:%02d:%02d", hours, minutes, seconds)
         } else {

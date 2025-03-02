@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.widget.Button
 import android.widget.TextView
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -57,6 +58,14 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         }
         stopButton.setOnClickListener {
             timerService?.stopTimer()
+
+            val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
+            val elapsedTime = prefs.getLong("elapsedTime", 0L)
+            val startDate = prefs.getString("startDate", "") ?: "" // デフォルト値を設定
+
+            // 開始日の処理
+            Log.d("MainActivity", "アプリ起動 - 開始日: $startDate, 経過時間: $elapsedTime")
+
             updateUI()
         }
         pauseButton.setOnClickListener {

@@ -35,6 +35,7 @@ class TimerService : Service() {
 
     private var listener: TimerServiceListener? = null
     private val PREFS_NAME = "TimerPrefs"
+    private val START_DATE_KEY = "startDate"
     private val ELAPSED_TIME_KEY = "elapsedTime"
     private var startTimeCalendar: Calendar = Calendar.getInstance() // タイマー開始時の日付を保持
 
@@ -78,8 +79,12 @@ class TimerService : Service() {
         val sdfDate = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
         val formattedDate = sdfDate.format(startTimeCalendar.time) // 開始時の日付を取得
 
-        // ログに出力
-        Log.d("TimerService", "開始日: $sdfDate, 経過時間: $elapsedTime")
+        // SharedPreferences に開始日を保存
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
+        editor.putString(START_DATE_KEY, formattedDate)
+        editor.apply()
 
         elapsedTime = 0
         listener?.onTimerTick(elapsedTime) // 停止時に0を通知

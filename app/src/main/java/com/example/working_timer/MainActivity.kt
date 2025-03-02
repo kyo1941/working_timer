@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     private var timerService: TimerService? = null
     private var isBound = false
 
+    private var transiotionToLogView = false
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -79,6 +80,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                     }
 
                     R.id.navigation_log -> {
+                        transiotionToLogView = true
                         val intent = Intent(this, LogViewActivity::class.java)
                         startActivity(intent)
                         overridePendingTransition(0, 0)
@@ -107,11 +109,12 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
     override fun onStop() {
         super.onStop()
-        if (isBound) {
+        if (transiotionToLogView && isBound) {
             timerService?.removeListener()
             unbindService(connection)
             isBound = false
             timerService = null
+            transiotionToLogView = false
         }
     }
 

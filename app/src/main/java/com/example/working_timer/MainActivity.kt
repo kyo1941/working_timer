@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             updateUI()
         }
         stopButton.setOnClickListener {
-            timerService?.stopTimer()
+            timerService?.pauseTimer()
 
             val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
             val elapsedTime = prefs.getLong("elapsedTime", 0L)
@@ -87,18 +87,24 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
             bulider.setPositiveButton("はい") { dialog, which ->
                 // YESボタンがクリックされた時の処理
+                timerService?.stopTimer()
                 val intent = Intent(this, LogViewActivity::class.java)
                 intent.putExtra("startDate", startDate)
                 intent.putExtra("elapsedTime", elapsedTime)
                 startActivity(intent)
+                updateUI()
+            }
+
+            bulider.setNeutralButton("記録を再開") { dialog, which ->
+                // 中断ボタンがクリックされた時の処理
+                timerService?.resumeTimer()
+                updateUI()
             }
 
             bulider.setNegativeButton("いいえ") { dialog, which ->
                 // NOボタンがクリックされた時の処理
-                var editor = prefs.edit()
-                editor.putLong("elapsedTime", 0L)
-                editor.putString("startDate", "")
-                editor.apply()
+                timerService?.stopTimer()
+                updateUI()
             }
 
             // AlertDialogを表示

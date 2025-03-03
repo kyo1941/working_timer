@@ -76,6 +76,14 @@ class TimerService : Service() {
         handler.removeCallbacks(runnable)
         isRunning = false
 
+        elapsedTime = 0
+        listener?.onTimerTick(elapsedTime) // 停止時に0を通知
+    }
+
+    fun pauseTimer() {
+        handler.removeCallbacks(runnable)
+        isRunning = false
+
         val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
         val formattedDate = sdfDate.format(startTimeCalendar.time) // 開始時の日付を取得
 
@@ -85,14 +93,6 @@ class TimerService : Service() {
         editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
         editor.putString(START_DATE_KEY, formattedDate)
         editor.apply()
-
-        elapsedTime = 0
-        listener?.onTimerTick(elapsedTime) // 停止時に0を通知
-    }
-
-    fun pauseTimer() {
-        handler.removeCallbacks(runnable)
-        isRunning = false
     }
 
     fun resumeTimer() {

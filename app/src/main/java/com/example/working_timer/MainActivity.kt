@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.os.IBinder
 import android.widget.Button
 import android.widget.TextView
+import android.util.Log
+import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -57,7 +59,58 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             updateUI()
         }
         stopButton.setOnClickListener {
-            timerService?.stopTimer()
+            timerService?.pauseTimer()
+
+            val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
+            val elapsedTime = prefs.getLong("elapsedTime", 0L)
+            val startDate = prefs.getString("startDate", "") ?: "" // デフォルト値を設定
+
+            // 経過時間を表示形式に変換
+            val rep_sec_time = elapsedTime / 1000
+            val hours = (rep_sec_time / 3600).toInt()
+            val minutes = ((rep_sec_time / 60) % 60).toInt()
+            val seconds = (rep_sec_time % 60).toInt()
+            val formattedTime = if (hours > 0) {
+                String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            } else {
+                String.format("%02d:%02d", minutes, seconds)
+            }
+
+            // AlertDialogを作成
+            var bulider = AlertDialog.Builder(this)
+            bulider.setTitle("確認")
+            bulider.setMessage("""
+                開始日 ： $startDate
+                経過時間 ： $formattedTime
+                
+                今回の作業記録を保存しますか？
+            """.trimIndent())
+
+            bulider.setPositiveButton("はい") { dialog, which ->
+                // YESボタンがクリックされた時の処理
+                timerService?.stopTimer()
+                val intent = Intent(this, LogViewActivity::class.java)
+                intent.putExtra("startDate", startDate)
+                intent.putExtra("elapsedTime", elapsedTime)
+                startActivity(intent)
+                updateUI()
+            }
+
+            bulider.setNeutralButton("記録を再開") { dialog, which ->
+                // 中断ボタンがクリックされた時の処理
+                timerService?.resumeTimer()
+                updateUI()
+            }
+
+            bulider.setNegativeButton("いいえ") { dialog, which ->
+                // NOボタンがクリックされた時の処理
+                timerService?.stopTimer()
+                updateUI()
+            }
+
+            // AlertDialogを表示
+            bulider.show()
+
             updateUI()
         }
         pauseButton.setOnClickListener {

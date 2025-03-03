@@ -12,12 +12,13 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import androidx.core.app.NotificationCompat
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class TimerService : Service() {
-
-    private val PREFS_NAME = "TimerPrefs"
-    private val ELAPSED_TIME_KEY = "elapsedTime"
 
     private val binder = LocalBinder()
     private var startTime: Long = 0
@@ -33,6 +34,10 @@ class TimerService : Service() {
     }
 
     private var listener: TimerServiceListener? = null
+    private val PREFS_NAME = "TimerPrefs"
+    private val START_DATE_KEY = "startDate"
+    private val ELAPSED_TIME_KEY = "elapsedTime"
+    private var startTimeCalendar: Calendar = Calendar.getInstance() // タイマー開始時の日付を保持
 
     interface TimerServiceListener {
         fun onTimerTick(elapsedTime: Long)
@@ -40,7 +45,7 @@ class TimerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
+        createNotificationChannel() // Android 8.0 以降で必要
         // SharedPreferences から elapsedTime を復元
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
@@ -63,12 +68,14 @@ class TimerService : Service() {
     fun startTimer() {
         startTime = System.currentTimeMillis() - elapsedTime
         isRunning = true
+        startTimeCalendar = Calendar.getInstance() // 開始時の日付を記録
         handler.postDelayed(runnable, 0)
     }
 
     fun stopTimer() {
         handler.removeCallbacks(runnable)
         isRunning = false
+
         elapsedTime = 0
         listener?.onTimerTick(elapsedTime) // 停止時に0を通知
     }
@@ -76,6 +83,16 @@ class TimerService : Service() {
     fun pauseTimer() {
         handler.removeCallbacks(runnable)
         isRunning = false
+
+        val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+        val formattedDate = sdfDate.format(startTimeCalendar.time) // 開始時の日付を取得
+
+        // SharedPreferences に開始日を保存
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
+        editor.putString(START_DATE_KEY, formattedDate)
+        editor.apply()
     }
 
     fun resumeTimer() {

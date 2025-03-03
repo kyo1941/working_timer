@@ -63,8 +63,11 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             val elapsedTime = prefs.getLong("elapsedTime", 0L)
             val startDate = prefs.getString("startDate", "") ?: "" // デフォルト値を設定
 
-            // 開始日の処理
-            Log.d("MainActivity", "アプリ起動 - 開始日: $startDate, 経過時間: $elapsedTime")
+            // intentを作成してLogViewActivityに渡す
+            var intent = Intent(this, LogViewActivity::class.java)
+            intent.putExtra("startDate", startDate)
+            intent.putExtra("elapsedTime", elapsedTime)
+            startActivity(intent)
 
             updateUI()
         }

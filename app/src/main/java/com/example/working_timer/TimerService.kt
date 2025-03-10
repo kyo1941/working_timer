@@ -69,6 +69,16 @@ class TimerService : Service() {
         startTime = System.currentTimeMillis() - elapsedTime
         isRunning = true
         startTimeCalendar = Calendar.getInstance() // 開始時の日付を記録
+
+        val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+        val formattedDate = sdfDate.format(startTimeCalendar.time) // 開始時の日付を取得
+
+        // SharedPreferences に開始日を保存
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putString(START_DATE_KEY, formattedDate)
+        editor.apply()
+
         handler.postDelayed(runnable, 0)
     }
 
@@ -83,16 +93,6 @@ class TimerService : Service() {
     fun pauseTimer() {
         handler.removeCallbacks(runnable)
         isRunning = false
-
-        val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
-        val formattedDate = sdfDate.format(startTimeCalendar.time) // 開始時の日付を取得
-
-        // SharedPreferences に開始日を保存
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
-        editor.putString(START_DATE_KEY, formattedDate)
-        editor.apply()
     }
 
     fun resumeTimer() {

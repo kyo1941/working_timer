@@ -13,8 +13,6 @@ import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Locale
 
 class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
@@ -191,6 +189,12 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     }
 
     private fun updateTimerText(elapsedTime: Long) {
+        // SharedPreferences に開始日を保存
+        val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putLong("elapsedTime", elapsedTime)
+        editor.apply()
+
         val rep_sec_time = elapsedTime / 1000
         val hours = (rep_sec_time / 3600).toInt()
         val minutes = ((rep_sec_time / 60) % 60).toInt()

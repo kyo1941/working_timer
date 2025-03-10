@@ -13,6 +13,9 @@ import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
@@ -94,6 +97,12 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 intent.putExtra("elapsedTime", elapsedTime)
                 startActivity(intent)
                 updateUI()
+
+                // Shared Preferences のデータを削除
+                val editor = prefs.edit()
+                editor.remove("startDate")
+                editor.remove("elapsedTime")
+                editor.apply()
             }
 
             bulider.setNeutralButton("記録を再開") { dialog, which ->
@@ -106,6 +115,12 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 // NOボタンがクリックされた時の処理
                 timerService?.stopTimer()
                 updateUI()
+
+                // Shared Preferences のデータを削除
+                val editor = prefs.edit()
+                editor.remove("startDate")
+                editor.remove("elapsedTime")
+                editor.apply()
             }
 
             // AlertDialogを表示

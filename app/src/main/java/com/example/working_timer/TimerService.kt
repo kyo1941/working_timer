@@ -23,8 +23,12 @@ class TimerService : Service() {
     private val binder = LocalBinder()
     private var startTime: Long = 0
     private var elapsedTime: Long = 0
+    private var startDate: String? = null
+    private var startTimeString: String? = null
+    private var startTimeMills: Long = 0
     private var isRunning = false
     private val handler = Handler(Looper.getMainLooper())
+
     private val runnable = object : Runnable {
         override fun run() {
             elapsedTime = System.currentTimeMillis() - startTime
@@ -34,9 +38,13 @@ class TimerService : Service() {
     }
 
     private var listener: TimerServiceListener? = null
+
     private val PREFS_NAME = "TimerPrefs"
     private val START_DATE_KEY = "startDate"
+    private val START_TIME_STRING_KEY = "startTimeString"
+    private val START_TIME_MILLS_KEY = "startTimeMills"
     private val ELAPSED_TIME_KEY = "elapsedTime"
+
     private var startTimeCalendar: Calendar = Calendar.getInstance() // タイマー開始時の日付を保持
 
     interface TimerServiceListener {
@@ -45,10 +53,14 @@ class TimerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel() // Android 8.0 以降で必要
+        createNotificationChannel()
+
         // SharedPreferences から elapsedTime を復元
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
+        startTimeString = prefs.getString(START_TIME_STRING_KEY, "")
+        startDate = prefs.getString(START_DATE_KEY, "")
+        startTimeMills = prefs.getLong(START_TIME_MILLS_KEY, 0L)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -73,10 +85,16 @@ class TimerService : Service() {
         val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
         val formattedDate = sdfDate.format(startTimeCalendar.time) // 開始時の日付を取得
 
+        val sdfTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val formattedTime = sdfTime.format(startTimeCalendar.time) // 開始時の時間を取得
+
         // SharedPreferences に開始日を保存
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putString(START_DATE_KEY, formattedDate)
+        editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
+        editor.putString(START_TIME_STRING_KEY, formattedTime)
+        editor.putLong(START_TIME_MILLS_KEY, System.currentTimeMillis())
         editor.apply()
 
         handler.postDelayed(runnable, 0)
@@ -88,11 +106,24 @@ class TimerService : Service() {
 
         elapsedTime = 0
         listener?.onTimerTick(elapsedTime) // 停止時に0を通知
+
+        // SharedPreferences から elapsedTime を削除
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.remove(START_DATE_KEY)
+        editor.remove(ELAPSED_TIME_KEY)
+        editor.remove(START_TIME_STRING_KEY)
+        editor.remove(START_TIME_MILLS_KEY)
+        editor.apply()
     }
 
     fun pauseTimer() {
         handler.removeCallbacks(runnable)
         isRunning = false
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
+        editor.apply()
     }
 
     fun resumeTimer() {

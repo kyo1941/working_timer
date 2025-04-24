@@ -9,9 +9,16 @@ import android.os.IBinder
 import android.widget.Button
 import android.widget.TextView
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import android.app.AlertDialog
+import com.example.working_timer.data.AppDatabase
+import com.example.working_timer.data.Work
+import kotlinx.coroutines.launch
+import java.util.Date
+import java.text.SimpleDateFormat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.working_timer.data.WorkDao
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Locale
 
@@ -27,7 +34,13 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     private var timerService: TimerService? = null
     private var isBound = false
 
-    private var transiotionToLogView = false
+    private var transitionToLogView = false
+
+    private val PREFS_NAME = "TimerPrefs"
+    private val START_DATE_KEY = "startDate"
+    private val START_TIME_STRING_KEY = "startTimeString"
+    private val START_TIME_MILLS_KEY = "startTimeMills"
+    private val ELAPSED_TIME_KEY = "elapsedTime"
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -60,11 +73,16 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             updateUI()
         }
         stopButton.setOnClickListener {
+            if (!isBound || timerService == null) return@setOnClickListener
+
             timerService?.pauseTimer()
 
-            val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
-            val elapsedTime = prefs.getLong("elapsedTime", 0L)
-            val startDate = prefs.getString("startDate", "") ?: "" // デフォルト値を設定
+            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
+            val startDate = prefs.getString(START_DATE_KEY, "")
+            val startTime = prefs.getString(START_TIME_STRING_KEY, "")
+            val startTimeMills = prefs.getLong(START_TIME_MILLS_KEY, 0L)
+
 
             // 経過時間を表示形式に変換
             val rep_sec_time = elapsedTime / 1000
@@ -88,19 +106,42 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             """.trimIndent())
 
             bulider.setPositiveButton("はい") { dialog, which ->
+                if (startDate == null || startTime == null) {
+                    // 画面に「正しく表示できなかった旨」を伝えたい
+                    return@setPositiveButton
+                }
+
                 // YESボタンがクリックされた時の処理
+                val sdfTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                val endTime = sdfTime.format(Date())
+
+                val work = Work(
+                    day = startDate,
+                    start_time = startTime,
+                    end_time = endTime,
+                    elapsed_time = (elapsedTime / 1000).toInt(),
+                    start_time_mills = startTimeMills,
+                    end_time_mills = System.currentTimeMillis()
+                )
+
+                Log.d("MainActivity", "Work created: $work")
+
+                val database = AppDatabase.getDatabase(applicationContext)
+                val workDao = database.workDao()
+
+                lifecycleScope.launch {
+                    workDao.insert(work)
+                    Log.d("MainActivity", "Work inserted: $work")
+                }
+
                 timerService?.stopTimer()
-                val intent = Intent(this, LogViewActivity::class.java)
-                intent.putExtra("startDate", startDate)
-                intent.putExtra("elapsedTime", elapsedTime)
-                startActivity(intent)
                 updateUI()
 
-                // Shared Preferences のデータを削除
-                val editor = prefs.edit()
-                editor.remove("startDate")
-                editor.remove("elapsedTime")
-                editor.apply()
+                // LogView への遷移（任意）
+                transitionToLogView = true
+                val intent = Intent(this, LogViewActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(0, 0)
             }
 
             bulider.setNeutralButton("記録を再開") { dialog, which ->
@@ -113,12 +154,6 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 // NOボタンがクリックされた時の処理
                 timerService?.stopTimer()
                 updateUI()
-
-                // Shared Preferences のデータを削除
-                val editor = prefs.edit()
-                editor.remove("startDate")
-                editor.remove("elapsedTime")
-                editor.apply()
             }
 
             // AlertDialogを表示
@@ -146,7 +181,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                     }
 
                     R.id.navigation_log -> {
-                        transiotionToLogView = true
+                        transitionToLogView = true
                         val intent = Intent(this, LogViewActivity::class.java)
                         startActivity(intent)
                         overridePendingTransition(0, 0)
@@ -175,12 +210,12 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
     override fun onStop() {
         super.onStop()
-        if (transiotionToLogView && isBound) {
+        if (transitionToLogView && isBound) {
             timerService?.removeListener()
             unbindService(connection)
             isBound = false
             timerService = null
-            transiotionToLogView = false
+            transitionToLogView = false
         }
     }
 

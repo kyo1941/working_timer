@@ -16,8 +16,6 @@ class LogViewActivity : AppCompatActivity() {
         var startDate = intent.getStringExtra("startDate") ?: ""
         var elapsedTime = intent.getLongExtra("elapsedTime", 0L)
 
-        Log.d("LogViewActivity", "開始日: $startDate, 合計時間: $elapsedTime")
-
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
         // 必要に応じて、CalendarView の設定を行う
         // 例: 選択された日付のリスナーを設定する

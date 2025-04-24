@@ -10,5 +10,7 @@ data class Work (
     val day: String,
     val start_time: String,
     val end_time: String,
-    val elapsed_time: Int
+    val elapsed_time: Int,
+    val start_time_mills: Long,
+    val end_time_mills: Long
 )

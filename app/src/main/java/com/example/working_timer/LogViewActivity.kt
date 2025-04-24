@@ -10,24 +10,40 @@ import androidx.lifecycle.lifecycleScope
 import com.example.working_timer.data.AppDatabase
 import kotlinx.coroutines.launch
 import java.util.Locale
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.core.content.ContextCompat
+
 
 class LogViewActivity : AppCompatActivity() {
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: WorkAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_log_view)
 
-        var intent = intent
-        var startDate = intent.getStringExtra("startDate") ?: ""
-        var elapsedTime = intent.getLongExtra("elapsedTime", 0L)
+        recyclerView = findViewById(R.id.workRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        var divider = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+        ContextCompat.getDrawable(this, R.drawable.recycler_divider)?.let {
+            divider.setDrawable(it)
+        }
+        recyclerView.addItemDecoration(divider)
+
+        adapter = WorkAdapter(emptyList())
+        recyclerView.adapter = adapter
 
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
-        // 必要に応じて、CalendarView の設定を行う
-        // 例: 選択された日付のリスナーを設定する
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             var day = String.format(Locale.getDefault(), "%04d/%02d/%02d", year, month + 1, dayOfMonth)
             lifecycleScope.launch {
                 val database = AppDatabase.getDatabase(applicationContext)
                 val works = database.workDao().getWorksByDay(day)
+
+                adapter.updateData(works)
 
                 if(works.isNotEmpty()) {
                     for(work in works) {

@@ -6,7 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.working_timer.data.Work
 import com.example.working_timer.databinding.ItemWorkBinding
 
-class WorkAdapter(private var workList: List<Work>) :
+class WorkAdapter(
+    private var workList: List<Work>, private val onDeleteClickListener: (Work) -> Unit, private val onEditClickListener: (Work) -> Unit) :
     RecyclerView.Adapter<WorkAdapter.WorkViewHolder>() {
 
     inner class WorkViewHolder(private val binding: ItemWorkBinding) :
@@ -18,6 +19,14 @@ class WorkAdapter(private var workList: List<Work>) :
             val m = (work.elapsed_time % 3600) / 60
             val s = work.elapsed_time % 60
             binding.elapsedTime.text = "活動時間  %02d:%02d:%02d".format(h, m, s)
+
+            binding.deleteButton.setOnClickListener {
+                onDeleteClickListener(work)
+            }
+
+            binding.editButton.setOnClickListener {
+                onEditClickListener(work)
+            }
         }
     }
 

@@ -1,3 +1,4 @@
+
 package com.example.working_timer.data
 
 import androidx.room.Dao
@@ -15,4 +16,27 @@ interface WorkDao {
 
     @Insert
     suspend fun insert(work: Work)
+
+    @Query("DELETE FROM works WHERE id = :id")
+    suspend fun delete(id: Int)
+
+    @Query("""
+    UPDATE works SET 
+        day = :day,
+        start_time = :startTime,
+        end_time = :endTime,
+        elapsed_time = :elapsedTime,
+        start_time_mills = :startMills,
+        end_time_mills = :endMills
+    WHERE id = :id
+    """)
+    suspend fun updateWork(
+        id: Int,
+        day: String,
+        startTime: String,
+        endTime: String,
+        elapsedTime: Int,
+        startMills: Long,
+        endMills: Long
+    )
 }

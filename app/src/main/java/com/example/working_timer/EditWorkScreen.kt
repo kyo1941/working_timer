@@ -21,6 +21,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditWorkScreen(
     id: Int,
@@ -32,9 +33,12 @@ fun EditWorkScreen(
 ) {
     var start by remember { mutableStateOf(startTime) }
     var end by remember { mutableStateOf(endTime) }
+    var elapsedHour by remember { mutableStateOf(elapsedTime / 3600) }
+    var elapsedMinute by remember { mutableStateOf((elapsedTime % 3600) / 60) }
 
     var showStartPicker by remember { mutableStateOf(false) }
     var showEndPicker by remember { mutableStateOf(false) }
+    var showElapsedPicker by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -79,6 +83,25 @@ fun EditWorkScreen(
             }
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = buildAnnotatedString {
+                    append("活動時間  ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(String.format("%02d:%02d", elapsedHour, elapsedMinute))
+                    }
+                },
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Button(onClick = { showElapsedPicker = true }) {
+                Text("入力")
+            }
+        }
+
         val context = LocalContext.current
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -98,7 +121,7 @@ fun EditWorkScreen(
 
             Button(
                 onClick = {
-                    val newElapsed = calculateElapsed(start, end)
+                    val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
                     onSave("$start:00", "$end:00", newElapsed)
                 },
                 modifier = Modifier.weight(1f)
@@ -129,18 +152,23 @@ fun EditWorkScreen(
             }
         )
     }
+
+    if (showElapsedPicker) {
+        MaterialTimePickerDialog(
+            initialTime = Pair(elapsedHour, elapsedMinute),
+            onDismiss = { showElapsedPicker = false },
+            onTimeSelected = { timeString ->
+                val (h, m) = timeString.split(":").map { it.toIntOrNull() ?: 0 }
+                elapsedHour = h
+                elapsedMinute = m
+                showElapsedPicker = false
+            },
+            showToggleIcon = false
+        )
+    }
 }
 
 fun parseTime(time: String): Pair<Int, Int> {
     val parts = time.split(":").mapNotNull { it.toIntOrNull() }
     return if (parts.size == 2) Pair(parts[0], parts[1]) else Pair(0, 0)
 }
-
-fun calculateElapsed(start: String, end: String): Int {
-    val format = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val startDate = format.parse(start)
-    val endDate = format.parse(end)
-    val diffMillis = endDate.time - startDate.time
-    return (diffMillis / 1000).toInt().coerceAtLeast(0)
-}
-

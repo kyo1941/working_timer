@@ -18,7 +18,8 @@ import androidx.compose.foundation.layout.Box
 fun MaterialTimePickerDialog(
     initialTime: Pair<Int, Int>,
     onDismiss: () -> Unit,
-    onTimeSelected: (String) -> Unit
+    onTimeSelected: (String) -> Unit,
+    showToggleIcon: Boolean = true
 ) {
     val state = rememberTimePickerState(
         initialHour = initialTime.first,
@@ -26,7 +27,8 @@ fun MaterialTimePickerDialog(
         is24Hour = true
     )
 
-    var isInputMode by remember { mutableStateOf(false) }
+    // 基本はPickerを初期値にするが，活動時間だけはInputにする
+    var isInputMode by remember { mutableStateOf(!showToggleIcon) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -57,25 +59,30 @@ fun MaterialTimePickerDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 左端：モード切り替えアイコン
-                    IconButton(onClick = { isInputMode = !isInputMode }) {
-                        Icon(
-                            imageVector = if (isInputMode) Icons.Filled.AccessTime else Icons.Filled.Keyboard,
-                            contentDescription = "モード切替"
-                        )
-                    }
-                    Row {
-                        // 右側：キャンセルボタン
-                        TextButton(onClick = onDismiss) {
-                            Text("キャンセル")
+                    if(showToggleIcon) {
+                        // 左端：モード切り替えアイコン
+                        IconButton(onClick = { isInputMode = !isInputMode }) {
+                            Icon(
+                                imageVector = if (isInputMode) Icons.Filled.AccessTime else Icons.Filled.Keyboard,
+                                contentDescription = "モード切替"
+                            )
                         }
-                        // OKボタン
-                        TextButton(onClick = {
-                            onTimeSelected(String.format("%02d:%02d", state.hour, state.minute))
-                        }) {
-                            Text("OK")
-                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(16.dp))
                     }
+                        Row {
+                            // 右側：キャンセルボタン
+                            TextButton(onClick = onDismiss) {
+                                Text("キャンセル")
+                            }
+                            // OKボタン
+                            TextButton(onClick = {
+                                onTimeSelected(String.format("%02d:%02d", state.hour, state.minute))
+                            }) {
+                                Text("OK")
+                            }
+                        }
+
                 }
             }
         },

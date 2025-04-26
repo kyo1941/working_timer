@@ -40,6 +40,8 @@ fun EditWorkScreen(
     var showEndPicker by remember { mutableStateOf(false) }
     var showElapsedPicker by remember { mutableStateOf(false) }
 
+    var showStartEndError by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(24.dp),
@@ -121,6 +123,12 @@ fun EditWorkScreen(
 
             Button(
                 onClick = {
+                    if(start > end) {
+                        showStartEndError = true
+                        return@Button
+                    }
+
+
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
                     onSave("$start:00", "$end:00", newElapsed)
                 },
@@ -164,6 +172,19 @@ fun EditWorkScreen(
                 showElapsedPicker = false
             },
             showToggleIcon = false
+        )
+    }
+
+    if(showStartEndError) {
+        AlertDialog(
+            onDismissRequest = { showStartEndError = false },
+            title = { Text("エラー") },
+            text = { Text("開始時刻が終了時刻を超えています。") },
+            confirmButton = {
+                TextButton(onClick = { showStartEndError = false }) {
+                    Text("OK")
+                }
+            }
         )
     }
 }

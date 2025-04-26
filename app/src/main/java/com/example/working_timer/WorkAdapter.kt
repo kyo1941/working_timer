@@ -17,8 +17,7 @@ class WorkAdapter(
             binding.endTime.text = "終了  ${work.end_time}"
             val h = work.elapsed_time / 3600
             val m = (work.elapsed_time % 3600) / 60
-            val s = work.elapsed_time % 60
-            binding.elapsedTime.text = "活動時間  %02d:%02d:%02d".format(h, m, s)
+            binding.elapsedTime.text = "活動時間  %02d:%02d".format(h, m)
 
             binding.deleteButton.setOnClickListener {
                 onDeleteClickListener(work)

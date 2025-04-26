@@ -90,9 +90,9 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             val minutes = ((rep_sec_time / 60) % 60).toInt()
             val seconds = (rep_sec_time % 60).toInt()
             val formattedTime = if (hours > 0) {
-                String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                String.format("%02d:%02d", hours, minutes)
             } else {
-                String.format("%02d:%02d", minutes, seconds)
+                String.format("%02d", minutes)
             }
 
             // AlertDialogを作成
@@ -112,14 +112,15 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 }
 
                 // YESボタンがクリックされた時の処理
-                val sdfTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
                 val endTime = sdfTime.format(Date())
+                val saveElapsedTime = (elapsedTime / 1000 / 60) * 60
 
                 val work = Work(
                     day = startDate,
                     start_time = startTime,
                     end_time = endTime,
-                    elapsed_time = (elapsedTime / 1000).toInt(),
+                    elapsed_time = saveElapsedTime.toInt(),
                     start_time_mills = startTimeMills,
                     end_time_mills = System.currentTimeMillis()
                 )

@@ -85,7 +85,7 @@ class TimerService : Service() {
         val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
         val formattedDate = sdfDate.format(startTimeCalendar.time) // 開始時の日付を取得
 
-        val sdfTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
         val formattedTime = sdfTime.format(startTimeCalendar.time) // 開始時の時間を取得
 
         // SharedPreferences に開始日を保存

@@ -119,7 +119,7 @@ class LogViewActivity : AppCompatActivity() {
                     val calendar = Calendar.getInstance()
 
                     calendar.timeInMillis = startDate
-                    var totalTime = 0
+                    var totalTime = 0L
 
                     while(calendar.timeInMillis <= endDate) {
                         val day = sdf.format(calendar.time)

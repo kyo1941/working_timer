@@ -41,6 +41,7 @@ fun EditWorkScreen(
     var showElapsedPicker by remember { mutableStateOf(false) }
 
     var showStartEndError by remember { mutableStateOf(false) }
+    var showElapsedTimeOver by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -132,7 +133,14 @@ fun EditWorkScreen(
                         return@Button
                     }
 
+                    val diff = ((endDate.time - startDate.time) / 1000).toInt()
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
+
+                    if(diff < newElapsed) {
+                        showElapsedTimeOver = true
+                        return@Button
+                    }
+
                     onSave("$start:00", "$end:00", newElapsed)
                 },
                 modifier = Modifier.weight(1f)
@@ -186,6 +194,28 @@ fun EditWorkScreen(
             confirmButton = {
                 TextButton(onClick = { showStartEndError = false }) {
                     Text("OK")
+                }
+            }
+        )
+    }
+
+    if(showElapsedTimeOver) {
+        AlertDialog(
+            onDismissRequest = { showElapsedTimeOver = false },
+            title = { Text("注意") },
+            text = { Text("活動時間が時間差より大きいです。\nこのまま保存しますか？") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showElapsedTimeOver = false
+                    val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
+                    onSave("$start:00", "$end:00", newElapsed)
+                }) {
+                    Text("保存")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showElapsedTimeOver = false }) {
+                    Text("キャンセル")
                 }
             }
         )

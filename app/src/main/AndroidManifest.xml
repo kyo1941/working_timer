@@ -20,11 +20,12 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
+        <activity android:name=".EditWorkActivity" />
+
         <service
             android:name=".TimerService"
             android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="specialUse" />
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

@@ -19,6 +19,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.text.buildSpannedString
+import androidx.core.text.scale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,11 +93,21 @@ fun EditWorkScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val baseFontSize = MaterialTheme.typography.headlineSmall.fontSize
             Text(
                 text = buildAnnotatedString {
                     append("活動時間  ")
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(String.format("%02d:%02d", elapsedHour, elapsedMinute))
+                        append(String.format("%2d", elapsedHour))
+                    }
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = baseFontSize * 0.7)) {
+                        append("時間 ")
+                    }
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(String.format("%2d", elapsedMinute))
+                    }
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = baseFontSize * 0.7)) {
+                        append("分")
                     }
                 },
                 style = MaterialTheme.typography.headlineSmall
@@ -141,7 +153,7 @@ fun EditWorkScreen(
                         return@Button
                     }
 
-                    onSave("$start:00", "$end:00", newElapsed)
+                    onSave(start, end, newElapsed)
                 },
                 modifier = Modifier.weight(1f)
             ) {
@@ -208,7 +220,7 @@ fun EditWorkScreen(
                 TextButton(onClick = {
                     showElapsedTimeOver = false
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
-                    onSave("$start:00", "$end:00", newElapsed)
+                    onSave(start, end, newElapsed)
                 }) {
                     Text("保存")
                 }

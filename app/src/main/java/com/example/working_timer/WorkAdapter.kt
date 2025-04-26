@@ -3,6 +3,8 @@ package com.example.working_timer
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.core.text.buildSpannedString
+import androidx.core.text.scale
 import com.example.working_timer.data.Work
 import com.example.working_timer.databinding.ItemWorkBinding
 
@@ -17,7 +19,13 @@ class WorkAdapter(
             binding.endTime.text = "終了  ${work.end_time}"
             val h = work.elapsed_time / 3600
             val m = (work.elapsed_time % 3600) / 60
-            binding.elapsedTime.text = "活動時間  %02d:%02d".format(h, m)
+            binding.elapsedTime.text = buildSpannedString {
+                append("活動時間  ")
+                append(String.format("%02d", h))
+                scale(0.7f) { append("時間 ") }
+                append(String.format("%02d", m))
+                scale(0.7f) { append("分") }
+            }
 
             binding.deleteButton.setOnClickListener {
                 onDeleteClickListener(work)

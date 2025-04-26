@@ -52,7 +52,7 @@ class EditWorkActivity : ComponentActivity() {
     }
 
     private fun timeStringToMillis(day: String, time: String): Long {
-        val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
         return sdf.parse("$day $time")?.time ?: 0L
     }
 }

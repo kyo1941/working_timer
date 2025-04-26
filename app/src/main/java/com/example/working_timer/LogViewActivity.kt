@@ -97,6 +97,7 @@ class LogViewActivity : AppCompatActivity() {
             loadWorkList(selectedDay)
         }
 
+        val sdf = java.text.SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
         sumButton.setOnClickListener {
             val constraintsBuilder = CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.now())
 
@@ -115,7 +116,6 @@ class LogViewActivity : AppCompatActivity() {
                     val database = AppDatabase.getDatabase(applicationContext)
                     val dao = database.workDao()
 
-                    val sdf = java.text.SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
                     val calendar = Calendar.getInstance()
 
                     calendar.timeInMillis = startDate

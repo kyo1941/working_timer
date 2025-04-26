@@ -90,9 +90,9 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             val minutes = ((rep_sec_time / 60) % 60).toInt()
             val seconds = (rep_sec_time % 60).toInt()
             val formattedTime = if (hours > 0) {
-                String.format("%02d時間 %02d分", hours, minutes)
+                String.format("%2d時間 %2d分", hours, minutes)
             } else {
-                String.format("%02d分", minutes)
+                String.format("%2d分", minutes)
             }
 
             // AlertDialogを作成

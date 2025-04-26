@@ -98,13 +98,13 @@ fun EditWorkScreen(
                 text = buildAnnotatedString {
                     append("活動時間  ")
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(String.format("%02d", elapsedHour))
+                        append(String.format("%2d", elapsedHour))
                     }
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = baseFontSize * 0.7)) {
                         append("時間 ")
                     }
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(String.format("%02d", elapsedMinute))
+                        append(String.format("%2d", elapsedMinute))
                     }
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = baseFontSize * 0.7)) {
                         append("分")

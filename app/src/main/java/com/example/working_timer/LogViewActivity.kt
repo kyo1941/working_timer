@@ -108,12 +108,8 @@ class LogViewActivity : AppCompatActivity() {
             dateRangePicker.show(supportFragmentManager, "date_range_picker")
 
             dateRangePicker.addOnPositiveButtonClickListener { selection ->
-                val startDate = selection.first
-                val endDate = selection.second
-
-                if(startDate == null || endDate == null) {
-                    return@addOnPositiveButtonClickListener
-                }
+                val startDate = selection.first ?: return@addOnPositiveButtonClickListener
+                val endDate = selection.second ?: return@addOnPositiveButtonClickListener
 
                 lifecycleScope.launch {
                     val database = AppDatabase.getDatabase(applicationContext)

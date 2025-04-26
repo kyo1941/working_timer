@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.working_timer.data.AppDatabase
 import kotlinx.coroutines.launch
 import java.util.Locale
+import java.util.Calendar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -114,6 +115,10 @@ class LogViewActivity : AppCompatActivity() {
                 true
             }
         }
+
+        val today = Calendar.getInstance()
+        selectedDay = String.format(Locale.getDefault(), "%04d/%02d/%02d", today.get(Calendar.YEAR), today.get(Calendar.MONTH) + 1, today.get(Calendar.DAY_OF_MONTH))
+        loadWorkList(selectedDay)
     }
 
     override fun onResume() {

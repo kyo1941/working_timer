@@ -4,6 +4,7 @@ import android.util.Log
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.CalendarView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.core.content.ContextCompat
 import com.example.working_timer.data.Work
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
 
 
 class LogViewActivity : AppCompatActivity() {
@@ -46,6 +50,8 @@ class LogViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_log_view)
+
+        val sumButton = findViewById<ImageButton>(R.id.sumButton)
 
         recyclerView = findViewById(R.id.workRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -89,6 +95,52 @@ class LogViewActivity : AppCompatActivity() {
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDay = String.format(Locale.getDefault(), "%04d/%02d/%02d", year, month + 1, dayOfMonth)
             loadWorkList(selectedDay)
+        }
+
+        val sdf = java.text.SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+        sumButton.setOnClickListener {
+            val constraintsBuilder = CalendarConstraints.Builder().setValidator(DateValidatorPointBackward.now())
+
+            val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
+                .setTitleText("計算する期間を選択してください")
+                .setCalendarConstraints(constraintsBuilder.build())
+                .build()
+
+            dateRangePicker.show(supportFragmentManager, "date_range_picker")
+
+            dateRangePicker.addOnPositiveButtonClickListener { selection ->
+                val startDate = selection.first ?: return@addOnPositiveButtonClickListener
+                val endDate = selection.second ?: return@addOnPositiveButtonClickListener
+
+                lifecycleScope.launch {
+                    val database = AppDatabase.getDatabase(applicationContext)
+                    val dao = database.workDao()
+
+                    val calendar = Calendar.getInstance()
+
+                    calendar.timeInMillis = startDate
+                    var totalTime = 0L
+
+                    while(calendar.timeInMillis <= endDate) {
+                        val day = sdf.format(calendar.time)
+                        val works = dao.getWorksByDay(day)
+
+                        for(work in works) {
+                            totalTime += work.elapsed_time
+                        }
+
+                        calendar.add(Calendar.DAY_OF_MONTH, 1)
+                    }
+
+                    val totalHours = totalTime / 3600
+                    val totalMinutes = (totalTime % 3600) / 60
+                    AlertDialog.Builder(this@LogViewActivity)
+                        .setTitle("合計時間")
+                        .setMessage("${totalHours}時間 ${totalMinutes}分")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
+            }
         }
 
 

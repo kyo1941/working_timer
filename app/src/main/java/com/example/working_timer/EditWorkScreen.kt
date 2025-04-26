@@ -123,11 +123,14 @@ fun EditWorkScreen(
 
             Button(
                 onClick = {
-                    if(start > end) {
+                    val format = SimpleDateFormat("HH:mm", Locale.getDefault())
+                    val startDate = format.parse(start)
+                    val endDate = format.parse(end)
+
+                    if(startDate.after(endDate)) {
                         showStartEndError = true
                         return@Button
                     }
-
 
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
                     onSave("$start:00", "$end:00", newElapsed)

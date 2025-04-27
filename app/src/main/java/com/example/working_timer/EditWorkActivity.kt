@@ -1,5 +1,6 @@
 package com.example.working_timer
 
+import android.database.sqlite.SQLiteException
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -68,8 +69,13 @@ class EditWorkActivity : ComponentActivity() {
                                     }
                                 } catch (e: Exception) {
                                     Log.e("EditWorkActivity", "Database update failed", e)
+                                    val errorMessage = when (e) {
+                                        is SQLiteException -> "データベースエラーが発生しました。"
+                                        is IllegalArgumentException -> "無効なデータが入力されました。"
+                                        else -> "予期しないエラーが発生しました。"
+                                    }
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("更新に失敗しました")
+                                        snackbarHostState.showSnackbar(errorMessage)
                                     }
                                 }
                             }

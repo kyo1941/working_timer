@@ -41,6 +41,7 @@ class EditWorkActivity : ComponentActivity() {
                         startTime = startTime,
                         endTime = endTime,
                         elapsedTime = elapsedTime,
+                        isNew = isNew,
                         onSave = { newStart, newEnd, newElapsed ->
                             lifecycleScope.launch {
                                 try {

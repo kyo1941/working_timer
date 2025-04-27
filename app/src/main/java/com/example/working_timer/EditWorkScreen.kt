@@ -31,6 +31,7 @@ fun EditWorkScreen(
     startTime: String,
     endTime: String,
     elapsedTime: Int,
+    isNew: Boolean,
     onSave: (String, String, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -51,6 +52,16 @@ fun EditWorkScreen(
         .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        val context = LocalContext.current
+        Text (
+            text = context.getString(if(isNew) R.string.new_record else R.string.edit_record),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -118,7 +129,8 @@ fun EditWorkScreen(
             }
         }
 
-        val context = LocalContext.current
+        Spacer(modifier = Modifier.height(16.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -133,7 +145,7 @@ fun EditWorkScreen(
                 Text("キャンセル")
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(24.dp))
 
             Button(
                 onClick = {

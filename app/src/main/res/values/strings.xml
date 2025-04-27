@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">労働記録</string>
+    <string name="new_record">新規作成</string>
+    <string name="edit_record">記録を編集</string>
 </resources>

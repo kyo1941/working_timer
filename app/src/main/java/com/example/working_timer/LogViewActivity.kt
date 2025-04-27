@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.CalendarView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.mutableStateOf
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.lifecycle.lifecycleScope
 import com.example.working_timer.data.AppDatabase
@@ -51,6 +52,7 @@ class LogViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_log_view)
 
+        val addButton = findViewById<ImageButton>(R.id.addButton)
         val sumButton = findViewById<ImageButton>(R.id.sumButton)
 
         recyclerView = findViewById(R.id.workRecyclerView)
@@ -143,6 +145,17 @@ class LogViewActivity : AppCompatActivity() {
             }
         }
 
+        addButton.setOnClickListener {
+            val intent = Intent(this, EditWorkActivity::class.java).apply {
+                putExtra("is_new", true)
+                putExtra("id", 0)
+                putExtra("day", selectedDay)
+                putExtra("start_time", "00:00")
+                putExtra("end_time", "00:00")
+                putExtra("elapsed_time", 0)
+            }
+            startActivity(intent)
+        }
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.navigation_log

@@ -31,7 +31,8 @@ fun EditWorkScreen(
     startTime: String,
     endTime: String,
     elapsedTime: Int,
-    onSave: (String, String, Int) -> Unit
+    onSave: (String, String, Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var start by remember { mutableStateOf(startTime) }
     var end by remember { mutableStateOf(endTime) }

@@ -1,8 +1,10 @@
 package com.example.working_timer
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,34 +27,42 @@ class EditWorkActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                EditWorkScreen(
-                    id = id,
-                    day = day,
-                    startTime = startTime,
-                    endTime = endTime,
-                    elapsedTime = elapsedTime,
-                    onSave = { newStart, newEnd, newElapsed ->
-                        lifecycleScope.launch {
-                            val dao = AppDatabase.getDatabase(applicationContext).workDao()
-                            dao.updateWork(
-                                id = id,
-                                day = day,
-                                startTime = newStart,
-                                endTime = newEnd,
-                                elapsedTime = newElapsed,
-                                startMills = timeStringToMillis(day, newStart),
-                                endMills = timeStringToMillis(day, newEnd)
-                            )
-                            finish()
-                        }
-                    }
-                )
+                val snackbarHostState = remember { SnackbarHostState() }
+                val scope = rememberCoroutineScope()
+
+                Scaffold(
+                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+                ) { paddingValues ->
+                    EditWorkScreen(
+                        id = id,
+                        day = day,
+                        startTime = startTime,
+                        endTime = endTime,
+                        elapsedTime = elapsedTime,
+                        onSave = { newStart, newEnd, newElapsed ->
+                            try {
+                                lifecycleScope.launch {
+                                    val dao = AppDatabase.getDatabase(applicationContext).workDao()
+                                    dao.updateWork(
+                                        id = id,
+                                        day = day,
+                                        startTime = newStart,
+                                        endTime = newEnd,
+                                        elapsedTime = newElapsed
+                                    )
+                                    finish()
+                                }
+                            } catch (e: Exception) {
+                                Log.e("EditWorkActivity", "Database update failed", e)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("更新に失敗しました")
+                                }
+                            }
+                        },
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                }
             }
         }
-    }
-
-    private fun timeStringToMillis(day: String, time: String): Long {
-        val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
-        return sdf.parse("$day $time")?.time ?: 0L
     }
 }

@@ -52,8 +52,9 @@ fun EditWorkScreen(
         .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        val context = LocalContext.current
         Text (
-            text = if(isNew) "新規作成" else "記録を編集",
+            text = context.getString(if(isNew) R.string.new_record else R.string.edit_record),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -130,7 +131,6 @@ fun EditWorkScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val context = LocalContext.current
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,

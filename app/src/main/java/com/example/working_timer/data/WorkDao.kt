@@ -4,6 +4,7 @@ package com.example.working_timer.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,19 +21,6 @@ interface WorkDao {
     @Query("DELETE FROM works WHERE id = :id")
     suspend fun delete(id: Int)
 
-    @Query("""
-    UPDATE works SET 
-        day = :day,
-        start_time = :startTime,
-        end_time = :endTime,
-        elapsed_time = :elapsedTime
-    WHERE id = :id
-    """)
-    suspend fun updateWork(
-        id: Int,
-        day: String,
-        startTime: String,
-        endTime: String,
-        elapsedTime: Int
-    )
+    @Update
+    suspend fun update(work: Work)
 }

@@ -25,7 +25,6 @@ class TimerService : Service() {
     private var elapsedTime: Long = 0
     private var startDate: String? = null
     private var startTimeString: String? = null
-    private var startTimeMills: Long = 0
     private var isRunning = false
     private val handler = Handler(Looper.getMainLooper())
 
@@ -42,7 +41,6 @@ class TimerService : Service() {
     private val PREFS_NAME = "TimerPrefs"
     private val START_DATE_KEY = "startDate"
     private val START_TIME_STRING_KEY = "startTimeString"
-    private val START_TIME_MILLS_KEY = "startTimeMills"
     private val ELAPSED_TIME_KEY = "elapsedTime"
 
     private var startTimeCalendar: Calendar = Calendar.getInstance() // タイマー開始時の日付を保持
@@ -60,7 +58,6 @@ class TimerService : Service() {
         elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
         startTimeString = prefs.getString(START_TIME_STRING_KEY, "")
         startDate = prefs.getString(START_DATE_KEY, "")
-        startTimeMills = prefs.getLong(START_TIME_MILLS_KEY, 0L)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -94,7 +91,6 @@ class TimerService : Service() {
         editor.putString(START_DATE_KEY, formattedDate)
         editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
         editor.putString(START_TIME_STRING_KEY, formattedTime)
-        editor.putLong(START_TIME_MILLS_KEY, System.currentTimeMillis())
         editor.apply()
 
         handler.postDelayed(runnable, 0)
@@ -113,7 +109,6 @@ class TimerService : Service() {
         editor.remove(START_DATE_KEY)
         editor.remove(ELAPSED_TIME_KEY)
         editor.remove(START_TIME_STRING_KEY)
-        editor.remove(START_TIME_MILLS_KEY)
         editor.apply()
     }
 

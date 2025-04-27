@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     private val PREFS_NAME = "TimerPrefs"
     private val START_DATE_KEY = "startDate"
     private val START_TIME_STRING_KEY = "startTimeString"
-    private val START_TIME_MILLS_KEY = "startTimeMills"
     private val ELAPSED_TIME_KEY = "elapsedTime"
 
     private val connection = object : ServiceConnection {
@@ -81,7 +80,6 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
             val startDate = prefs.getString(START_DATE_KEY, "")
             val startTime = prefs.getString(START_TIME_STRING_KEY, "")
-            val startTimeMills = prefs.getLong(START_TIME_MILLS_KEY, 0L)
 
 
             // 経過時間を表示形式に変換
@@ -120,9 +118,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                     day = startDate,
                     start_time = startTime,
                     end_time = endTime,
-                    elapsed_time = saveElapsedTime.toInt(),
-                    start_time_mills = startTimeMills,
-                    end_time_mills = System.currentTimeMillis()
+                    elapsed_time = saveElapsedTime.toInt()
                 )
 
                 Log.d("MainActivity", "Work created: $work")

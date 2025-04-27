@@ -25,9 +25,7 @@ interface WorkDao {
         day = :day,
         start_time = :startTime,
         end_time = :endTime,
-        elapsed_time = :elapsedTime,
-        start_time_mills = :startMills,
-        end_time_mills = :endMills
+        elapsed_time = :elapsedTime
     WHERE id = :id
     """)
     suspend fun updateWork(
@@ -35,8 +33,6 @@ interface WorkDao {
         day: String,
         startTime: String,
         endTime: String,
-        elapsedTime: Int,
-        startMills: Long,
-        endMills: Long
+        elapsedTime: Int
     )
 }

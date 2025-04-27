@@ -39,9 +39,7 @@ class EditWorkActivity : ComponentActivity() {
                                 day = day,
                                 startTime = newStart,
                                 endTime = newEnd,
-                                elapsedTime = newElapsed,
-                                startMills = timeStringToMillis(day, newStart),
-                                endMills = timeStringToMillis(day, newEnd)
+                                elapsedTime = newElapsed
                             )
                             finish()
                         }
@@ -49,10 +47,5 @@ class EditWorkActivity : ComponentActivity() {
                 )
             }
         }
-    }
-
-    private fun timeStringToMillis(day: String, time: String): Long {
-        val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
-        return sdf.parse("$day $time")?.time ?: 0L
     }
 }

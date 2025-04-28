@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 data class Work (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,    // 値そのものが意味を持つものを主キーにしない
-    val day: String,
+    val start_day: String,
+    val end_day: String,
     val start_time: String,
     val end_time: String,
     val elapsed_time: Int

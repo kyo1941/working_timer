@@ -50,7 +50,8 @@ class EditWorkActivity : ComponentActivity() {
                                     if(!isNew) {
                                         val work = Work(
                                             id = id,
-                                            day = day,
+                                            start_day = day,
+                                            end_day = day,
                                             start_time = newStart,
                                             end_time = newEnd,
                                             elapsed_time = newElapsed
@@ -59,7 +60,8 @@ class EditWorkActivity : ComponentActivity() {
                                         finish()
                                     } else {
                                         val work = Work(
-                                            day = day,
+                                            start_day = day,
+                                            end_day = day,
                                             start_time = newStart,
                                             end_time = newEnd,
                                             elapsed_time = newElapsed

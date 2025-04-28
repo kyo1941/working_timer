@@ -75,7 +75,7 @@ class LogViewActivity : AppCompatActivity() {
                             val dao = AppDatabase.getDatabase(applicationContext).workDao()
                             dao.delete(work.id)
 
-                            val updatedWorks = dao.getWorksByDay(work.day)
+                            val updatedWorks = dao.getWorksByDay(work.start_day)
                             adapter.updateData(updatedWorks)
                         }
                     }
@@ -84,7 +84,8 @@ class LogViewActivity : AppCompatActivity() {
             onEditClickListener = { work ->
                 val intent = Intent(this, EditWorkActivity::class.java).apply {
                     putExtra("id", work.id)
-                    putExtra("day", work.day)
+                    putExtra("start_day", work.start_day)
+                    putExtra("end_day", work.end_day)
                     putExtra("start_time", work.start_time)
                     putExtra("end_time", work.end_time)
                     putExtra("elapsed_time", work.elapsed_time)
@@ -149,7 +150,7 @@ class LogViewActivity : AppCompatActivity() {
             val intent = Intent(this, EditWorkActivity::class.java).apply {
                 putExtra("is_new", true)
                 putExtra("id", 0)
-                putExtra("day", selectedDay)
+                putExtra("start_day", selectedDay)
                 putExtra("start_time", "00:00")
                 putExtra("end_time", "00:00")
                 putExtra("elapsed_time", 0)

@@ -23,7 +23,8 @@ class EditWorkActivity : ComponentActivity() {
 
         val isNew = intent.getBooleanExtra("is_new", false)
         val id = intent.getIntExtra("id", 0)
-        val day = intent.getStringExtra("day") ?: ""
+        val startDay = intent.getStringExtra("start_day") ?: ""
+        val endDay = intent.getStringExtra("end_day") ?: ""
         val startTime = intent.getStringExtra("start_time")?.substring(0, 5) ?: "00:00"
         val endTime = intent.getStringExtra("end_time")?.substring(0, 5) ?: "00:00"
         val elapsedTime = intent.getIntExtra("elapsed_time", 0)
@@ -38,30 +39,33 @@ class EditWorkActivity : ComponentActivity() {
                 ) { paddingValues ->
                     EditWorkScreen(
                         id = id,
-                        day = day,
+                        startDay = startDay,
+                        endDay = endDay,
                         startTime = startTime,
                         endTime = endTime,
                         elapsedTime = elapsedTime,
                         isNew = isNew,
-                        onSave = { newStart, newEnd, newElapsed ->
+                        onSave = { newStartDay, newStartTime, newEndDay, newEndTime, newElapsed ->
                             lifecycleScope.launch {
                                 try {
                                     val dao = AppDatabase.getDatabase(applicationContext).workDao()
                                     if(!isNew) {
                                         val work = Work(
                                             id = id,
-                                            day = day,
-                                            start_time = newStart,
-                                            end_time = newEnd,
+                                            start_day = newStartDay,
+                                            start_time = newStartTime,
+                                            end_day = newEndDay,
+                                            end_time = newEndTime,
                                             elapsed_time = newElapsed
                                         )
                                         dao.update(work)
                                         finish()
                                     } else {
                                         val work = Work(
-                                            day = day,
-                                            start_time = newStart,
-                                            end_time = newEnd,
+                                            start_day = newStartDay,
+                                            start_time = newStartTime,
+                                            end_day = newEndDay,
+                                            end_time = newEndTime,
                                             elapsed_time = newElapsed
                                         )
                                         dao.insert(work)

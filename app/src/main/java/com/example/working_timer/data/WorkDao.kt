@@ -12,7 +12,7 @@ interface WorkDao {
     @Query("SELECT * from works WHERE id = :id")
     fun getWork(id: Int): Flow<Work>
 
-    @Query("SELECT * from works WHERE day = :day")
+    @Query("SELECT * from works WHERE start_day = :day")
     suspend fun getWorksByDay(day: String): List<Work>
 
     @Insert

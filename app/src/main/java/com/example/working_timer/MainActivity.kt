@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.working_timer.data.WorkDao
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.Calendar
 import java.util.Locale
 
 class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
@@ -35,6 +36,8 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     private var isBound = false
 
     private var transitionToLogView = false
+
+    private var endTimeCalendar: Calendar = Calendar.getInstance()
 
     private val PREFS_NAME = "TimerPrefs"
     private val START_DATE_KEY = "startDate"
@@ -110,12 +113,17 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 }
 
                 // YESボタンがクリックされた時の処理
+                endTimeCalendar = Calendar.getInstance()
+                val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+                val endDate = sdfDate.format(endTimeCalendar.time)
+
                 val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
                 val endTime = sdfTime.format(Date())
                 val saveElapsedTime = (elapsedTime / 1000 / 60) * 60
 
                 val work = Work(
-                    day = startDate,
+                    start_day = startDate,
+                    end_day = endDate,
                     start_time = startTime,
                     end_time = endTime,
                     elapsed_time = saveElapsedTime.toInt()

@@ -189,16 +189,21 @@ fun EditWorkScreen(
 
             Button(
                 onClick = {
-                    val format = SimpleDateFormat("HH:mm", Locale.getDefault())
-                    val startDate = format.parse(startTime)
-                    val endDate = format.parse(endTime)
+                    val dateTimeFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
+                    val startDateTime = dateTimeFormat.parse("$startDay $startTime")?.time
+                    val endDateTime = dateTimeFormat.parse("$endDay $endTime")?.time
 
-                    if(startDate.after(endDate)) {
+                    if (startDateTime == null || endDateTime == null) {
                         showStartEndError = true
                         return@Button
                     }
 
-                    val diff = ((endDate.time - startDate.time) / 1000).toInt()
+                    if (startDateTime > endDateTime) {
+                        showStartEndError = true
+                        return@Button
+                    }
+
+                    val diff = ((endDateTime - startDateTime) / 1000).toInt()
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
 
                     if(diff < newElapsed) {

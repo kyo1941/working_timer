@@ -23,7 +23,8 @@ class EditWorkActivity : ComponentActivity() {
 
         val isNew = intent.getBooleanExtra("is_new", false)
         val id = intent.getIntExtra("id", 0)
-        val day = intent.getStringExtra("day") ?: ""
+        val startDay = intent.getStringExtra("start_day") ?: ""
+        val endDay = intent.getStringExtra("end_day") ?: ""
         val startTime = intent.getStringExtra("start_time")?.substring(0, 5) ?: "00:00"
         val endTime = intent.getStringExtra("end_time")?.substring(0, 5) ?: "00:00"
         val elapsedTime = intent.getIntExtra("elapsed_time", 0)
@@ -38,7 +39,8 @@ class EditWorkActivity : ComponentActivity() {
                 ) { paddingValues ->
                     EditWorkScreen(
                         id = id,
-                        day = day,
+                        startDay = startDay,
+                        endDay = endDay,
                         startTime = startTime,
                         endTime = endTime,
                         elapsedTime = elapsedTime,
@@ -50,8 +52,8 @@ class EditWorkActivity : ComponentActivity() {
                                     if(!isNew) {
                                         val work = Work(
                                             id = id,
-                                            start_day = day,
-                                            end_day = day,
+                                            start_day = startDay,
+                                            end_day = endDay,
                                             start_time = newStart,
                                             end_time = newEnd,
                                             elapsed_time = newElapsed
@@ -60,8 +62,8 @@ class EditWorkActivity : ComponentActivity() {
                                         finish()
                                     } else {
                                         val work = Work(
-                                            start_day = day,
-                                            end_day = day,
+                                            start_day = startDay,
+                                            end_day = endDay,
                                             start_time = newStart,
                                             end_time = newEnd,
                                             elapsed_time = newElapsed

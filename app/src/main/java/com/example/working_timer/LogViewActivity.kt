@@ -23,6 +23,7 @@ import com.example.working_timer.data.Work
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
+import java.text.SimpleDateFormat
 
 
 class LogViewActivity : AppCompatActivity() {
@@ -151,6 +152,7 @@ class LogViewActivity : AppCompatActivity() {
                 putExtra("is_new", true)
                 putExtra("id", 0)
                 putExtra("start_day", selectedDay)
+                putExtra("end_day", selectedDay)
                 putExtra("start_time", "00:00")
                 putExtra("end_time", "00:00")
                 putExtra("elapsed_time", 0)

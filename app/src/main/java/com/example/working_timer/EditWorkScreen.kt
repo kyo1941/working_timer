@@ -13,6 +13,9 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -27,7 +30,8 @@ import androidx.core.text.scale
 @Composable
 fun EditWorkScreen(
     id: Int,
-    day: String,
+    startDay: String,
+    endDay: String,
     startTime: String,
     endTime: String,
     elapsedTime: Int,
@@ -35,13 +39,18 @@ fun EditWorkScreen(
     onSave: (String, String, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var start by remember { mutableStateOf(startTime) }
-    var end by remember { mutableStateOf(endTime) }
+    var startDay by remember { mutableStateOf(startDay) }
+    var endDay by remember { mutableStateOf(endDay) }
+    var startTime by remember { mutableStateOf(startTime) }
+    var endTime by remember { mutableStateOf(endTime) }
     var elapsedHour by remember { mutableStateOf(elapsedTime / 3600) }
     var elapsedMinute by remember { mutableStateOf((elapsedTime % 3600) / 60) }
 
-    var showStartPicker by remember { mutableStateOf(false) }
-    var showEndPicker by remember { mutableStateOf(false) }
+    var showStartTimePicker by remember { mutableStateOf(false) }
+    var showStartDayPicker by remember { mutableStateOf(false) }
+    var showEndTimePicker by remember { mutableStateOf(false) }
+    var showEndDayPicker by remember { mutableStateOf(false) }
+
     var showElapsedPicker by remember { mutableStateOf(false) }
 
     var showStartEndError by remember { mutableStateOf(false) }
@@ -62,70 +71,104 @@ fun EditWorkScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = buildAnnotatedString {
-                    append("開始時刻  ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(start)
-                    }
-                },
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Button(onClick = { showStartPicker = true }) {
-                Text("入力")
-            }
-        }
+        Text("開始")
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = buildAnnotatedString {
-                    append("終了時刻  ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(end)
-                    }
-                },
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Button(onClick = { showEndPicker = true }) {
-                Text("入力")
+            TextButton(onClick = { showStartDayPicker = true }) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(formatMonthDay(startDay))
+                        }
+                    },
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        textDecoration = TextDecoration.Underline,
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.width(32.dp))
+            TextButton(onClick = { showStartTimePicker = true }) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(startTime)
+                        }
+                    },
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        textDecoration = TextDecoration.Underline,
+                        textAlign = TextAlign.Center
+                    )
+                )
             }
         }
 
+        Text("終了")
+
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = { showEndDayPicker = true }) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(formatMonthDay(endDay))
+                        }
+                    },
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        textDecoration = TextDecoration.Underline,
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.width(32.dp))
+            TextButton(onClick = { showEndTimePicker = true }) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(endTime)
+                        }
+                    },
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        textDecoration = TextDecoration.Underline,
+                        textAlign = TextAlign.Center
+                    )
+                )
+            }
+        }
+
+        Text("活動時間")
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             val baseFontSize = MaterialTheme.typography.headlineSmall.fontSize
-            Text(
-                text = buildAnnotatedString {
-                    append("活動時間  ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(String.format("%2d", elapsedHour))
-                    }
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = baseFontSize * 0.7)) {
-                        append("時間 ")
-                    }
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(String.format("%2d", elapsedMinute))
-                    }
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = baseFontSize * 0.7)) {
-                        append("分")
-                    }
-                },
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Button(onClick = { showElapsedPicker = true }) {
-                Text("入力")
+            TextButton(onClick = { showElapsedPicker = true }) {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(String.format("%2d", elapsedHour))
+                        }
+                        append(" 時間 ")
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(String.format("%2d", elapsedMinute))
+                        }
+                        append(" 分")
+                    },
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        textDecoration = TextDecoration.Underline,
+                        textAlign = TextAlign.Center
+                    )
+                )
+
             }
         }
 
@@ -150,8 +193,8 @@ fun EditWorkScreen(
             Button(
                 onClick = {
                     val format = SimpleDateFormat("HH:mm", Locale.getDefault())
-                    val startDate = format.parse(start)
-                    val endDate = format.parse(end)
+                    val startDate = format.parse(startTime)
+                    val endDate = format.parse(endTime)
 
                     if(startDate.after(endDate)) {
                         showStartEndError = true
@@ -166,7 +209,7 @@ fun EditWorkScreen(
                         return@Button
                     }
 
-                    onSave(start, end, newElapsed)
+                    onSave(startTime, endTime, newElapsed)
                 },
                 modifier = Modifier.weight(1f)
             ) {
@@ -175,26 +218,34 @@ fun EditWorkScreen(
         }
     }
 
-    if (showStartPicker) {
+    if (showStartTimePicker) {
         MaterialTimePickerDialog(
-            initialTime = parseTime(start),
-            onDismiss = { showStartPicker = false },
+            initialTime = parseTime(startTime),
+            onDismiss = { showStartTimePicker = false },
             onTimeSelected = {
-                start = it
-                showStartPicker = false
+                startTime = it
+                showStartTimePicker = false
             }
         )
     }
 
-    if (showEndPicker) {
+    if (showEndTimePicker) {
         MaterialTimePickerDialog(
-            initialTime = parseTime(end),
-            onDismiss = { showEndPicker = false },
+            initialTime = parseTime(endTime),
+            onDismiss = { showEndTimePicker = false },
             onTimeSelected = {
-                end = it
-                showEndPicker = false
+                endTime = it
+                showEndTimePicker = false
             }
         )
+    }
+
+    if (showStartDayPicker) {
+
+    }
+
+    if (showEndDayPicker) {
+
     }
 
     if (showElapsedPicker) {
@@ -233,7 +284,7 @@ fun EditWorkScreen(
                 TextButton(onClick = {
                     showElapsedTimeOver = false
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
-                    onSave(start, end, newElapsed)
+                    onSave(startTime, endTime, newElapsed)
                 }) {
                     Text("保存")
                 }
@@ -250,4 +301,15 @@ fun EditWorkScreen(
 fun parseTime(time: String): Pair<Int, Int> {
     val parts = time.split(":").mapNotNull { it.toIntOrNull() }
     return if (parts.size == 2) Pair(parts[0], parts[1]) else Pair(0, 0)
+}
+
+fun formatMonthDay(fullDate: String): String {
+    return try {
+        val inputFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("M/d", Locale.getDefault())
+        val date = inputFormat.parse(fullDate)
+        outputFormat.format(date)
+    } catch (e: Exception) {
+        fullDate
+    }
 }

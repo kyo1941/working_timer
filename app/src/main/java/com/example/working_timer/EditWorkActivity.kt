@@ -45,27 +45,27 @@ class EditWorkActivity : ComponentActivity() {
                         endTime = endTime,
                         elapsedTime = elapsedTime,
                         isNew = isNew,
-                        onSave = { newStart, newEnd, newElapsed ->
+                        onSave = { newStartDay, newStartTime, newEndDay, newEndTime, newElapsed ->
                             lifecycleScope.launch {
                                 try {
                                     val dao = AppDatabase.getDatabase(applicationContext).workDao()
                                     if(!isNew) {
                                         val work = Work(
                                             id = id,
-                                            start_day = startDay,
-                                            end_day = endDay,
-                                            start_time = newStart,
-                                            end_time = newEnd,
+                                            start_day = newStartDay,
+                                            start_time = newStartTime,
+                                            end_day = newEndDay,
+                                            end_time = newEndTime,
                                             elapsed_time = newElapsed
                                         )
                                         dao.update(work)
                                         finish()
                                     } else {
                                         val work = Work(
-                                            start_day = startDay,
-                                            end_day = endDay,
-                                            start_time = newStart,
-                                            end_time = newEnd,
+                                            start_day = newStartDay,
+                                            start_time = newStartTime,
+                                            end_day = newEndDay,
+                                            end_time = newEndTime,
                                             elapsed_time = newElapsed
                                         )
                                         dao.insert(work)

@@ -1,5 +1,6 @@
 package com.example.working_timer
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -13,17 +14,13 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.core.text.buildSpannedString
-import androidx.core.text.scale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +33,7 @@ fun EditWorkScreen(
     endTime: String,
     elapsedTime: Int,
     isNew: Boolean,
-    onSave: (String, String, Int) -> Unit,
+    onSave: (String, String, String, String, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var startDay by remember { mutableStateOf(startDay) }
@@ -209,7 +206,7 @@ fun EditWorkScreen(
                         return@Button
                     }
 
-                    onSave(startTime, endTime, newElapsed)
+                    onSave(startDay, startTime, endDay, endTime, newElapsed)
                 },
                 modifier = Modifier.weight(1f)
             ) {
@@ -241,11 +238,25 @@ fun EditWorkScreen(
     }
 
     if (showStartDayPicker) {
-
+        DatePickerModal(
+            initialDate = startDay,
+            onDateSelected = {
+                startDay = it
+                showStartDayPicker = false
+            },
+            onDismiss = { showStartDayPicker = false }
+        )
     }
 
     if (showEndDayPicker) {
-
+        DatePickerModal(
+            initialDate = endDay,
+            onDateSelected = {
+                endDay = it
+                showEndDayPicker = false
+            },
+            onDismiss = { showEndDayPicker = false }
+        )
     }
 
     if (showElapsedPicker) {
@@ -284,7 +295,7 @@ fun EditWorkScreen(
                 TextButton(onClick = {
                     showElapsedTimeOver = false
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
-                    onSave(startTime, endTime, newElapsed)
+                    onSave(startDay, startTime, endDay, endTime, newElapsed)
                 }) {
                     Text("保存")
                 }

@@ -19,10 +19,13 @@ class WorkAdapter(
             binding.endTime.text = "終了  ${work.end_time}"
             val h = work.elapsed_time / 3600
             val m = (work.elapsed_time % 3600) / 60
+
             binding.elapsedTime.text = buildSpannedString {
                 append("活動時間  ")
-                append(String.format("%2d", h))
-                scale(0.7f) { append("時間 ") }
+                if (h > 0) {
+                    append(String.format("%2d", h))
+                    scale(0.7f) { append("時間 ") }
+                }
                 append(String.format("%2d", m))
                 scale(0.7f) { append("分") }
             }

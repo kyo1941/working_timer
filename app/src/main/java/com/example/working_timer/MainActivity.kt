@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 if (elapsedTime < 60000) {
                     AlertDialog.Builder(this)
                         .setTitle("注意")
-                        .setMessage("1分未満の作業は保存できません。\n再開するか破棄するか選択してください。")
+                        .setMessage("1分未満の作業は保存できません。\n再開または破棄を選択してください。")
                         .setPositiveButton("再開") { _, _ ->
                             timerService?.resumeTimer()
                             updateUI()

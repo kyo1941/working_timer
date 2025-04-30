@@ -121,6 +121,22 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 val endTime = sdfTime.format(Date())
                 val saveElapsedTime = (elapsedTime / 1000 / 60) * 60
 
+                if (elapsedTime < 60000) {
+                    AlertDialog.Builder(this)
+                        .setTitle("注意")
+                        .setMessage("1分未満の作業は保存できません。\n再開するか破棄するか選択してください。")
+                        .setPositiveButton("再開") { _, _ ->
+                            timerService?.resumeTimer()
+                            updateUI()
+                        }
+                        .setNegativeButton("破棄") { _, _ ->
+                            timerService?.stopTimer()
+                            updateUI()
+                        }
+                        .show()
+                    return@setPositiveButton
+                }
+
                 val work = Work(
                     start_day = startDate,
                     end_day = endDate,

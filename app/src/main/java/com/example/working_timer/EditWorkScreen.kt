@@ -63,7 +63,9 @@ fun EditWorkScreen(
             text = context.getString(if(isNew) R.string.new_record else R.string.edit_record),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -150,15 +152,24 @@ fun EditWorkScreen(
             val baseFontSize = MaterialTheme.typography.headlineSmall.fontSize
             TextButton(onClick = { showElapsedPicker = true }) {
                 Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(String.format("%2d", elapsedHour))
+                    text = if(elapsedHour > 0) {
+                        buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(String.format("%2d", elapsedHour))
+                            }
+                            append(" 時間 ")
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(String.format("%2d", elapsedMinute))
+                            }
+                            append(" 分")
                         }
-                        append(" 時間 ")
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(String.format("%2d", elapsedMinute))
+                    } else {
+                        buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(String.format("%2d", elapsedMinute))
+                            }
+                            append(" 分")
                         }
-                        append(" 分")
                     },
                     style = MaterialTheme.typography.headlineSmall.copy(
                         textDecoration = TextDecoration.Underline,

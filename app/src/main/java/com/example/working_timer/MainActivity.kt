@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 今回の作業記録を保存しますか？
             """.trimIndent())
 
-            bulider.setPositiveButton("はい") { dialog, which ->
+            bulider.setPositiveButton("保存") { dialog, which ->
                 if (startDate == null || startTime == null) {
                     // 画面に「正しく表示できなかった旨」を伝えたい
                     return@setPositiveButton
@@ -120,6 +120,22 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
                 val endTime = sdfTime.format(Date())
                 val saveElapsedTime = (elapsedTime / 1000 / 60) * 60
+
+                if (elapsedTime < 60000) {
+                    AlertDialog.Builder(this)
+                        .setTitle("注意")
+                        .setMessage("1分未満の作業は保存できません。\n再開または破棄を選択してください。")
+                        .setPositiveButton("再開") { _, _ ->
+                            timerService?.resumeTimer()
+                            updateUI()
+                        }
+                        .setNegativeButton("破棄") { _, _ ->
+                            timerService?.stopTimer()
+                            updateUI()
+                        }
+                        .show()
+                    return@setPositiveButton
+                }
 
                 val work = Work(
                     start_day = startDate,
@@ -149,13 +165,13 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 overridePendingTransition(0, 0)
             }
 
-            bulider.setNeutralButton("記録を再開") { dialog, which ->
+            bulider.setNeutralButton("再開") { dialog, which ->
                 // 中断ボタンがクリックされた時の処理
                 timerService?.resumeTimer()
                 updateUI()
             }
 
-            bulider.setNegativeButton("いいえ") { dialog, which ->
+            bulider.setNegativeButton("破棄") { dialog, which ->
                 // NOボタンがクリックされた時の処理
                 timerService?.stopTimer()
                 updateUI()

@@ -140,7 +140,7 @@ class LogViewActivity : AppCompatActivity() {
                     val totalMinutes = (totalTime % 3600) / 60
                     AlertDialog.Builder(this@LogViewActivity)
                         .setTitle("合計時間")
-                        .setMessage(if(totalHours > 0) "${totalHours}時間 ${totalMinutes}分" else "${totalMinutes}分")
+                        .setMessage(if (totalHours > 0) "${totalHours}時間 ${totalMinutes}分" else "${totalMinutes}分")
                         .setPositiveButton("OK", null)
                         .show()
                 }

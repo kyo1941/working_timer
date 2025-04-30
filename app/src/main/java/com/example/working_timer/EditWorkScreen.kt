@@ -152,24 +152,17 @@ fun EditWorkScreen(
             val baseFontSize = MaterialTheme.typography.headlineSmall.fontSize
             TextButton(onClick = { showElapsedPicker = true }) {
                 Text(
-                    text = if(elapsedHour > 0) {
-                        buildAnnotatedString {
+                    text = buildAnnotatedString {
+                        if (elapsedHour > 0) {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append(String.format("%2d", elapsedHour))
                             }
                             append(" 時間 ")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(String.format("%2d", elapsedMinute))
-                            }
-                            append(" 分")
                         }
-                    } else {
-                        buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(String.format("%2d", elapsedMinute))
-                            }
-                            append(" 分")
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(String.format("%2d", elapsedMinute))
                         }
+                        append(" 分")
                     },
                     style = MaterialTheme.typography.headlineSmall.copy(
                         textDecoration = TextDecoration.Underline,

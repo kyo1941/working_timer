@@ -66,7 +66,6 @@ class TimerService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder {
-        startForegroundService()
         return binder
     }
 
@@ -89,6 +88,8 @@ class TimerService : Service() {
         editor.putString(START_TIME_STRING_KEY, formattedTime)
         editor.apply()
 
+        startForegroundService()
+
         handler.postDelayed(runnable, 0)
     }
 
@@ -106,6 +107,8 @@ class TimerService : Service() {
         editor.remove(ELAPSED_TIME_KEY)
         editor.remove(START_TIME_STRING_KEY)
         editor.apply()
+
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
     fun pauseTimer() {

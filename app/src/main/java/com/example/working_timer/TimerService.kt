@@ -153,7 +153,7 @@ class TimerService : Service() {
             val channelId = "timer_channel"
             val channelName = "Timer Service Channel"
             val channelDescription = "Channel for Timer Service"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_LOW
             val channel = NotificationChannel(channelId, channelName, importance).apply {
                 description = channelDescription
             }

@@ -175,6 +175,13 @@ class TimerService : Service() {
         }
 
         val channelId = "timer_channel"
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val repSecTime = elapsedTime / 1000
         val hours = (repSecTime / 3600).toInt()
@@ -190,6 +197,7 @@ class TimerService : Service() {
         val builder = NotificationCompat.Builder(this, channelId)
             .setContentTitle("$formattedTime   ${if (isRunning) "労働中" else "休憩中"}")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentIntent(pendingIntent)
 
         if (isRunning) {
             // 中断ボタンを追加

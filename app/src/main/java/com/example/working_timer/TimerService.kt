@@ -122,6 +122,7 @@ class TimerService : Service() {
         val editor = prefs.edit()
         editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
         editor.apply()
+        updateNotificationChannel()
     }
 
     fun resumeTimer() {
@@ -185,11 +186,36 @@ class TimerService : Service() {
             String.format("%02d:%02d", minutes, seconds)
         }
 
-        val notification: Notification = NotificationCompat.Builder(this, channelId)
+
+        val builder = NotificationCompat.Builder(this, channelId)
             .setContentTitle("$formattedTime   ${if (isRunning) "労働中" else "休憩中"}")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .build()
 
+        if (isRunning) {
+            // 中断ボタンを追加
+            val pauseIntent = Intent(this, TimerActionReceiver::class.java).apply {
+                action = "ACTION_PAUSE_TIMER"
+            }
+            val pausePendingIntent = PendingIntent.getBroadcast(
+                this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.addAction(
+                R.drawable.ic_launcher_foreground, "中断", pausePendingIntent
+            )
+        } else {
+            // 再開ボタンを追加
+            val resumeIntent = Intent(this, TimerActionReceiver::class.java).apply {
+                action = "ACTION_RESUME_TIMER"
+            }
+            val resumePendingIntent = PendingIntent.getBroadcast(
+                this, 0, resumeIntent, PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.addAction(
+                R.drawable.ic_launcher_foreground, "再開", resumePendingIntent
+            )
+        }
+
+        val notification = builder.build()
         val notificationManager = NotificationManagerCompat.from(this)
         notificationManager.notify(1, notification)
     }
@@ -202,15 +228,24 @@ class TimerService : Service() {
             0,
             notificationIntent,
             PendingIntent.FLAG_IMMUTABLE
-        ) // or FLAG_UPDATE_CURRENT depending on your needs
+        )
 
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("00:00   ${if (isRunning) "労働中" else "休憩中"}")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your app's icon
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .build()
 
         startForeground(1, notification)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val action = intent?.getStringExtra("action")
+        when (action) {
+            "pause" -> pauseTimer()
+            "resume" -> resumeTimer()
+        }
+        return START_STICKY
     }
 
     override fun onDestroy() {

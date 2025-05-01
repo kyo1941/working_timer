@@ -14,6 +14,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -60,17 +61,12 @@ class TimerService : Service() {
         startDate = prefs.getString(START_DATE_KEY, "")
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // サービスが開始されたときに呼ばれる
-        startForegroundService()
-        return START_STICKY
-    }
-
     inner class LocalBinder : Binder() {
         fun getService(): TimerService = this@TimerService
     }
 
     override fun onBind(intent: Intent): IBinder {
+        startForegroundService()
         return binder
     }
 

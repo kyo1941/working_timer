@@ -11,6 +11,10 @@ import android.widget.TextView
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import android.app.AlertDialog
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
 import kotlinx.coroutines.launch
@@ -20,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.working_timer.data.WorkDao
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import java.util.Calendar
 import java.util.Locale
 
@@ -44,6 +49,23 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     private val START_TIME_STRING_KEY = "startTimeString"
     private val ELAPSED_TIME_KEY = "elapsedTime"
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "通知が許可されました。",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "通知が拒否されました。",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
+
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as TimerService.LocalBinder
@@ -63,6 +85,21 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            val hasRequestedPermission = prefs.getBoolean("hasRequestedPermission", false)
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                if (!hasRequestedPermission) {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    prefs.edit().putBoolean("hasRequestedPermission", true).apply()
+                }
+            }
+        }
+
         statusTextView = findViewById(R.id.statusTextView)
         timerTextView = findViewById(R.id.timerTextView)
         startButton = findViewById(R.id.startButton)
@@ -79,7 +116,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
             timerService?.pauseTimer()
 
-            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
             val startDate = prefs.getString(START_DATE_KEY, "")
             val startTime = prefs.getString(START_TIME_STRING_KEY, "")
@@ -217,7 +254,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         }
 
         // SharedPreferences から elapsedTime を読み込む
-        val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("TimerPrefs", MODE_PRIVATE)
         val elapsedTime = prefs.getLong("elapsedTime", 0L)
         updateTimerText(elapsedTime) // 読み込んだ elapsedTime で UI を更新
     }

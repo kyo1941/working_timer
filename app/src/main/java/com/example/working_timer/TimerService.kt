@@ -1,5 +1,6 @@
 package com.example.working_timer
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,6 +8,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
@@ -15,6 +17,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -33,6 +36,7 @@ class TimerService : Service() {
         override fun run() {
             elapsedTime = System.currentTimeMillis() - startTime
             listener?.onTimerTick(elapsedTime)
+            updateNotificationChannel()
             handler.postDelayed(this, 1000) // 1秒ごとに更新
         }
     }
@@ -159,6 +163,37 @@ class TimerService : Service() {
         }
     }
 
+    private fun updateNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        val channelId = "timer_channel"
+
+        val repSecTime = elapsedTime / 1000
+        val hours = (repSecTime / 3600).toInt()
+        val minutes = ((repSecTime / 60) % 60).toInt()
+        val seconds = (repSecTime % 60).toInt()
+        val formattedTime = if (hours > 0) {
+            String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format("%02d:%02d", minutes, seconds)
+        }
+
+        val notification: Notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("$formattedTime   ${if (isRunning) "労働中" else "休憩中"}")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .build()
+
+        val notificationManager = NotificationManagerCompat.from(this)
+        notificationManager.notify(1, notification)
+    }
+
     private fun startForegroundService() {
         val channelId = "timer_channel"
         val notificationIntent = Intent(this, MainActivity::class.java)
@@ -170,8 +205,7 @@ class TimerService : Service() {
         ) // or FLAG_UPDATE_CURRENT depending on your needs
 
         val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Working Timer")
-            .setContentText("Timer is running in the background")
+            .setContentTitle("00:00   ${if (isRunning) "労働中" else "休憩中"}")
             .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your app's icon
             .setContentIntent(pendingIntent)
             .build()

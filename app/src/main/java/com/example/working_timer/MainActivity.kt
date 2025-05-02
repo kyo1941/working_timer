@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (!isNotificationIsGranted()) {
+        if (!isNotificationGranted()) {
             val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             val hasRequestedPermission = prefs.getBoolean("hasRequestedPermission", false)
             if(!hasRequestedPermission) {
@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             }
             timerService?.startTimer()
 
-            if (!isNotificationIsGranted()) {
+            if (!isNotificationGranted()) {
                 Snackbar.make(findViewById(android.R.id.content), "通知をONにすると、タイマーの進行状況が確認できます。", Snackbar.LENGTH_SHORT)
                         .setAnchorView(R.id.bottomNavigationView)
                         .show()
@@ -277,7 +277,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         }
     }
 
-    private fun isNotificationIsGranted(): Boolean {
+    private fun isNotificationGranted(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                 ContextCompat.checkSelfPermission(
                     this,

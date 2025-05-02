@@ -108,6 +108,9 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         resumeButton = findViewById(R.id.resumeButton)
 
         startButton.setOnClickListener {
+            if (isBound && timerService != null) {
+                timerService?.setListener(this)
+            }
             timerService?.startTimer()
             updateUI()
         }
@@ -168,6 +171,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                         }
                         .setNegativeButton("破棄") { _, _ ->
                             timerService?.stopTimer()
+                            timerService?.removeListener()
                             updateUI()
                         }
                         .show()
@@ -193,6 +197,10 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 }
 
                 timerService?.stopTimer()
+                timerService?.removeListener()
+                unbindService(connection)
+                isBound = false
+                timerService = null
                 updateUI()
 
                 // LogView への遷移（任意）
@@ -211,6 +219,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             builder.setNegativeButton("破棄") { dialog, which ->
                 // NOボタンがクリックされた時の処理
                 timerService?.stopTimer()
+                timerService?.removeListener()
                 updateUI()
             }
 
@@ -269,11 +278,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     override fun onStop() {
         super.onStop()
         if (transitionToLogView && isBound) {
-            timerService?.removeListener()
-            unbindService(connection)
-            isBound = false
-            timerService = null
-            transitionToLogView = false
+            timerService?.pauseTimer()
         }
     }
 

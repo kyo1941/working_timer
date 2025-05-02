@@ -11,6 +11,10 @@ import android.widget.TextView
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import android.app.AlertDialog
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
 import kotlinx.coroutines.launch
@@ -20,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.working_timer.data.WorkDao
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import java.util.Calendar
 import java.util.Locale
 
@@ -44,6 +49,19 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     private val START_TIME_STRING_KEY = "startTimeString"
     private val ELAPSED_TIME_KEY = "elapsedTime"
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                Snackbar.make(findViewById(android.R.id.content), "通知が許可されました。", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(R.id.bottomNavigationView)
+                        .show()
+            } else {
+                Snackbar.make(findViewById(android.R.id.content), "通知が拒否されました。", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(R.id.bottomNavigationView)
+                        .show()
+            }
+        }
+
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as TimerService.LocalBinder
@@ -63,6 +81,16 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (!isNotificationGranted()) {
+            val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            val hasRequestedPermission = prefs.getBoolean("hasRequestedPermission", false)
+            if(!hasRequestedPermission) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                prefs.edit().putBoolean("hasRequestedPermission", true).apply()
+            }
+        }
+
+
         statusTextView = findViewById(R.id.statusTextView)
         timerTextView = findViewById(R.id.timerTextView)
         startButton = findViewById(R.id.startButton)
@@ -71,7 +99,17 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         resumeButton = findViewById(R.id.resumeButton)
 
         startButton.setOnClickListener {
+            if (isBound && timerService != null) {
+                timerService?.setListener(this)
+            }
             timerService?.startTimer()
+
+            if (!isNotificationGranted()) {
+                Snackbar.make(findViewById(android.R.id.content), "通知をONにすると、タイマーの進行状況が確認できます。", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(R.id.bottomNavigationView)
+                        .show()
+            }
+
             updateUI()
         }
         stopButton.setOnClickListener {
@@ -79,7 +117,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
             timerService?.pauseTimer()
 
-            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
             val startDate = prefs.getString(START_DATE_KEY, "")
             val startTime = prefs.getString(START_TIME_STRING_KEY, "")
@@ -97,16 +135,16 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             }
 
             // AlertDialogを作成
-            var bulider = AlertDialog.Builder(this)
-            bulider.setTitle("確認")
-            bulider.setMessage("""
+            var builder = AlertDialog.Builder(this)
+            builder.setTitle("確認")
+            builder.setMessage("""
                 開始日 ： $startDate
                 経過時間 ： $formattedTime
                 
                 今回の作業記録を保存しますか？
             """.trimIndent())
 
-            bulider.setPositiveButton("保存") { dialog, which ->
+            builder.setPositiveButton("保存") { dialog, which ->
                 if (startDate == null || startTime == null) {
                     // 画面に「正しく表示できなかった旨」を伝えたい
                     return@setPositiveButton
@@ -156,6 +194,9 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 }
 
                 timerService?.stopTimer()
+                unbindService(connection)
+                isBound = false
+                timerService = null
                 updateUI()
 
                 // LogView への遷移（任意）
@@ -165,20 +206,20 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 overridePendingTransition(0, 0)
             }
 
-            bulider.setNeutralButton("再開") { dialog, which ->
+            builder.setNeutralButton("再開") { dialog, which ->
                 // 中断ボタンがクリックされた時の処理
                 timerService?.resumeTimer()
                 updateUI()
             }
 
-            bulider.setNegativeButton("破棄") { dialog, which ->
+            builder.setNegativeButton("破棄") { dialog, which ->
                 // NOボタンがクリックされた時の処理
                 timerService?.stopTimer()
                 updateUI()
             }
 
             // AlertDialogを表示
-            bulider.show()
+            builder.show()
 
             updateUI()
         }
@@ -217,7 +258,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         }
 
         // SharedPreferences から elapsedTime を読み込む
-        val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val elapsedTime = prefs.getLong("elapsedTime", 0L)
         updateTimerText(elapsedTime) // 読み込んだ elapsedTime で UI を更新
     }
@@ -231,13 +272,17 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
     override fun onStop() {
         super.onStop()
-        if (transitionToLogView && isBound) {
-            timerService?.removeListener()
-            unbindService(connection)
-            isBound = false
-            timerService = null
-            transitionToLogView = false
+        if (transitionToLogView && timerService?.isTimerRunning() == true) {
+            timerService?.pauseTimer()
         }
+    }
+
+    private fun isNotificationGranted(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onTimerTick(elapsedTime: Long) {
@@ -246,7 +291,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
     private fun updateTimerText(elapsedTime: Long) {
         // SharedPreferences に開始日を保存
-        val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putLong("elapsedTime", elapsedTime)
         editor.apply()
@@ -278,23 +323,25 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         resumeButton.visibility = if (status == "休憩中") Button.VISIBLE else Button.GONE
     }
 
-    private fun updateUI() {
-        if (isBound && timerService != null) {
-            val isRunning = timerService!!.isTimerRunning()
-            val elapsedTime = timerService!!.getElapsedTime()
+    override fun updateUI() {
+        runOnUiThread {
+            if (isBound && timerService != null) {
+                val isRunning = timerService!!.isTimerRunning()
+                val elapsedTime = timerService!!.getElapsedTime()
 
-            updateTimerText(elapsedTime)
+                updateTimerText(elapsedTime)
 
-            val status = when {
-                isRunning -> "労働中"
-                elapsedTime > 0 -> "休憩中"
-                else -> ""
+                val status = when {
+                    isRunning -> "労働中"
+                    elapsedTime > 0 -> "休憩中"
+                    else -> ""
+                }
+                updateStatusAndButtons(status)
+            } else {
+                // Serviceに接続されていない場合、UIを初期状態に戻す
+                updateStatusAndButtons("")
+                updateTimerText(0)
             }
-            updateStatusAndButtons(status)
-        } else {
-            // Serviceに接続されていない場合、UIを初期状態に戻す
-            updateStatusAndButtons("")
-            updateTimerText(0)
         }
     }
 }

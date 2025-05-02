@@ -1,5 +1,6 @@
 package com.example.working_timer
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,6 +8,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
@@ -14,6 +16,8 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -32,6 +36,7 @@ class TimerService : Service() {
         override fun run() {
             elapsedTime = System.currentTimeMillis() - startTime
             listener?.onTimerTick(elapsedTime)
+            updateNotificationChannel()
             handler.postDelayed(this, 1000) // 1秒ごとに更新
         }
     }
@@ -47,6 +52,7 @@ class TimerService : Service() {
 
     interface TimerServiceListener {
         fun onTimerTick(elapsedTime: Long)
+        fun updateUI()
     }
 
     override fun onCreate() {
@@ -58,12 +64,6 @@ class TimerService : Service() {
         elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
         startTimeString = prefs.getString(START_TIME_STRING_KEY, "")
         startDate = prefs.getString(START_DATE_KEY, "")
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // サービスが開始されたときに呼ばれる
-        startForegroundService()
-        return START_STICKY
     }
 
     inner class LocalBinder : Binder() {
@@ -93,6 +93,8 @@ class TimerService : Service() {
         editor.putString(START_TIME_STRING_KEY, formattedTime)
         editor.apply()
 
+        startForegroundService()
+
         handler.postDelayed(runnable, 0)
     }
 
@@ -110,6 +112,9 @@ class TimerService : Service() {
         editor.remove(ELAPSED_TIME_KEY)
         editor.remove(START_TIME_STRING_KEY)
         editor.apply()
+
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        removeListener()
     }
 
     fun pauseTimer() {
@@ -119,6 +124,7 @@ class TimerService : Service() {
         val editor = prefs.edit()
         editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
         editor.apply()
+        updateNotificationChannel()
     }
 
     fun resumeTimer() {
@@ -149,7 +155,7 @@ class TimerService : Service() {
             val channelId = "timer_channel"
             val channelName = "Timer Service Channel"
             val channelDescription = "Channel for Timer Service"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_LOW
             val channel = NotificationChannel(channelId, channelName, importance).apply {
                 description = channelDescription
             }
@@ -160,6 +166,70 @@ class TimerService : Service() {
         }
     }
 
+    private fun updateNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        val channelId = "timer_channel"
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val repSecTime = elapsedTime / 1000
+        val hours = (repSecTime / 3600).toInt()
+        val minutes = ((repSecTime / 60) % 60).toInt()
+        val seconds = (repSecTime % 60).toInt()
+        val formattedTime = if (hours > 0) {
+            String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format("%02d:%02d", minutes, seconds)
+        }
+
+
+        val builder = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("$formattedTime   ${if (isRunning) "労働中" else "休憩中"}")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentIntent(pendingIntent)
+
+        if (isRunning) {
+            // 中断ボタンを追加
+            val pauseIntent = Intent(this, TimerActionReceiver::class.java).apply {
+                action = "ACTION_PAUSE_TIMER"
+            }
+            val pausePendingIntent = PendingIntent.getBroadcast(
+                this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.addAction(
+                R.drawable.ic_launcher_foreground, "一時停止", pausePendingIntent
+            )
+        } else {
+            // 再開ボタンを追加
+            val resumeIntent = Intent(this, TimerActionReceiver::class.java).apply {
+                action = "ACTION_RESUME_TIMER"
+            }
+            val resumePendingIntent = PendingIntent.getBroadcast(
+                this, 0, resumeIntent, PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.addAction(
+                R.drawable.ic_launcher_foreground, "再開", resumePendingIntent
+            )
+        }
+
+        val notification = builder.build()
+        val notificationManager = NotificationManagerCompat.from(this)
+        notificationManager.notify(1, notification)
+    }
+
     private fun startForegroundService() {
         val channelId = "timer_channel"
         val notificationIntent = Intent(this, MainActivity::class.java)
@@ -168,16 +238,26 @@ class TimerService : Service() {
             0,
             notificationIntent,
             PendingIntent.FLAG_IMMUTABLE
-        ) // or FLAG_UPDATE_CURRENT depending on your needs
+        )
 
         val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Working Timer")
-            .setContentText("Timer is running in the background")
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Replace with your app's icon
+            .setContentTitle("00:00   ${if (isRunning) "労働中" else "休憩中"}")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .build()
 
         startForeground(1, notification)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val action = intent?.getStringExtra("action")
+        when (action) {
+            "pause" -> pauseTimer()
+            "resume" -> resumeTimer()
+            else -> Log.e("TimerService", "Unknown action: $action")
+        }
+        listener?.updateUI()
+        return START_STICKY
     }
 
     override fun onDestroy() {

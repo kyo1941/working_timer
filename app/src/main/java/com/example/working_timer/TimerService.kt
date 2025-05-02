@@ -209,7 +209,7 @@ class TimerService : Service() {
                 this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
             )
             builder.addAction(
-                R.drawable.ic_launcher_foreground, "中断", pausePendingIntent
+                R.drawable.ic_launcher_foreground, "一時停止", pausePendingIntent
             )
         } else {
             // 再開ボタンを追加

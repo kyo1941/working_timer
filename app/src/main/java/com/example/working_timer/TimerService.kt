@@ -253,6 +253,7 @@ class TimerService : Service() {
         when (action) {
             "pause" -> pauseTimer()
             "resume" -> resumeTimer()
+            else -> Log.e("TimerService", "Unknown action: $action")
         }
         listener?.updateUI()
         return START_STICKY

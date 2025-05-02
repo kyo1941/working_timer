@@ -87,12 +87,10 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
+                ) != PackageManager.PERMISSION_GRANTED && !hasRequestedPermission
             ) {
-                if (!hasRequestedPermission) {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    prefs.edit().putBoolean("hasRequestedPermission", true).apply()
-                }
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                prefs.edit().putBoolean("hasRequestedPermission", true).apply()
             }
         }
 

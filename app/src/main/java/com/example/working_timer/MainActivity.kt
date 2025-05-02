@@ -134,16 +134,16 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             }
 
             // AlertDialogを作成
-            var bulider = AlertDialog.Builder(this)
-            bulider.setTitle("確認")
-            bulider.setMessage("""
+            var builder = AlertDialog.Builder(this)
+            builder.setTitle("確認")
+            builder.setMessage("""
                 開始日 ： $startDate
                 経過時間 ： $formattedTime
                 
                 今回の作業記録を保存しますか？
             """.trimIndent())
 
-            bulider.setPositiveButton("保存") { dialog, which ->
+            builder.setPositiveButton("保存") { dialog, which ->
                 if (startDate == null || startTime == null) {
                     // 画面に「正しく表示できなかった旨」を伝えたい
                     return@setPositiveButton
@@ -202,20 +202,20 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 overridePendingTransition(0, 0)
             }
 
-            bulider.setNeutralButton("再開") { dialog, which ->
+            builder.setNeutralButton("再開") { dialog, which ->
                 // 中断ボタンがクリックされた時の処理
                 timerService?.resumeTimer()
                 updateUI()
             }
 
-            bulider.setNegativeButton("破棄") { dialog, which ->
+            builder.setNegativeButton("破棄") { dialog, which ->
                 // NOボタンがクリックされた時の処理
                 timerService?.stopTimer()
                 updateUI()
             }
 
             // AlertDialogを表示
-            bulider.show()
+            builder.show()
 
             updateUI()
         }

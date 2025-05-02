@@ -282,7 +282,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
     override fun onStop() {
         super.onStop()
-        if (transitionToLogView && isBound) {
+        if (transitionToLogView && timerService?.isTimerRunning() == true) {
             timerService?.pauseTimer()
         }
     }

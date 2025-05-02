@@ -316,22 +316,24 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     }
 
     override fun updateUI() {
-        if (isBound && timerService != null) {
-            val isRunning = timerService!!.isTimerRunning()
-            val elapsedTime = timerService!!.getElapsedTime()
+        runOnUiThread {
+            if (isBound && timerService != null) {
+                val isRunning = timerService!!.isTimerRunning()
+                val elapsedTime = timerService!!.getElapsedTime()
 
-            updateTimerText(elapsedTime)
+                updateTimerText(elapsedTime)
 
-            val status = when {
-                isRunning -> "労働中"
-                elapsedTime > 0 -> "休憩中"
-                else -> ""
+                val status = when {
+                    isRunning -> "労働中"
+                    elapsedTime > 0 -> "休憩中"
+                    else -> ""
+                }
+                updateStatusAndButtons(status)
+            } else {
+                // Serviceに接続されていない場合、UIを初期状態に戻す
+                updateStatusAndButtons("")
+                updateTimerText(0)
             }
-            updateStatusAndButtons(status)
-        } else {
-            // Serviceに接続されていない場合、UIを初期状態に戻す
-            updateStatusAndButtons("")
-            updateTimerText(0)
         }
     }
 }

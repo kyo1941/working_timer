@@ -52,17 +52,13 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-                Snackbar.make(
-                    findViewById(android.R.id.content),
-                    "通知が許可されました。",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar.make(findViewById(android.R.id.content), "通知が許可されました。", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(R.id.bottomNavigationView)
+                        .show()
             } else {
-                Snackbar.make(
-                    findViewById(android.R.id.content),
-                    "通知が拒否されました。",
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar.make(findViewById(android.R.id.content), "通知が拒否されました。", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(R.id.bottomNavigationView)
+                        .show()
             }
         }
 

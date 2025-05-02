@@ -315,7 +315,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         resumeButton.visibility = if (status == "休憩中") Button.VISIBLE else Button.GONE
     }
 
-    private fun updateUI() {
+    override fun updateUI() {
         if (isBound && timerService != null) {
             val isRunning = timerService!!.isTimerRunning()
             val elapsedTime = timerService!!.getElapsedTime()

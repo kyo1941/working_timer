@@ -52,6 +52,7 @@ class TimerService : Service() {
 
     interface TimerServiceListener {
         fun onTimerTick(elapsedTime: Long)
+        fun updateUI()
     }
 
     override fun onCreate() {
@@ -253,6 +254,7 @@ class TimerService : Service() {
             "pause" -> pauseTimer()
             "resume" -> resumeTimer()
         }
+        listener?.updateUI()
         return START_STICKY
     }
 

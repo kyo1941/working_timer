@@ -258,7 +258,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         }
 
         // SharedPreferences から elapsedTime を読み込む
-        val prefs = getSharedPreferences("TimerPrefs", MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val elapsedTime = prefs.getLong("elapsedTime", 0L)
         updateTimerText(elapsedTime) // 読み込んだ elapsedTime で UI を更新
     }
@@ -291,7 +291,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
 
     private fun updateTimerText(elapsedTime: Long) {
         // SharedPreferences に開始日を保存
-        val prefs = getSharedPreferences("TimerPrefs", Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putLong("elapsedTime", elapsedTime)
         editor.apply()

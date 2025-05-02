@@ -106,6 +106,17 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 timerService?.setListener(this)
             }
             timerService?.startTimer()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(findViewById(android.R.id.content), "通知をONにすると、タイマーの進行状況が確認できます。", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(R.id.bottomNavigationView)
+                        .show()
+            }
+
             updateUI()
         }
         stopButton.setOnClickListener {

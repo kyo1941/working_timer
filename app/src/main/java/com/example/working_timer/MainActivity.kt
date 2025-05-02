@@ -81,18 +81,15 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (!isNotificationIsGranted()) {
             val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             val hasRequestedPermission = prefs.getBoolean("hasRequestedPermission", false)
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED && !hasRequestedPermission
-            ) {
+            if(!hasRequestedPermission) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 prefs.edit().putBoolean("hasRequestedPermission", true).apply()
             }
         }
+
 
         statusTextView = findViewById(R.id.statusTextView)
         timerTextView = findViewById(R.id.timerTextView)
@@ -107,11 +104,7 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             }
             timerService?.startTimer()
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED) {
+            if (!isNotificationIsGranted()) {
                 Snackbar.make(findViewById(android.R.id.content), "通知をONにすると、タイマーの進行状況が確認できます。", Snackbar.LENGTH_SHORT)
                         .setAnchorView(R.id.bottomNavigationView)
                         .show()
@@ -282,6 +275,14 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
         if (transitionToLogView && timerService?.isTimerRunning() == true) {
             timerService?.pauseTimer()
         }
+    }
+
+    private fun isNotificationIsGranted(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onTimerTick(elapsedTime: Long) {

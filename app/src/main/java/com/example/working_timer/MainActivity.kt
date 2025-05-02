@@ -176,7 +176,6 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                         }
                         .setNegativeButton("破棄") { _, _ ->
                             timerService?.stopTimer()
-                            timerService?.removeListener()
                             updateUI()
                         }
                         .show()
@@ -202,7 +201,6 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
                 }
 
                 timerService?.stopTimer()
-                timerService?.removeListener()
                 unbindService(connection)
                 isBound = false
                 timerService = null
@@ -224,7 +222,6 @@ class MainActivity : AppCompatActivity(), TimerService.TimerServiceListener {
             builder.setNegativeButton("破棄") { dialog, which ->
                 // NOボタンがクリックされた時の処理
                 timerService?.stopTimer()
-                timerService?.removeListener()
                 updateUI()
             }
 

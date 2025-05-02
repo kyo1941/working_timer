@@ -114,6 +114,7 @@ class TimerService : Service() {
         editor.apply()
 
         stopForeground(STOP_FOREGROUND_REMOVE)
+        removeListener()
     }
 
     fun pauseTimer() {

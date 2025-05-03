@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/hourlyWageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="時給"
+        android:textSize="16sp"/>
+
+    <EditText
+        android:id="@+id/wageEditText"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:inputType="number"
+        android:hint="例: 1200"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/workText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="合計時間"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/resultWorkTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginStart="16dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/wageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="給料"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/resultWageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginStart="16dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

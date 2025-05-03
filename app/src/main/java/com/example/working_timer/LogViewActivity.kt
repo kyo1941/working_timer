@@ -23,6 +23,7 @@ import com.example.working_timer.data.Work
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 
 
@@ -138,11 +139,55 @@ class LogViewActivity : AppCompatActivity() {
 
                     val totalHours = totalTime / 3600
                     val totalMinutes = (totalTime % 3600) / 60
-                    AlertDialog.Builder(this@LogViewActivity)
-                        .setTitle("合計時間")
-                        .setMessage(if (totalHours > 0) "${totalHours}時間 ${totalMinutes}分" else "${totalMinutes}分")
-                        .setPositiveButton("OK", null)
-                        .show()
+
+                    val dialogView = layoutInflater.inflate(R.layout.dialog_sum_wage, null)
+                    val wageEditText = dialogView.findViewById<android.widget.EditText>(R.id.wageEditText)
+                    val resultWageTextView = dialogView.findViewById<android.widget.TextView>(R.id.resultWageTextView)
+                    val resultWorkTextView = dialogView.findViewById<android.widget.TextView>(R.id.resultWorkTextView)
+
+                    resultWorkTextView.text = if (totalHours > 0) "${totalHours}時間 ${totalMinutes}分" else "${totalMinutes}分"
+
+                    fun updateResultText() {
+                        val wage = wageEditText.text.toString().toLongOrNull() ?: 0L
+                        val totalWage = (totalTime * wage) / 3600
+                        val formattedWage = NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)
+                        resultWageTextView.text = "${formattedWage} 円"
+                    }
+                    updateResultText()
+
+                    wageEditText.addTextChangedListener(object : android.text.TextWatcher {
+                        override fun afterTextChanged(s: android.text.Editable?) { updateResultText() }
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                    })
+
+                    val dialog = AlertDialog.Builder(this@LogViewActivity)
+                        .setTitle("計算結果")
+                        .setView(dialogView)
+                        .setPositiveButton("閉じる", null)
+                        .setNeutralButton("共有", null)
+                        .create()
+
+                    dialog.setOnShowListener {
+                        val shareButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
+                        val formattedStartDate = sdf.format(startDate)
+                        val formattedEndDate = sdf.format(endDate)
+                        shareButton.setOnClickListener {
+                            val lines = listOf(
+                                "期間 ${formattedStartDate} ~ ${formattedEndDate}",
+                                "時給 ${wageEditText.text} 円",
+                                "合計 ${resultWorkTextView.text}",
+                                "給料 ${resultWageTextView.text}"
+                            )
+                            val shareText = lines.joinToString("\n")
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, "$shareText")
+                            }
+                            startActivity(Intent.createChooser(intent, "共有"))
+                        }
+                    }
+                    dialog.show()
                 }
             }
         }

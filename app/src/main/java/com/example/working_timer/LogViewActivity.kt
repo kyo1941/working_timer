@@ -161,11 +161,33 @@ class LogViewActivity : AppCompatActivity() {
                         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
                     })
 
-                    AlertDialog.Builder(this@LogViewActivity)
-                        .setTitle("合計時間")
+                    val dialog = AlertDialog.Builder(this@LogViewActivity)
+                        .setTitle("計算結果")
                         .setView(dialogView)
                         .setPositiveButton("閉じる", null)
-                        .show()
+                        .setNeutralButton("共有", null)
+                        .create()
+
+                    dialog.setOnShowListener {
+                        val shareButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
+                        val formattedStartDate = sdf.format(startDate)
+                        val formattedEndDate = sdf.format(endDate)
+                        shareButton.setOnClickListener {
+                            val lines = listOf(
+                                "期間 ${formattedStartDate} ~ ${formattedEndDate}",
+                                "時給 ${wageEditText.text} 円",
+                                "合計 ${resultWorkTextView.text}",
+                                "給料 ${resultWageTextView.text}"
+                            )
+                            val shareText = lines.joinToString("\n")
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, "$shareText")
+                            }
+                            startActivity(Intent.createChooser(intent, "共有"))
+                        }
+                    }
+                    dialog.show()
                 }
             }
         }

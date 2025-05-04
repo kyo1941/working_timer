@@ -198,7 +198,7 @@ class TimerService : Service() {
 
         val builder = NotificationCompat.Builder(this, channelId)
             .setContentTitle("$formattedTime   ${if (isRunning) "労働中" else "休憩中"}")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_launcher_playstore)
             .setContentIntent(pendingIntent)
 
         if (isRunning) {
@@ -210,7 +210,7 @@ class TimerService : Service() {
                 this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
             )
             builder.addAction(
-                R.drawable.ic_launcher_foreground, "一時停止", pausePendingIntent
+                R.drawable.ic_launcher_playstore, "一時停止", pausePendingIntent
             )
         } else {
             // 再開ボタンを追加
@@ -221,7 +221,7 @@ class TimerService : Service() {
                 this, 0, resumeIntent, PendingIntent.FLAG_IMMUTABLE
             )
             builder.addAction(
-                R.drawable.ic_launcher_foreground, "再開", resumePendingIntent
+                R.drawable.ic_launcher_playstore, "再開", resumePendingIntent
             )
         }
 
@@ -242,7 +242,7 @@ class TimerService : Service() {
 
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("00:00   ${if (isRunning) "労働中" else "休憩中"}")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_launcher_playstore)
             .setContentIntent(pendingIntent)
             .build()
 

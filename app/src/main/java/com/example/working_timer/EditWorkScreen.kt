@@ -50,6 +50,7 @@ fun EditWorkScreen(
 
     var showElapsedPicker by remember { mutableStateOf(false) }
 
+    var showZeroMinutesError by remember { mutableStateOf(false) }
     var showStartEndError by remember { mutableStateOf(false) }
     var showElapsedTimeOver by remember { mutableStateOf(false) }
 
@@ -215,6 +216,11 @@ fun EditWorkScreen(
                         return@Button
                     }
 
+                    if(newElapsed == 0) {
+                        showZeroMinutesError = true
+                        return@Button
+                    }
+
                     onSave(startDay, startTime, endDay, endTime, newElapsed)
                 },
                 modifier = Modifier.weight(1f)
@@ -279,6 +285,19 @@ fun EditWorkScreen(
                 showElapsedPicker = false
             },
             showToggleIcon = false
+        )
+    }
+
+    if(showZeroMinutesError) {
+        AlertDialog(
+            onDismissRequest = { showZeroMinutesError = false },
+            title = { Text("エラー") },
+            text = { Text("1分以上からのみ記録が可能です。") },
+            confirmButton = {
+                TextButton(onClick = { showZeroMinutesError = false }) {
+                    Text("OK")
+                }
+            }
         )
     }
 

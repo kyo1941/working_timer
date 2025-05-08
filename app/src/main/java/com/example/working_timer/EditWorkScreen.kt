@@ -216,7 +216,7 @@ fun EditWorkScreen(
                         return@Button
                     }
 
-                    if(newElapsed == 0) {
+                    if(newElapsed <= 0) {
                         showZeroMinutesError = true
                         return@Button
                     }

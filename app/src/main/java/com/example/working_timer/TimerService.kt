@@ -114,6 +114,8 @@ class TimerService : Service() {
         editor.apply()
 
         stopForeground(STOP_FOREGROUND_REMOVE)
+        // 通知id"1"しか使っていないので明示的に削除
+        NotificationManagerCompat.from(this).cancel(1)
         removeListener()
     }
 

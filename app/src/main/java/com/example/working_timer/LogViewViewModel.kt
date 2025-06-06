@@ -35,6 +35,20 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
     private val workDao = AppDatabase.getDatabase(application).workDao()
     private val sdf = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
 
+    // 初回起動時に現在日時を取得する
+    fun init() {
+        if (_uiState.value.selectedDay.isEmpty()) {
+            val cal = Calendar.getInstance()
+            val today = String.format(
+                "%04d/%02d/%02d",
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH) + 1,
+                cal.get(Calendar.DAY_OF_MONTH)
+            )
+            loadWorkList(today)
+        }
+    }
+
     fun loadWorkList(day: String) {
         _uiState.value = _uiState.value.copy(isLoading = true, selectedDay = day)
         viewModelScope.launch {
@@ -96,5 +110,3 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = _uiState.value.copy(totalWage = totalWage)
     }
 }
-
-

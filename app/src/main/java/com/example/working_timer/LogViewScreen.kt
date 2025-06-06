@@ -37,6 +37,10 @@ fun LogViewScreen(
     // Date Range Pickerの表示を制御するState
     var showDateRangePicker by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        viewModel.init()
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         AndroidView(
             factory = { context ->
@@ -168,7 +172,6 @@ fun SumDialog(
 ) {
     var wage by remember { mutableStateOf(0L) }
 
-    // startDateとendDateを整形して表示
     val sdf = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
     val formattedStartDate =
         remember(startDate) { if (startDate != null) sdf.format(startDate) else "N/A" }
@@ -203,7 +206,7 @@ fun SumDialog(
                         onWageChange(wage)
                     },
                     label = { Text("時給") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number) // 数値入力に限定
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
             }

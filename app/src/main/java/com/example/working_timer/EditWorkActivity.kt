@@ -13,8 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 class EditWorkActivity : ComponentActivity() {
 

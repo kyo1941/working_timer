@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.util
 
 object SharedPrefKeys {
     const val PREFS_NAME = "TimerPrefs"

@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.ui.edit_work
 
 import android.database.sqlite.SQLiteException
 import android.os.Bundle

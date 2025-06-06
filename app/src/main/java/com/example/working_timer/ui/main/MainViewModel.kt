@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.ui.main
 
 import android.app.Application
 import android.content.ComponentName
@@ -8,7 +8,8 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import com.example.working_timer.SharedPrefKeys
+import com.example.working_timer.service.TimerService
+import com.example.working_timer.util.SharedPrefKeys
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
 import kotlinx.coroutines.flow.MutableStateFlow

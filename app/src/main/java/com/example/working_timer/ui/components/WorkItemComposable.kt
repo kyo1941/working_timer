@@ -1,5 +1,6 @@
-package com.example.working_timer
+package com.example.working_timer.ui.components
 
+import android.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -73,13 +74,13 @@ fun WorkItemComposable(
         }
         IconButton(onClick = onEdit, modifier = Modifier.padding(horizontal = 8.dp)) {
             Icon(
-                painter = painterResource(id = android.R.drawable.ic_menu_edit),
+                painter = painterResource(id = R.drawable.ic_menu_edit),
                 contentDescription = "編集",
             )
         }
         IconButton(onClick = onDelete) {
             Icon(
-                painter = painterResource(id = android.R.drawable.ic_menu_delete),
+                painter = painterResource(id = R.drawable.ic_menu_delete),
                 contentDescription = "削除"
             )
         }

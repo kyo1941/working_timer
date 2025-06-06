@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.ui.log_view
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

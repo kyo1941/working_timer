@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.util
 
 import androidx.compose.ui.graphics.Color
 

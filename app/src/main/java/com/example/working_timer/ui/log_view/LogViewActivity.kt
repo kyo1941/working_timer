@@ -1,11 +1,11 @@
-package com.example.working_timer
+package com.example.working_timer.ui.log_view
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.working_timer.data.Work
+import com.example.working_timer.ui.main.MainActivity
 
 class LogViewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

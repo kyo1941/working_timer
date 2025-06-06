@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.ui.main
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -40,6 +39,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.working_timer.ui.components.FooterNavigationBar
+import com.example.working_timer.util.PauseButtonColor
+import com.example.working_timer.util.ResumeButtonColor
+import com.example.working_timer.util.StartButtonColor
+import com.example.working_timer.util.StatusDefaultColor
+import com.example.working_timer.util.StatusPauseColor
+import com.example.working_timer.util.StatusWorkingColor
+import com.example.working_timer.util.StopButtonColor
 import kotlinx.coroutines.launch
 
 @Composable

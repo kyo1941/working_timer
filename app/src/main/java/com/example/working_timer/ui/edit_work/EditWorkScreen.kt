@@ -1,6 +1,6 @@
-package com.example.working_timer
+package com.example.working_timer.ui.edit_work
 
-import android.util.Log
+import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -21,6 +21,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
+import com.example.working_timer.ui.components.DatePickerModal
+import com.example.working_timer.ui.components.MaterialTimePickerDialog
+import com.example.working_timer.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -183,7 +186,7 @@ fun EditWorkScreen(
         ) {
             Button(
                 onClick = {
-                    (context as? android.app.Activity)?.finish()
+                    (context as? Activity)?.finish()
                 },
                 modifier = Modifier.weight(1f)
             ) {

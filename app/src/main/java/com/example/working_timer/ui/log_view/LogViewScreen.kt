@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.ui.log_view
 
 import android.app.Activity
 import android.content.Intent
@@ -22,8 +22,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.working_timer.ui.components.DateRangePickerModal
+import com.example.working_timer.ui.edit_work.EditWorkActivity
+import com.example.working_timer.ui.components.FooterNavigationBar
+import com.example.working_timer.R
+import com.example.working_timer.ui.components.WorkItemComposable
 import java.text.NumberFormat
-import com.example.working_timer.data.Work
+import com.example.working_timer.util.BorderColor
+import com.example.working_timer.util.ButtonBackgroundColor
 
 import java.text.SimpleDateFormat
 import java.util.*

@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.working_timer"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.working_timer"
@@ -63,5 +63,5 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.compose.material:material-icons-extended:1.5.3")
     implementation("com.google.android.material:material:1.10.0")
-
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
 }

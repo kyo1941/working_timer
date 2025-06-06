@@ -1,6 +1,5 @@
 package com.example.working_timer.ui.components
 
-import android.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Delete

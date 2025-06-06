@@ -2,6 +2,8 @@ package com.example.working_timer.ui.components
 
 import android.R
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -9,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import com.example.working_timer.data.Work
@@ -74,13 +75,13 @@ fun WorkItemComposable(
         }
         IconButton(onClick = onEdit, modifier = Modifier.padding(horizontal = 8.dp)) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_menu_edit),
+                imageVector = androidx.compose.material.icons.Icons.Filled.Edit,
                 contentDescription = "編集",
             )
         }
         IconButton(onClick = onDelete) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_menu_delete),
+                imageVector = androidx.compose.material.icons.Icons.Filled.Delete,
                 contentDescription = "削除"
             )
         }

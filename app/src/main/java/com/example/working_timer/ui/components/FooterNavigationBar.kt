@@ -1,5 +1,8 @@
 package com.example.working_timer.ui.components
 
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CurrencyYen
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,7 +24,7 @@ fun FooterNavigationBar(
             onClick = onTimerClick,
             icon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_timer),
+                    imageVector = androidx.compose.material.icons.Icons.Filled.AccessTime,
                     contentDescription = "記録"
                 )
             }
@@ -32,7 +35,7 @@ fun FooterNavigationBar(
             onClick = onLogClick,
             icon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_calender),
+                    imageVector = androidx.compose.material.icons.Icons.Filled.CalendarMonth,
                     contentDescription = "履歴"
                 )
             }

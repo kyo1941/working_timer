@@ -11,6 +11,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CurrencyYen
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -127,7 +130,7 @@ fun LogViewScreen(
                 shape = RoundedCornerShape(24.dp),
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
+                    imageVector = androidx.compose.material.icons.Icons.Filled.Add,
                     modifier = Modifier
                         .height(24.dp)
                         .width(24.dp),
@@ -142,7 +145,7 @@ fun LogViewScreen(
                 shape = RoundedCornerShape(24.dp),
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_currency_yen_24),
+                    imageVector = androidx.compose.material.icons.Icons.Filled.CurrencyYen,
                     contentDescription = "給料計算"
                 )
             }

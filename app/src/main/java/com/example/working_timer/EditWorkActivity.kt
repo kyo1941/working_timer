@@ -57,6 +57,7 @@ class EditWorkActivity : ComponentActivity() {
                                             elapsed_time = newElapsed
                                         )
                                         dao.update(work)
+                                        setResult(RESULT_OK)
                                         finish()
                                     } else {
                                         val work = Work(
@@ -67,6 +68,7 @@ class EditWorkActivity : ComponentActivity() {
                                             elapsed_time = newElapsed
                                         )
                                         dao.insert(work)
+                                        setResult(RESULT_OK)
                                         finish()
                                     }
                                 } catch (e: Exception) {

@@ -6,13 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -241,19 +240,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
         )
 
         // 保存処理
-        var result = false
-        val job = viewModelScope.launch {
+        try {
             workDao.insert(work)
-            result = true
-        }
-        job.join()
 
-        timerService?.stopTimer()
-        getApplication<Application>().unbindService(connection)
-        isBound = false
-        timerService = null
-        updateUiState()
-        return result
+            timerService?.stopTimer()
+            getApplication<Application>().unbindService(connection)
+            isBound = false
+            timerService = null
+            updateUiState()
+            return true
+        } catch (e: Exception) {
+            Log.e("MainViewModel", "Error saving work", e)
+            return false
+        }
     }
 
     // 作業を破棄

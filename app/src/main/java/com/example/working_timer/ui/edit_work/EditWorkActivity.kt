@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.ui.edit_work
 
 import android.database.sqlite.SQLiteException
 import android.os.Bundle
@@ -13,8 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 class EditWorkActivity : ComponentActivity() {
 
@@ -59,6 +57,7 @@ class EditWorkActivity : ComponentActivity() {
                                             elapsed_time = newElapsed
                                         )
                                         dao.update(work)
+                                        setResult(RESULT_OK)
                                         finish()
                                     } else {
                                         val work = Work(
@@ -69,6 +68,7 @@ class EditWorkActivity : ComponentActivity() {
                                             elapsed_time = newElapsed
                                         )
                                         dao.insert(work)
+                                        setResult(RESULT_OK)
                                         finish()
                                     }
                                 } catch (e: Exception) {

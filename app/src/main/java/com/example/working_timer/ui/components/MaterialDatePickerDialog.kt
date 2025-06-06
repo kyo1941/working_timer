@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.ui.components
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.*

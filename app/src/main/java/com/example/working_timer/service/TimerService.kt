@@ -1,4 +1,4 @@
-package com.example.working_timer
+package com.example.working_timer.service
 
 import android.Manifest
 import android.app.Notification
@@ -6,7 +6,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
@@ -18,6 +17,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.example.working_timer.R
+import com.example.working_timer.ui.main.MainActivity
+import com.example.working_timer.util.SharedPrefKeys
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -43,10 +45,10 @@ class TimerService : Service() {
 
     private var listener: TimerServiceListener? = null
 
-    private val PREFS_NAME = "TimerPrefs"
-    private val START_DATE_KEY = "startDate"
-    private val START_TIME_STRING_KEY = "startTimeString"
-    private val ELAPSED_TIME_KEY = "elapsedTime"
+    private val PREFS_NAME = SharedPrefKeys.PREFS_NAME
+    private val START_DATE_KEY = SharedPrefKeys.START_DATE_KEY
+    private val START_TIME_STRING_KEY = SharedPrefKeys.START_TIME_STRING_KEY
+    private val ELAPSED_TIME_KEY = SharedPrefKeys.ELAPSED_TIME_KEY
 
     private var startTimeCalendar: Calendar = Calendar.getInstance() // タイマー開始時の日付を保持
 
@@ -60,7 +62,7 @@ class TimerService : Service() {
         createNotificationChannel()
 
         // SharedPreferences から elapsedTime を復元
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
         startTimeString = prefs.getString(START_TIME_STRING_KEY, "")
         startDate = prefs.getString(START_DATE_KEY, "")
@@ -86,7 +88,7 @@ class TimerService : Service() {
         val formattedTime = sdfTime.format(startTimeCalendar.time) // 開始時の時間を取得
 
         // SharedPreferences に開始日を保存
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putString(START_DATE_KEY, formattedDate)
         editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
@@ -106,7 +108,7 @@ class TimerService : Service() {
         listener?.onTimerTick(elapsedTime) // 停止時に0を通知
 
         // SharedPreferences から elapsedTime を削除
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val editor = prefs.edit()
         editor.remove(START_DATE_KEY)
         editor.remove(ELAPSED_TIME_KEY)
@@ -122,7 +124,7 @@ class TimerService : Service() {
     fun pauseTimer() {
         handler.removeCallbacks(runnable)
         isRunning = false
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
         editor.apply()
@@ -163,7 +165,7 @@ class TimerService : Service() {
             }
 
             val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
@@ -267,7 +269,7 @@ class TimerService : Service() {
         handler.removeCallbacks(runnable)
 
         // elapsedTime を SharedPreferences に保存
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
         editor.apply()

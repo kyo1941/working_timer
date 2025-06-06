@@ -18,22 +18,22 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".LogViewActivity"
+            android:name=".ui.log_view.LogViewActivity"
             android:exported="false"
             android:launchMode="singleTop" />
 
-        <activity android:name=".EditWorkActivity" />
+        <activity android:name=".ui.edit_work.EditWorkActivity" />
 
         <service
-            android:name=".TimerService"
+            android:name=".service.TimerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
-        <receiver android:name=".TimerActionReceiver" />
+        <receiver android:name=".service.TimerActionReceiver" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true"
             android:launchMode="singleTop" >
             <intent-filter>

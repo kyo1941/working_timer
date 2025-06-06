@@ -227,14 +227,16 @@ fun SumDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     "合計勤務時間: ${totalHours}時間 ${totalMinutes}分",
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     "給料: ${
                         NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)
                     } 円",
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -246,7 +248,6 @@ fun SumDialog(
                     label = { Text("時給") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
-
             }
         },
         confirmButton = {

@@ -170,8 +170,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
         val prefs =
             getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
-        val startDate = prefs.getString(START_DATE_KEY, "")
-        val startTime = prefs.getString(START_TIME_STRING_KEY, "")
+        val startDate = prefs.getString(START_DATE_KEY, null)
+        val startTime = prefs.getString(START_TIME_STRING_KEY, null)
 
         if (startDate == null || startTime == null) {
             _uiState.value = _uiState.value.copy(
@@ -212,8 +212,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
         val prefs =
             getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
-        val startDate = prefs.getString(START_DATE_KEY, "") ?: return false
-        val startTime = prefs.getString(START_TIME_STRING_KEY, "") ?: return false
+        val startDate = prefs.getString(START_DATE_KEY, null) ?: return false
+        val startTime = prefs.getString(START_TIME_STRING_KEY, null) ?: return false
 
         if (elapsedTime < 60000) {
             _uiState.value = _uiState.value.copy(

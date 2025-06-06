@@ -64,7 +64,7 @@ fun LogViewScreen(
         AndroidView(
             factory = { context ->
                 val inflater = LayoutInflater.from(context)
-                val view = inflater.inflate(R.layout.activity_log_view, null)
+                val view = inflater.inflate(R.layout.calender_view, null)
                 val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
                 calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
                     val selected = String.format("%04d/%02d/%02d", year, month + 1, dayOfMonth)

@@ -111,6 +111,7 @@ fun LogViewScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
         ) {
+            Spacer(modifier = Modifier.width(8.dp))
             FloatingActionButton(
                 onClick = {
                     val intent = Intent(context, EditWorkActivity::class.java).apply {

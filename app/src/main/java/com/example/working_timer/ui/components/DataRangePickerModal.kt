@@ -2,6 +2,7 @@ package com.example.working_timer.ui.components
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -88,7 +89,7 @@ fun DateRangePickerModal(
             showModeToggle = false,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(500.dp)
+                .heightIn(max = 500.dp)
         )
     }
 }

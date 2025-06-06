@@ -202,6 +202,7 @@ fun SumDialog(
     onWageChange: (Long) -> Unit
 ) {
     var wage by remember { mutableStateOf(0L) }
+    val context = LocalContext.current
 
     val sdf = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
     val formattedStartDate =
@@ -243,7 +244,24 @@ fun SumDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("閉じる") }
+            Row {
+                TextButton(onClick = {
+                    val lines = listOf(
+                        "期間 ${formattedStartDate} ~ ${formattedEndDate}",
+                        "時給 ${wage} 円",
+                        "合計 ${totalHours}時間 ${totalMinutes}分",
+                        "給料 ${NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)} 円"
+                    )
+                    val shareText = lines.joinToString("\n")
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, "$shareText")
+                    }
+                    context.startActivity(Intent.createChooser(intent, "共有"))
+                }) { Text("共有") }
+                TextButton(onClick = onDismiss) { Text("閉じる") }
+            }
+
         }
     )
 }

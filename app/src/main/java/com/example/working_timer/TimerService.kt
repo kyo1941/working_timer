@@ -18,6 +18,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.example.working_timer.SharedPrefKeys
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -43,10 +44,10 @@ class TimerService : Service() {
 
     private var listener: TimerServiceListener? = null
 
-    private val PREFS_NAME = "TimerPrefs"
-    private val START_DATE_KEY = "startDate"
-    private val START_TIME_STRING_KEY = "startTimeString"
-    private val ELAPSED_TIME_KEY = "elapsedTime"
+    private val PREFS_NAME = SharedPrefKeys.PREFS_NAME
+    private val START_DATE_KEY = SharedPrefKeys.START_DATE_KEY
+    private val START_TIME_STRING_KEY = SharedPrefKeys.START_TIME_STRING_KEY
+    private val ELAPSED_TIME_KEY = SharedPrefKeys.ELAPSED_TIME_KEY
 
     private var startTimeCalendar: Calendar = Calendar.getInstance() // タイマー開始時の日付を保持
 

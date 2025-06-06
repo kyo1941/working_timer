@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import com.example.working_timer.SharedPrefKeys
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,10 +39,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
     private var timerService: TimerService? = null
     private var isBound = false
 
-    private val PREFS_NAME = "TimerPrefs"
-    private val START_DATE_KEY = "startDate"
-    private val START_TIME_STRING_KEY = "startTimeString"
-    private val ELAPSED_TIME_KEY = "elapsedTime"
+    private val PREFS_NAME = SharedPrefKeys.PREFS_NAME
+    private val START_DATE_KEY = SharedPrefKeys.START_DATE_KEY
+    private val START_TIME_STRING_KEY = SharedPrefKeys.START_TIME_STRING_KEY
+    private val ELAPSED_TIME_KEY = SharedPrefKeys.ELAPSED_TIME_KEY
 
     // データベースアクセス
     private val workDao = AppDatabase.getDatabase(application).workDao()

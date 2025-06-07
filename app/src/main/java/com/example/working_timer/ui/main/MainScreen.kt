@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.working_timer.ui.components.FooterNavigationBar
@@ -203,6 +204,7 @@ fun MainScreen(
                     uiState.dialogMessage,
                     fontWeight = FontWeight.Medium
                 ) },
+                properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
                     // ダイアログのメッセージによってボタンの挙動を変える
                     if (uiState.isTooShortError) {

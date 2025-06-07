@@ -21,6 +21,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.window.DialogProperties
 import com.example.working_timer.ui.components.DatePickerModal
 import com.example.working_timer.ui.components.MaterialTimePickerDialog
 import com.example.working_timer.R
@@ -296,6 +297,7 @@ fun EditWorkScreen(
             onDismissRequest = { showZeroMinutesError = false },
             title = { Text("エラー") },
             text = { Text("1分以上からのみ記録が可能です。") },
+            properties = DialogProperties(dismissOnClickOutside = false),
             confirmButton = {
                 TextButton(onClick = { showZeroMinutesError = false }) {
                     Text("OK")
@@ -309,6 +311,7 @@ fun EditWorkScreen(
             onDismissRequest = { showStartEndError = false },
             title = { Text("エラー") },
             text = { Text("開始時刻が終了時刻を超えています。") },
+            properties = DialogProperties(dismissOnClickOutside = false),
             confirmButton = {
                 TextButton(onClick = { showStartEndError = false }) {
                     Text("OK")

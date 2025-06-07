@@ -1,20 +1,22 @@
 package com.example.working_timer.ui.edit_work
 
-import android.database.sqlite.SQLiteException
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.lifecycle.lifecycleScope
 import com.example.working_timer.data.AppDatabase
-import com.example.working_timer.data.Work
 import kotlinx.coroutines.launch
+import androidx.activity.viewModels
+import kotlinx.coroutines.flow.collectLatest
 
 class EditWorkActivity : ComponentActivity() {
+
+    private val viewModel: EditWorkViewModel by viewModels {
+        EditWorkViewModelFactory(AppDatabase.getDatabase(applicationContext).workDao())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +34,22 @@ class EditWorkActivity : ComponentActivity() {
                 val snackbarHostState = remember { SnackbarHostState() }
                 val scope = rememberCoroutineScope()
 
+                LaunchedEffect(Unit) {
+                    viewModel.uiEvent.collectLatest { event ->
+                        when (event) {
+                            is EditWorkViewModel.UiEvent.ShowSnackbar -> {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(event.message)
+                                }
+                            }
+                            EditWorkViewModel.UiEvent.SaveSuccess -> {
+                                setResult(RESULT_OK)
+                                finish()
+                            }
+                        }
+                    }
+                }
+
                 Scaffold(
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
                 ) { paddingValues ->
@@ -44,45 +62,15 @@ class EditWorkActivity : ComponentActivity() {
                         elapsedTime = elapsedTime,
                         isNew = isNew,
                         onSave = { newStartDay, newStartTime, newEndDay, newEndTime, newElapsed ->
-                            lifecycleScope.launch {
-                                try {
-                                    val dao = AppDatabase.getDatabase(applicationContext).workDao()
-                                    if(!isNew) {
-                                        val work = Work(
-                                            id = id,
-                                            start_day = newStartDay,
-                                            start_time = newStartTime,
-                                            end_day = newEndDay,
-                                            end_time = newEndTime,
-                                            elapsed_time = newElapsed
-                                        )
-                                        dao.update(work)
-                                        setResult(RESULT_OK)
-                                        finish()
-                                    } else {
-                                        val work = Work(
-                                            start_day = newStartDay,
-                                            start_time = newStartTime,
-                                            end_day = newEndDay,
-                                            end_time = newEndTime,
-                                            elapsed_time = newElapsed
-                                        )
-                                        dao.insert(work)
-                                        setResult(RESULT_OK)
-                                        finish()
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e("EditWorkActivity", "Database update failed", e)
-                                    val errorMessage = when (e) {
-                                        is SQLiteException -> "データベースエラーが発生しました。"
-                                        is IllegalArgumentException -> "無効なデータが入力されました。"
-                                        else -> "予期しないエラーが発生しました。"
-                                    }
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(errorMessage)
-                                    }
-                                }
-                            }
+                            viewModel.saveWork(
+                                id = id,
+                                startDay = newStartDay,
+                                startTime = newStartTime,
+                                endDay = newEndDay,
+                                endTime = newEndTime,
+                                elapsedTime = newElapsed,
+                                isNew = isNew
+                            )
                         },
                         modifier = Modifier.padding(paddingValues)
                     )
@@ -91,3 +79,5 @@ class EditWorkActivity : ComponentActivity() {
         }
     }
 }
+
+

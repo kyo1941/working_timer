@@ -13,6 +13,7 @@ import androidx.activity.viewModels
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import kotlin.text.format
 
 class EditWorkActivity : ComponentActivity() {
 
@@ -22,6 +23,15 @@ class EditWorkActivity : ComponentActivity() {
 
     private companion object {
         private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
+    }
+
+    private fun setTime(time: String?): String {
+        return try {
+            val timeStr = time ?: "00:00"
+            LocalTime.parse(timeStr, TIME_FORMATTER).format(TIME_FORMATTER)
+        } catch (e: Exception) {
+            "00:00"
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,21 +44,8 @@ class EditWorkActivity : ComponentActivity() {
         val elapsedTime = intent.getIntExtra("elapsed_time", 0)
 
         // 変な時刻が入っていないか確認
-        val startTime: String = try {
-            val timeStr = intent.getStringExtra("start_time") ?: "00:00"
-            LocalTime.parse(timeStr, TIME_FORMATTER)
-                .format(TIME_FORMATTER)
-        } catch (e: Exception) {
-            "00:00"
-        }
-
-        val endTime: String = try {
-            val timeStr = intent.getStringExtra("end_time") ?: "00:00"
-            LocalTime.parse(timeStr, TIME_FORMATTER)
-                .format(TIME_FORMATTER)
-        } catch (e: Exception) {
-            "00:00"
-        }
+        val startTime = setTime(intent.getStringExtra("start_time"))
+        val endTime = setTime(intent.getStringExtra("end_time"))
 
         setContent {
             MaterialTheme {

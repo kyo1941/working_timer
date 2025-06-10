@@ -7,10 +7,25 @@ import androidx.lifecycle.viewModelScope
 import com.example.working_timer.data.Work
 import com.example.working_timer.data.WorkDao
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Locale
+
+data class EditWorkUiState(
+    var showZeroMinutesError: Boolean = false,
+    var showStartEndError: Boolean = false,
+    var showElapsedTimeOver: Boolean = false
+)
 
 class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(EditWorkUiState())
+    val uiState = _uiState.asStateFlow()
 
     sealed class UiEvent {
         data class ShowSnackbar(val message: String) : UiEvent()
@@ -27,40 +42,88 @@ class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
         endDay: String,
         endTime: String,
         elapsedTime: Int,
-        isNew: Boolean
+        isNew: Boolean,
+        forceSave: Boolean = false
     ) {
         viewModelScope.launch {
             try {
-                if (!isNew) {
-                    val work = Work(
-                        id = id,
-                        start_day = startDay,
-                        start_time = startTime,
-                        end_day = endDay,
-                        end_time = endTime,
-                        elapsed_time = elapsedTime
-                    )
-                    workDao.update(work)
-                } else {
-                    val work = Work(
-                        start_day = startDay,
-                        start_time = startTime,
-                        end_day = endDay,
-                        end_time = endTime,
-                        elapsed_time = elapsedTime
-                    )
-                    workDao.insert(work)
+                val dateTimeFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
+                val startDateTimeMillis = try { dateTimeFormat.parse("$startDay $startTime")?.time } catch (e: ParseException) { null }
+                val endDateTimeMillis = try { dateTimeFormat.parse("$endDay $endTime")?.time } catch (e: ParseException) { null }
+
+                if (startDateTimeMillis == null || endDateTimeMillis == null) {
+                    _uiEvent.emit(UiEvent.ShowSnackbar("日付または時刻の形式が無効です。"))
+                    return@launch
                 }
-                _uiEvent.emit(UiEvent.SaveSuccess)
+
+                if (elapsedTime <= 0) {
+                    _uiState.value = _uiState.value.copy(showZeroMinutesError = true)
+                    return@launch
+                }
+
+                if (startDateTimeMillis > endDateTimeMillis) {
+                    _uiState.value = _uiState.value.copy(showStartEndError = true)
+                    return@launch
+                }
+
+                val diffSeconds = (endDateTimeMillis - startDateTimeMillis) / 1000
+                if (!forceSave && diffSeconds < elapsedTime) {
+                    _uiState.value = _uiState.value.copy(showElapsedTimeOver = true)
+                    return@launch
+                }
+
+                performSave(id, startDay, startTime, endDay, endTime, elapsedTime, isNew)
+
+            } catch (e: SQLiteException) {
+                _uiEvent.emit(UiEvent.ShowSnackbar("データベースエラーが発生しました。"))
             } catch (e: Exception) {
-                val errorMessage = when (e) {
-                    is SQLiteException -> "データベースエラーが発生しました。"
-                    is IllegalArgumentException -> "無効なデータが入力されました。"
-                    else -> "予期しないエラーが発生しました。"
-                }
-                _uiEvent.emit(UiEvent.ShowSnackbar(errorMessage))
+                _uiEvent.emit(UiEvent.ShowSnackbar("予期しないエラーが発生しました: ${e.localizedMessage ?: "詳細不明"}"))
             }
         }
+    }
+
+    private suspend fun performSave(
+        id: Int,
+        startDay: String,
+        startTime: String,
+        endDay: String,
+        endTime: String,
+        elapsedTime: Int,
+        isNew: Boolean
+    ) {
+        if (!isNew) {
+            val work = Work(
+                id = id,
+                start_day = startDay,
+                start_time = startTime,
+                end_day = endDay,
+                end_time = endTime,
+                elapsed_time = elapsedTime
+            )
+            workDao.update(work)
+        } else {
+            val work = Work(
+                start_day = startDay,
+                start_time = startTime,
+                end_day = endDay,
+                end_time = endTime,
+                elapsed_time = elapsedTime
+            )
+            workDao.insert(work)
+        }
+        _uiEvent.emit(UiEvent.SaveSuccess)
+    }
+
+    fun clearZeroMinutesError() {
+        _uiState.value = _uiState.value.copy(showZeroMinutesError = false)
+    }
+
+    fun clearStartEndError() {
+        _uiState.value = _uiState.value.copy(showStartEndError = false)
+    }
+
+    fun clearElapsedTimeOver() {
+        _uiState.value = _uiState.value.copy(showElapsedTimeOver = false)
     }
 }
 
@@ -73,6 +136,3 @@ class EditWorkViewModelFactory(private val workDao: WorkDao) : ViewModelProvider
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-
-
-

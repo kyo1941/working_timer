@@ -54,6 +54,7 @@ class EditWorkActivity : ComponentActivity() {
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
                 ) { paddingValues ->
                     EditWorkScreen(
+                        viewModel = viewModel,
                         id = id,
                         startDay = startDay,
                         endDay = endDay,
@@ -61,7 +62,7 @@ class EditWorkActivity : ComponentActivity() {
                         endTime = endTime,
                         elapsedTime = elapsedTime,
                         isNew = isNew,
-                        onSave = { newStartDay, newStartTime, newEndDay, newEndTime, newElapsed ->
+                        onSave = { newStartDay, newStartTime, newEndDay, newEndTime, newElapsed, forceSave ->
                             viewModel.saveWork(
                                 id = id,
                                 startDay = newStartDay,
@@ -69,7 +70,8 @@ class EditWorkActivity : ComponentActivity() {
                                 endDay = newEndDay,
                                 endTime = newEndTime,
                                 elapsedTime = newElapsed,
-                                isNew = isNew
+                                isNew = isNew,
+                                forceSave = forceSave
                             )
                         },
                         modifier = Modifier.padding(paddingValues)

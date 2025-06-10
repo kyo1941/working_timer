@@ -25,11 +25,13 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.working_timer.ui.components.DatePickerModal
 import com.example.working_timer.ui.components.MaterialTimePickerDialog
 import com.example.working_timer.R
+import androidx.compose.runtime.collectAsState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditWorkScreen(
+    viewModel: EditWorkViewModel,
     id: Int,
     startDay: String,
     endDay: String,
@@ -37,7 +39,7 @@ fun EditWorkScreen(
     endTime: String,
     elapsedTime: Int,
     isNew: Boolean,
-    onSave: (String, String, String, String, Int) -> Unit,
+    onSave: (String, String, String, String, Int, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var startDay by remember { mutableStateOf(startDay) }
@@ -54,9 +56,7 @@ fun EditWorkScreen(
 
     var showElapsedPicker by remember { mutableStateOf(false) }
 
-    var showZeroMinutesError by remember { mutableStateOf(false) }
-    var showStartEndError by remember { mutableStateOf(false) }
-    var showElapsedTimeOver by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState(initial = EditWorkUiState())
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -154,7 +154,6 @@ fun EditWorkScreen(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val baseFontSize = MaterialTheme.typography.headlineSmall.fontSize
             TextButton(onClick = { showElapsedPicker = true }) {
                 Text(
                     text = buildAnnotatedString {
@@ -198,34 +197,9 @@ fun EditWorkScreen(
 
             Button(
                 onClick = {
-                    val dateTimeFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
-                    val startDateTime = dateTimeFormat.parse("$startDay $startTime")?.time
-                    val endDateTime = dateTimeFormat.parse("$endDay $endTime")?.time
-
-                    if (startDateTime == null || endDateTime == null) {
-                        showStartEndError = true
-                        return@Button
-                    }
-
-                    if (startDateTime > endDateTime) {
-                        showStartEndError = true
-                        return@Button
-                    }
-
-                    val diff = ((endDateTime - startDateTime) / 1000).toInt()
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
 
-                    if(diff < newElapsed) {
-                        showElapsedTimeOver = true
-                        return@Button
-                    }
-
-                    if(newElapsed <= 0) {
-                        showZeroMinutesError = true
-                        return@Button
-                    }
-
-                    onSave(startDay, startTime, endDay, endTime, newElapsed)
+                    onSave(startDay, startTime, endDay, endTime, newElapsed, false)
                 },
                 modifier = Modifier.weight(1f)
             ) {
@@ -292,50 +266,50 @@ fun EditWorkScreen(
         )
     }
 
-    if(showZeroMinutesError) {
+    if(uiState.showZeroMinutesError) {
         AlertDialog(
-            onDismissRequest = { showZeroMinutesError = false },
+            onDismissRequest = { viewModel.clearZeroMinutesError() },
             title = { Text("エラー") },
             text = { Text("1分以上からのみ記録が可能です。") },
             properties = DialogProperties(dismissOnClickOutside = false),
             confirmButton = {
-                TextButton(onClick = { showZeroMinutesError = false }) {
+                TextButton(onClick = { viewModel.clearZeroMinutesError() }) {
                     Text("OK")
                 }
             }
         )
     }
 
-    if(showStartEndError) {
+    if(uiState.showStartEndError) {
         AlertDialog(
-            onDismissRequest = { showStartEndError = false },
+            onDismissRequest = { viewModel.clearStartEndError() },
             title = { Text("エラー") },
             text = { Text("開始時刻が終了時刻を超えています。") },
             properties = DialogProperties(dismissOnClickOutside = false),
             confirmButton = {
-                TextButton(onClick = { showStartEndError = false }) {
+                TextButton(onClick = { viewModel.clearStartEndError() }) {
                     Text("OK")
                 }
             }
         )
     }
 
-    if(showElapsedTimeOver) {
+    if(uiState.showElapsedTimeOver) {
         AlertDialog(
-            onDismissRequest = { showElapsedTimeOver = false },
+            onDismissRequest = { viewModel.clearElapsedTimeOver() },
             title = { Text("注意") },
             text = { Text("活動時間が時間差より大きいです。\nこのまま保存しますか？") },
             confirmButton = {
                 TextButton(onClick = {
-                    showElapsedTimeOver = false
+                    viewModel.clearElapsedTimeOver()
                     val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
-                    onSave(startDay, startTime, endDay, endTime, newElapsed)
+                    onSave(startDay, startTime, endDay, endTime, newElapsed, true)
                 }) {
                     Text("保存")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showElapsedTimeOver = false }) {
+                TextButton(onClick = { viewModel.clearElapsedTimeOver() }) {
                     Text("キャンセル")
                 }
             }
@@ -358,3 +332,6 @@ fun formatMonthDay(fullDate: String): String {
         fullDate
     }
 }
+
+
+

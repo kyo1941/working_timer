@@ -34,6 +34,10 @@ class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
     private val _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
+    private companion object {
+        private const val DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm"
+    }
+
     fun saveWork(
         id: Int,
         startDay: String,
@@ -46,7 +50,7 @@ class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                val dateTimeFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
+                val dateTimeFormat = SimpleDateFormat(DATE_TIME_PATTERN, Locale.getDefault())
                 val startDateTimeMillis = try { dateTimeFormat.parse("$startDay $startTime")?.time } catch (e: ParseException) { null }
                 val endDateTimeMillis = try { dateTimeFormat.parse("$endDay $endTime")?.time } catch (e: ParseException) { null }
 

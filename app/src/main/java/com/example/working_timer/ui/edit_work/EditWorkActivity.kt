@@ -11,6 +11,8 @@ import com.example.working_timer.data.AppDatabase
 import kotlinx.coroutines.launch
 import androidx.activity.viewModels
 import kotlinx.coroutines.flow.collectLatest
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class EditWorkActivity : ComponentActivity() {
 
@@ -25,9 +27,24 @@ class EditWorkActivity : ComponentActivity() {
         val id = intent.getIntExtra("id", 0)
         val startDay = intent.getStringExtra("start_day") ?: ""
         val endDay = intent.getStringExtra("end_day") ?: ""
-        val startTime = intent.getStringExtra("start_time")?.substring(0, 5) ?: "00:00"
-        val endTime = intent.getStringExtra("end_time")?.substring(0, 5) ?: "00:00"
         val elapsedTime = intent.getIntExtra("elapsed_time", 0)
+
+        // 変な時刻が入っていないか確認
+        val startTime: String = try {
+            val timeStr = intent.getStringExtra("start_time") ?: "00:00"
+            LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"))
+                .format(DateTimeFormatter.ofPattern("HH:mm"))
+        } catch (e: Exception) {
+            "00:00"
+        }
+
+        val endTime: String = try {
+            val timeStr = intent.getStringExtra("end_time") ?: "00:00"
+            LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"))
+                .format(DateTimeFormatter.ofPattern("HH:mm"))
+        } catch (e: Exception) {
+            "00:00"
+        }
 
         setContent {
             MaterialTheme {

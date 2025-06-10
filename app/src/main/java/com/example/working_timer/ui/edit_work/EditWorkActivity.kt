@@ -20,6 +20,10 @@ class EditWorkActivity : ComponentActivity() {
         EditWorkViewModelFactory(AppDatabase.getDatabase(applicationContext).workDao())
     }
 
+    private companion object {
+        private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -32,16 +36,16 @@ class EditWorkActivity : ComponentActivity() {
         // 変な時刻が入っていないか確認
         val startTime: String = try {
             val timeStr = intent.getStringExtra("start_time") ?: "00:00"
-            LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"))
-                .format(DateTimeFormatter.ofPattern("HH:mm"))
+            LocalTime.parse(timeStr, TIME_FORMATTER)
+                .format(TIME_FORMATTER)
         } catch (e: Exception) {
             "00:00"
         }
 
         val endTime: String = try {
             val timeStr = intent.getStringExtra("end_time") ?: "00:00"
-            LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"))
-                .format(DateTimeFormatter.ofPattern("HH:mm"))
+            LocalTime.parse(timeStr, TIME_FORMATTER)
+                .format(TIME_FORMATTER)
         } catch (e: Exception) {
             "00:00"
         }

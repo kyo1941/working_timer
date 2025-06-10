@@ -7,4 +7,6 @@
 Kotlin，Jetpack Compose，Room，Kotlin coroutines
 
 ## 使い方
-- `docs`ディレクトリを参照してください
+
+- スクリーンショット [docs/screenshot](https://github.com/kyo1941/working_timer/tree/main/docs/screenshot)
+- 使用動画 [docs/video](https://github.com/kyo1941/working_timer/tree/main/docs/video)

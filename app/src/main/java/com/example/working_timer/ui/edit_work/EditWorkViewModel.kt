@@ -10,16 +10,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 data class EditWorkUiState(
-    var showZeroMinutesError: Boolean = false,
-    var showStartEndError: Boolean = false,
-    var showElapsedTimeOver: Boolean = false
+    val showZeroMinutesError: Boolean = false,
+    val showStartEndError: Boolean = false,
+    val showElapsedTimeOver: Boolean = false
 )
 
 class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {

@@ -1,9 +1,9 @@
 ## スクリーンショット
 
 ### タイマー画面
-![timerView image](images/timerView.png)
+![タイマー画面 画像](images/timerView.png)
 
 ---
 
 ### 履歴画面
-![alt text](images/calendarView.png)
+![履歴画面 画像](images/calendarView.png)

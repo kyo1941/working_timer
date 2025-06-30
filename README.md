@@ -51,10 +51,10 @@ Kotlin，Jetpack Compose，Room，Kotlin coroutines
 ### スクリーンショット
 - メインタイマー画面
 
-<img src="docs//screenshot/images/timerView.png" width="1040" alt="メインタイマー画面のフロー">
+![image](docs/screenshot/images/timerView.png) 
 
 ---
 
 - カレンダー画面
 
-<img src="docs//screenshot/images/calendarView.png" width="1040" alt="カレンダー画面のフロー">
+![image](docs/screenshot/images/calendarView.png)

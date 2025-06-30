@@ -16,9 +16,11 @@ Kotlin，Jetpack Compose，Room，Kotlin coroutines
 |   ├── AppDatabase.kt                  // Roomデータベースのインスタンスを提供します．
 |   ├── Work.kt                         // 勤務記録のエンティティを定義します．
 |   └── WorkDao.kt                      // データベース操作（CRUD）のDAOインターフェースを定義します．
+|
 ├── service                             // バックグラウンドサービス関連のファイルを格納します．
 |   ├── TimerActionReceiver.kt          // 通知からのタイマー操作を受け取るBroadcastReceiverです．
 |   └── TimerService.kt                 // タイマーのロジックとフォアグラウンド通知を管理するサービスです．
+|
 ├── ui                                  // UIコンポーネントと画面関連のファイルを格納します．
 |   ├── components                      // 再利用可能なUIコンポーネントを格納します．
 |   |   ├── DataRangePickerModal.kt     // 日付範囲選択モダールダイアログを実装します．
@@ -26,18 +28,22 @@ Kotlin，Jetpack Compose，Room，Kotlin coroutines
 |   |   ├── MaterialTimePickerDialog.kt // 時刻選択ダイアログを実装します．
 |   |   ├── FooterNavigationBar.kt      // アプリケーションの下部ナビゲーションバーを実装します．
 |   |   └── WorkItemComposable.kt       // 作業記録リストの各項目を表示するUIコンポーネントです．
+|   |
 |   ├── edit_work                       // 作業記録の編集画面関連のファイルを格納します．(以下，MVVMモデルに基づいてファイルを分けています)
 |   |   ├── EditWorkActivity.kt
 |   |   ├── EditWorkScreen.kt
 |   |   └── EditWorkViewModel.kt
+|   |
 |   ├── log_view                        // 作業記録の履歴表示画面関連のファイルを格納します．
 |   |   ├── LogViewActivity.kt
 |   |   ├── LogViewScreen.kt
 |   |   └── LogViewViewModel.kt
+|   |
 |   └── main                            // メインタイマー画面関連のファイルを格納します．
-|   |   ├── MainActivity.kt
-|   |   ├── MainScreen.kt
-|   |   └── MainViewModel.kt
+|       ├── MainActivity.kt
+|       ├── MainScreen.kt
+|       └── MainViewModel.kt
+|
 └── util                                // ユーティリティ関数や定数を格納します．
     ├── Color.kt                        // アプリケーションで使用される色定数を定義します．
     └── Constants.kt                    // アプリケーション全体で使用される定数（Shared Preferencesのキーなど）を定義します．

@@ -12,6 +12,13 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+// 時間計算のモードを定義する列挙型
+enum class TimeCalculationMode {
+    NORMAL,    // 通常計算
+    ROUND_UP,  // 繰り上げ
+    ROUND_DOWN // 繰り下げ
+}
+
 // UI状態を保持するデータクラス
 data class LogViewUiState(
     val selectedDay: String = "",
@@ -22,10 +29,10 @@ data class LogViewUiState(
     val showSumDialog: Boolean = false,
     val sumStartDate: Long? = null,
     val sumEndDate: Long? = null,
-    val totalTime: Long = 0L,
     val totalHours: Long = 0L,
     val totalMinutes: Long = 0L,
-    val totalWage: Long = 0L
+    val totalWage: Long = 0L,
+    val timeCalculationMode: TimeCalculationMode = TimeCalculationMode.NORMAL
 )
 
 class LogViewViewModel(application: Application) : AndroidViewModel(application) {
@@ -82,6 +89,10 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = _uiState.value.copy(showSumDialog = false, sumStartDate = null, sumEndDate = null)
     }
 
+    fun setTimeCalculationMode(mode: TimeCalculationMode) {
+        _uiState.value = _uiState.value.copy(timeCalculationMode = mode)
+    }
+
     private fun calculateSum(start: Long, end: Long) {
         viewModelScope.launch {
             val calendar = Calendar.getInstance()
@@ -98,7 +109,6 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
             val totalHours = totalTime / 3600
             val totalMinutes = (totalTime % 3600) / 60
             _uiState.value = _uiState.value.copy(
-                totalTime = totalTime,
                 totalHours = totalHours,
                 totalMinutes = totalMinutes
             )
@@ -106,7 +116,21 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateTotalWage(wage: Long) {
-        val totalWage = (_uiState.value.totalTime * wage) / 3600
+        val initialTotalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
+
+        val adjustTotalTime = when (_uiState.value.timeCalculationMode) {
+            TimeCalculationMode.ROUND_UP -> {
+                Math.ceil(initialTotalTime / 3600.0).toLong() * 3600
+            }
+            TimeCalculationMode.ROUND_DOWN -> {
+                Math.floor(initialTotalTime / 3600.0).toLong() * 3600
+            }
+            else -> {
+                initialTotalTime
+            }
+        }
+
+        val totalWage = (adjustTotalTime * wage) / 3600
         _uiState.value = _uiState.value.copy(totalWage = totalWage)
     }
 }

@@ -18,6 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.text.input.KeyboardType
@@ -179,8 +181,10 @@ fun LogViewScreen(
             totalHours = uiState.totalHours,
             totalMinutes = uiState.totalMinutes,
             totalWage = uiState.totalWage,
+            calculationMode = uiState.timeCalculationMode,
             onDismiss = { viewModel.hideSumDialog() },
-            onWageChange = { viewModel.updateTotalWage(it) }
+            onWageChange = { viewModel.updateTotalWage(it) },
+            onCalculationModeChange = { viewModel.setTimeCalculationMode(it) }
         )
     }
 
@@ -206,16 +210,34 @@ fun SumDialog(
     totalHours: Long,
     totalMinutes: Long,
     totalWage: Long,
+    calculationMode: TimeCalculationMode,
     onDismiss: () -> Unit,
-    onWageChange: (Long) -> Unit
+    onWageChange: (Long) -> Unit,
+    onCalculationModeChange: (TimeCalculationMode) -> Unit
 ) {
     var wage by remember { mutableStateOf(0L) }
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        wage = 0L
+        onWageChange(wage)
+    }
 
     val sdf = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
     val formattedStartDate =
         remember(startDate) { if (startDate != null) sdf.format(startDate) else "N/A" }
     val formattedEndDate = remember(endDate) { if (endDate != null) sdf.format(endDate) else "N/A" }
+
+    val calculationModes = remember {
+        TimeCalculationMode.entries.map {
+            when (it) {
+                TimeCalculationMode.NORMAL -> "通常"
+                TimeCalculationMode.ROUND_UP -> "繰り上げ"
+                TimeCalculationMode.ROUND_DOWN -> "繰り下げ"
+            }
+        }
+    }
+    val selectedModeIndex = calculationMode.ordinal
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -243,12 +265,30 @@ fun SumDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = if (wage == 0L) "" else wage.toString(),
+                    textStyle = TextStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                    ),
                     onValueChange = {
                         wage = it.toLongOrNull() ?: 0L
                         onWageChange(wage)
                     },
                     label = { Text("時給") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SegmentedControl(
+                    items = calculationModes,
+                    selectedIndex = selectedModeIndex,
+                    onSelectionChange = { index ->
+                        val mode = TimeCalculationMode.entries[index]
+                        onCalculationModeChange(mode)
+                        if (index != selectedModeIndex) {
+                            onWageChange(wage)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
@@ -273,4 +313,49 @@ fun SumDialog(
 
         }
     )
+}
+
+
+@Composable
+fun SegmentedControl(
+    items: List<String>,
+    selectedIndex: Int,
+    onSelectionChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.LightGray.copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier.padding(4.dp)
+        ) {
+            items.forEachIndexed { index, item ->
+                val isSelected = selectedIndex == index
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 2.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary
+                        else Color.Transparent
+                    ),
+                    onClick = { onSelectionChange(index) }
+                ) {
+                    Text(
+                        text = item,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        color = if (isSelected) Color.White
+                        else MaterialTheme.colorScheme.onSurface,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                    )
+                }
+            }
+        }
+    }
 }

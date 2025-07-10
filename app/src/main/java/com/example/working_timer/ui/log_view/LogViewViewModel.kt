@@ -22,7 +22,6 @@ data class LogViewUiState(
     val showSumDialog: Boolean = false,
     val sumStartDate: Long? = null,
     val sumEndDate: Long? = null,
-    val totalTime: Long = 0L,
     val totalHours: Long = 0L,
     val totalMinutes: Long = 0L,
     val totalWage: Long = 0L
@@ -98,7 +97,6 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
             val totalHours = totalTime / 3600
             val totalMinutes = (totalTime % 3600) / 60
             _uiState.value = _uiState.value.copy(
-                totalTime = totalTime,
                 totalHours = totalHours,
                 totalMinutes = totalMinutes
             )
@@ -106,7 +104,8 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateTotalWage(wage: Long) {
-        val totalWage = (_uiState.value.totalTime * wage) / 3600
+        val totalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
+        val totalWage = (totalTime * wage) / 3600
         _uiState.value = _uiState.value.copy(totalWage = totalWage)
     }
 }

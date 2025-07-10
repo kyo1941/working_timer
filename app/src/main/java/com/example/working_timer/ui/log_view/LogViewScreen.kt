@@ -264,7 +264,8 @@ fun SumDialog(
                         onWageChange(wage)
                     },
                     label = { Text("時給") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 SegmentedControl(

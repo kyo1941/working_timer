@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-//　時間計算のモードを定義する列挙型
+// 時間計算のモードを定義する列挙型
 enum class TimeCalculationMode {
     NORMAL,    // 通常計算
     ROUND_UP,  // 繰り上げ
@@ -116,16 +116,21 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateTotalWage(wage: Long) {
-        val mode = _uiState.value.timeCalculationMode
-        var totalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
+        val initialTotalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
 
-        if (mode == TimeCalculationMode.ROUND_UP) {
-            totalTime = Math.ceil(totalTime / 3600.0).toLong() * 3600
-        } else if (mode == TimeCalculationMode.ROUND_DOWN) {
-            totalTime = Math.floor(totalTime / 3600.0).toLong() * 3600
+        val adjustTotalTime = when (_uiState.value.timeCalculationMode) {
+            TimeCalculationMode.ROUND_UP -> {
+                Math.ceil(initialTotalTime / 3600.0).toLong() * 3600
+            }
+            TimeCalculationMode.ROUND_DOWN -> {
+                Math.floor(initialTotalTime / 3600.0).toLong() * 3600
+            }
+            else -> {
+                initialTotalTime
+            }
         }
 
-        val totalWage = (totalTime * wage) / 3600
+        val totalWage = (adjustTotalTime * wage) / 3600
         _uiState.value = _uiState.value.copy(totalWage = totalWage)
     }
 }

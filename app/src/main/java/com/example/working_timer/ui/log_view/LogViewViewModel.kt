@@ -120,9 +120,9 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
         var totalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
 
         if (mode == TimeCalculationMode.ROUND_UP) {
-            totalTime = ((totalTime + 3599) / 3600) * 3600
+            totalTime = Math.ceil(totalTime / 3600.0).toLong() * 3600
         } else if (mode == TimeCalculationMode.ROUND_DOWN) {
-            totalTime = (totalTime / 3600) * 3600
+            totalTime = Math.floor(totalTime / 3600.0).toLong() * 3600
         }
 
         val totalWage = (totalTime * wage) / 3600

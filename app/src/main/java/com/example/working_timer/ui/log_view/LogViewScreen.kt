@@ -18,6 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.text.input.KeyboardType
@@ -259,6 +261,10 @@ fun SumDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = if (wage == 0L) "" else wage.toString(),
+                    textStyle = TextStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                    ),
                     onValueChange = {
                         wage = it.toLongOrNull() ?: 0L
                         onWageChange(wage)

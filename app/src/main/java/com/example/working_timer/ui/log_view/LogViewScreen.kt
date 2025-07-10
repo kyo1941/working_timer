@@ -180,8 +180,10 @@ fun LogViewScreen(
             totalHours = uiState.totalHours,
             totalMinutes = uiState.totalMinutes,
             totalWage = uiState.totalWage,
+            calculationMode = uiState.timeCalculationMode,
             onDismiss = { viewModel.hideSumDialog() },
-            onWageChange = { viewModel.updateTotalWage(it) }
+            onWageChange = { viewModel.updateTotalWage(it) },
+            onCalculationModeChange = { viewModel.setTimeCalculationMode(it) }
         )
     }
 
@@ -207,8 +209,10 @@ fun SumDialog(
     totalHours: Long,
     totalMinutes: Long,
     totalWage: Long,
+    calculationMode: TimeCalculationMode,
     onDismiss: () -> Unit,
-    onWageChange: (Long) -> Unit
+    onWageChange: (Long) -> Unit,
+    onCalculationModeChange: (TimeCalculationMode) -> Unit
 ) {
     var wage by remember { mutableStateOf(0L) }
     val context = LocalContext.current
@@ -222,6 +226,13 @@ fun SumDialog(
     val formattedStartDate =
         remember(startDate) { if (startDate != null) sdf.format(startDate) else "N/A" }
     val formattedEndDate = remember(endDate) { if (endDate != null) sdf.format(endDate) else "N/A" }
+
+    val calculationModes = listOf("通常", "繰り上げ", "繰り下げ")
+    val selectedModeIndex = when(calculationMode) {
+        TimeCalculationMode.NORMAL -> 0
+        TimeCalculationMode.ROUND_UP -> 1
+        TimeCalculationMode.ROUND_DOWN -> 2
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -256,6 +267,22 @@ fun SumDialog(
                     label = { Text("時給") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                SegmentedControl(
+                    items = calculationModes,
+                    selectedIndex = selectedModeIndex,
+                    onSelectionChange = { index ->
+                        val mode = when (index) {
+                            0 -> TimeCalculationMode.NORMAL
+                            1 -> TimeCalculationMode.ROUND_UP
+                            2 -> TimeCalculationMode.ROUND_DOWN
+                            else -> TimeCalculationMode.NORMAL
+                        }
+                        onCalculationModeChange(mode)
+                        onWageChange(wage)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
@@ -279,4 +306,49 @@ fun SumDialog(
 
         }
     )
+}
+
+
+@Composable
+fun SegmentedControl(
+    items: List<String>,
+    selectedIndex: Int,
+    onSelectionChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.LightGray.copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier.padding(4.dp)
+        ) {
+            items.forEachIndexed { index, item ->
+                val isSelected = selectedIndex == index
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 2.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary
+                        else Color.Transparent
+                    ),
+                    onClick = { onSelectionChange(index) }
+                ) {
+                    Text(
+                        text = item,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        color = if (isSelected) Color.White
+                        else MaterialTheme.colorScheme.onSurface,
+                        fontSize = MaterialTheme.typography.bodySmall.fontSize
+                    )
+                }
+            }
+        }
+    }
 }

@@ -12,6 +12,13 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+//　時間計算のモードを定義する列挙型
+enum class TimeCalculationMode {
+    NORMAL,    // 通常計算
+    ROUND_UP,  // 繰り上げ
+    ROUND_DOWN // 繰り下げ
+}
+
 // UI状態を保持するデータクラス
 data class LogViewUiState(
     val selectedDay: String = "",
@@ -24,7 +31,8 @@ data class LogViewUiState(
     val sumEndDate: Long? = null,
     val totalHours: Long = 0L,
     val totalMinutes: Long = 0L,
-    val totalWage: Long = 0L
+    val totalWage: Long = 0L,
+    val timeCalculationMode: TimeCalculationMode = TimeCalculationMode.NORMAL
 )
 
 class LogViewViewModel(application: Application) : AndroidViewModel(application) {
@@ -81,6 +89,10 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
         _uiState.value = _uiState.value.copy(showSumDialog = false, sumStartDate = null, sumEndDate = null)
     }
 
+    fun setTimeCalculationMode(mode: TimeCalculationMode) {
+        _uiState.value = _uiState.value.copy(timeCalculationMode = mode)
+    }
+
     private fun calculateSum(start: Long, end: Long) {
         viewModelScope.launch {
             val calendar = Calendar.getInstance()
@@ -104,7 +116,15 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateTotalWage(wage: Long) {
-        val totalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
+        val mode = _uiState.value.timeCalculationMode
+        var totalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
+
+        if (mode == TimeCalculationMode.ROUND_UP) {
+            totalTime = ((totalTime + 3599) / 3600) * 3600
+        } else if (mode == TimeCalculationMode.ROUND_DOWN) {
+            totalTime = (totalTime / 3600) * 3600
+        }
+
         val totalWage = (totalTime * wage) / 3600
         _uiState.value = _uiState.value.copy(totalWage = totalWage)
     }

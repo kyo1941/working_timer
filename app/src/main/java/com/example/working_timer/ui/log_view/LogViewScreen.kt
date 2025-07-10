@@ -228,12 +228,16 @@ fun SumDialog(
         remember(startDate) { if (startDate != null) sdf.format(startDate) else "N/A" }
     val formattedEndDate = remember(endDate) { if (endDate != null) sdf.format(endDate) else "N/A" }
 
-    val calculationModes = listOf("通常", "繰り上げ", "繰り下げ")
-    val selectedModeIndex = when(calculationMode) {
-        TimeCalculationMode.NORMAL -> 0
-        TimeCalculationMode.ROUND_UP -> 1
-        TimeCalculationMode.ROUND_DOWN -> 2
+    val calculationModes = remember {
+        TimeCalculationMode.entries.map {
+            when (it) {
+                TimeCalculationMode.NORMAL -> "通常"
+                TimeCalculationMode.ROUND_UP -> "繰り上げ"
+                TimeCalculationMode.ROUND_DOWN -> "繰り下げ"
+            }
+        }
     }
+    val selectedModeIndex = calculationMode.ordinal
 
     AlertDialog(
         onDismissRequest = onDismiss,

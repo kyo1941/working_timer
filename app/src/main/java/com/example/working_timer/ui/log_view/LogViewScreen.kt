@@ -278,7 +278,9 @@ fun SumDialog(
                             else -> TimeCalculationMode.NORMAL
                         }
                         onCalculationModeChange(mode)
-                        onWageChange(wage)
+                        if (index != selectedModeIndex) {
+                            onWageChange(wage)
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 )

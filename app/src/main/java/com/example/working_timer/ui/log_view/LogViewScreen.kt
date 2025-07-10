@@ -31,7 +31,6 @@ import com.example.working_timer.ui.components.WorkItemComposable
 import java.text.NumberFormat
 import com.example.working_timer.util.BorderColor
 import com.example.working_timer.util.ButtonBackgroundColor
-import org.intellij.lang.annotations.Language
 
 import java.text.SimpleDateFormat
 import java.util.*

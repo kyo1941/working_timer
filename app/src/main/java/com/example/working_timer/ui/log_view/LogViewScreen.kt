@@ -282,12 +282,7 @@ fun SumDialog(
                     items = calculationModes,
                     selectedIndex = selectedModeIndex,
                     onSelectionChange = { index ->
-                        val mode = when (index) {
-                            0 -> TimeCalculationMode.NORMAL
-                            1 -> TimeCalculationMode.ROUND_UP
-                            2 -> TimeCalculationMode.ROUND_DOWN
-                            else -> TimeCalculationMode.NORMAL
-                        }
+                        val mode = TimeCalculationMode.entries[index]
                         onCalculationModeChange(mode)
                         if (index != selectedModeIndex) {
                             onWageChange(wage)

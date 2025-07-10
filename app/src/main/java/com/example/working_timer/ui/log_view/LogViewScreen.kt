@@ -31,6 +31,7 @@ import com.example.working_timer.ui.components.WorkItemComposable
 import java.text.NumberFormat
 import com.example.working_timer.util.BorderColor
 import com.example.working_timer.util.ButtonBackgroundColor
+import org.intellij.lang.annotations.Language
 
 import java.text.SimpleDateFormat
 import java.util.*
@@ -211,6 +212,11 @@ fun SumDialog(
 ) {
     var wage by remember { mutableStateOf(0L) }
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        wage = 0L
+        onWageChange(wage)
+    }
 
     val sdf = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
     val formattedStartDate =

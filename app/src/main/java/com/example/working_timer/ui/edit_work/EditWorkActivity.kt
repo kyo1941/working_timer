@@ -10,15 +10,20 @@ import androidx.compose.runtime.*
 import com.example.working_timer.data.AppDatabase
 import kotlinx.coroutines.launch
 import androidx.activity.viewModels
+import com.example.working_timer.domain.repository.WorkRepository
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class EditWorkActivity : ComponentActivity() {
 
-    private val viewModel: EditWorkViewModel by viewModels {
-        EditWorkViewModelFactory(AppDatabase.getDatabase(applicationContext).workDao())
-    }
+    @Inject
+    lateinit var workRepository: WorkRepository
+
+    private val viewModel: EditWorkViewModel by viewModels()
 
     private companion object {
         private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")

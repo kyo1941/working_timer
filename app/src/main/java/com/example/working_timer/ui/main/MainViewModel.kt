@@ -7,17 +7,21 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import com.example.working_timer.service.TimerService
 import com.example.working_timer.util.SharedPrefKeys
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
+import com.example.working_timer.domain.repository.WorkRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 // UIの状態を保持するためのデータクラス
 data class TimerUiState(
@@ -31,7 +35,11 @@ data class TimerUiState(
     val isTooShortError: Boolean = false
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application),
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val workRepository: WorkRepository
+) : ViewModel(),
     TimerService.TimerServiceListener {
 
     private val _uiState = MutableStateFlow(TimerUiState())
@@ -44,9 +52,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
     private val START_DATE_KEY = SharedPrefKeys.START_DATE_KEY
     private val START_TIME_STRING_KEY = SharedPrefKeys.START_TIME_STRING_KEY
     private val ELAPSED_TIME_KEY = SharedPrefKeys.ELAPSED_TIME_KEY
-
-    // データベースアクセス
-    private val workDao = AppDatabase.getDatabase(application).workDao()
 
     private var pendingStart = false
 
@@ -75,8 +80,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
 
     // elapsedTimeをSharedPreferencesから読み込み、UIに反映
     private fun loadElapsedTime() {
-        val prefs =
-            getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val savedElapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
         updateTimerText(savedElapsedTime)
         // サービスに接続されていない初期状態でも、UIを更新
@@ -110,8 +114,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
     }
 
     private fun saveElapsedTime(elapsedTime: Long) {
-        val prefs =
-            getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putLong(ELAPSED_TIME_KEY, elapsedTime).apply()
     }
 
@@ -168,8 +171,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
     fun stopTimer() {
         timerService?.pauseTimer()
 
-        val prefs =
-            getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
         val startDate = prefs.getString(START_DATE_KEY, null)
         val startTime = prefs.getString(START_TIME_STRING_KEY, null)
@@ -210,8 +212,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
 
     // 作業を保存
     suspend fun saveWork(): Boolean {
-        val prefs =
-            getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
         val startDate = prefs.getString(START_DATE_KEY, null) ?: return false
         val startTime = prefs.getString(START_TIME_STRING_KEY, null) ?: return false
@@ -243,10 +244,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
 
         // 保存処理
         try {
-            workDao.insert(work)
-
+            workRepository.insert(work)
             timerService?.stopTimer()
-            getApplication<Application>().unbindService(connection)
+            context.unbindService(connection)
             isBound = false
             timerService = null
             updateUiState()
@@ -260,22 +260,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
     // 作業を破棄
     fun discardWork() {
         timerService?.stopTimer()
-        getApplication<Application>().unbindService(connection)
+        context.unbindService(connection)
         isBound = false
         timerService = null
         updateUiState()
     }
 
     private fun bindTimerService() {
-        Intent(getApplication(), TimerService::class.java).also { intent ->
-            getApplication<Application>().bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        Intent(context, TimerService::class.java).also { intent ->
+            context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
     }
 
     override fun onCleared() {
         super.onCleared()
         if (isBound) {
-            getApplication<Application>().unbindService(connection)
+            context.unbindService(connection)
             isBound = false
         }
     }

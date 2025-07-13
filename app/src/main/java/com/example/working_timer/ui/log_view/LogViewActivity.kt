@@ -4,14 +4,18 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.activity.viewModels
 import com.example.working_timer.ui.main.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LogViewActivity : ComponentActivity() {
+
+    private val viewModel: LogViewViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val viewModel: LogViewViewModel = viewModel()
             LogViewScreen(
                 viewModel = viewModel,
                 onNavigateToTimer = {

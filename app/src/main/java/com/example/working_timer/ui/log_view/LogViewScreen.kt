@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.working_timer.ui.components.DateRangePickerModal
 import com.example.working_timer.ui.edit_work.EditWorkActivity
@@ -40,7 +41,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogViewScreen(
-    viewModel: LogViewViewModel = viewModel(),
+    viewModel: LogViewViewModel = hiltViewModel(),
     onNavigateToTimer: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()

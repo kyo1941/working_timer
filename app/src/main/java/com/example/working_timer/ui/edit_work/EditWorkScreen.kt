@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
@@ -26,12 +27,16 @@ import com.example.working_timer.ui.components.DatePickerModal
 import com.example.working_timer.ui.components.MaterialTimePickerDialog
 import com.example.working_timer.R
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditWorkScreen(
-    viewModel: EditWorkViewModel,
+    editWorkViewModel: EditWorkViewModel = hiltViewModel(),
     id: Int,
     startDay: String,
     endDay: String,
@@ -39,8 +44,7 @@ fun EditWorkScreen(
     endTime: String,
     elapsedTime: Int,
     isNew: Boolean,
-    onSave: (String, String, String, String, Int, Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    onNavigateBack: () -> Unit = {}
 ) {
     var startDay by remember { mutableStateOf(startDay) }
     var endDay by remember { mutableStateOf(endDay) }
@@ -56,264 +60,304 @@ fun EditWorkScreen(
 
     var showElapsedPicker by remember { mutableStateOf(false) }
 
-    val uiState by viewModel.uiState.collectAsState(initial = EditWorkUiState())
+    val uiState by editWorkViewModel.uiState.collectAsState(initial = EditWorkUiState())
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        val context = LocalContext.current
-        Text (
-            text = context.getString(if(isNew) R.string.new_record else R.string.edit_record),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        editWorkViewModel.uiEvent.collectLatest { event ->
+            when (event) {
+                is EditWorkViewModel.UiEvent.ShowSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(event.message)
+                    }
+                }
+                EditWorkViewModel.UiEvent.SaveSuccess -> { onNavigateBack() }
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { _ ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("開始")
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            TextButton(onClick = { showStartDayPicker = true }) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(formatMonthDay(startDay))
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.width(32.dp))
-            TextButton(onClick = { showStartTimePicker = true }) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(startTime)
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-        }
+            val context = LocalContext.current
+            Text(
+                text = context.getString(if (isNew) R.string.new_record else R.string.edit_record),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+            )
 
-        Text("終了")
+            Spacer(modifier = Modifier.weight(0.3f))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = { showEndDayPicker = true }) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(formatMonthDay(endDay))
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.width(32.dp))
-            TextButton(onClick = { showEndTimePicker = true }) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(endTime)
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-        }
+            Text("開始")
 
-        Text("活動時間")
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = { showElapsedPicker = true }) {
-                Text(
-                    text = buildAnnotatedString {
-                        if (elapsedHour > 0) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = { showStartDayPicker = true }) {
+                    Text(
+                        text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(String.format("%2d", elapsedHour))
+                                append(formatMonthDay(startDay))
                             }
-                            append(" 時間 ")
-                        }
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(String.format("%2d", elapsedMinute))
-                        }
-                        append(" 分")
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
                     )
-                )
-
+                }
+                Spacer(modifier = Modifier.width(32.dp))
+                TextButton(onClick = { showStartTimePicker = true }) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(startTime)
+                            }
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Text("終了")
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = {
-                    (context as? Activity)?.finish()
-                },
-                modifier = Modifier.weight(1f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("キャンセル")
+                TextButton(onClick = { showEndDayPicker = true }) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(formatMonthDay(endDay))
+                            }
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
+                Spacer(modifier = Modifier.width(32.dp))
+                TextButton(onClick = { showEndTimePicker = true }) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(endTime)
+                            }
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.width(24.dp))
+            Text("活動時間")
 
-            Button(
-                onClick = {
-                    val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
-
-                    onSave(startDay, startTime, endDay, endTime, newElapsed, false)
-                },
-                modifier = Modifier.weight(1f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("保存")
-            }
-        }
-    }
+                TextButton(onClick = { showElapsedPicker = true }) {
+                    Text(
+                        text = buildAnnotatedString {
+                            if (elapsedHour > 0) {
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append(String.format("%2d", elapsedHour))
+                                }
+                                append(" 時間 ")
+                            }
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(String.format("%2d", elapsedMinute))
+                            }
+                            append(" 分")
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    )
 
-    if (showStartTimePicker) {
-        MaterialTimePickerDialog(
-            initialTime = parseTime(startTime),
-            onDismiss = { showStartTimePicker = false },
-            onTimeSelected = {
-                startTime = it
-                showStartTimePicker = false
-            }
-        )
-    }
-
-    if (showEndTimePicker) {
-        MaterialTimePickerDialog(
-            initialTime = parseTime(endTime),
-            onDismiss = { showEndTimePicker = false },
-            onTimeSelected = {
-                endTime = it
-                showEndTimePicker = false
-            }
-        )
-    }
-
-    if (showStartDayPicker) {
-        DatePickerModal(
-            initialDate = startDay,
-            onDateSelected = {
-                startDay = it
-                showStartDayPicker = false
-            },
-            onDismiss = { showStartDayPicker = false }
-        )
-    }
-
-    if (showEndDayPicker) {
-        DatePickerModal(
-            initialDate = endDay,
-            onDateSelected = {
-                endDay = it
-                showEndDayPicker = false
-            },
-            onDismiss = { showEndDayPicker = false }
-        )
-    }
-
-    if (showElapsedPicker) {
-        MaterialTimePickerDialog(
-            initialTime = Pair(elapsedHour, elapsedMinute),
-            onDismiss = { showElapsedPicker = false },
-            onTimeSelected = { timeString ->
-                val (h, m) = timeString.split(":").map { it.toIntOrNull() ?: 0 }
-                elapsedHour = h
-                elapsedMinute = m
-                showElapsedPicker = false
-            },
-            showToggleIcon = false
-        )
-    }
-
-    if(uiState.showZeroMinutesError) {
-        AlertDialog(
-            onDismissRequest = { viewModel.clearZeroMinutesError() },
-            title = { Text("エラー") },
-            text = { Text("1分以上からのみ記録が可能です。") },
-            properties = DialogProperties(dismissOnClickOutside = false),
-            confirmButton = {
-                TextButton(onClick = { viewModel.clearZeroMinutesError() }) {
-                    Text("OK")
                 }
             }
-        )
-    }
 
-    if(uiState.showStartEndError) {
-        AlertDialog(
-            onDismissRequest = { viewModel.clearStartEndError() },
-            title = { Text("エラー") },
-            text = { Text("開始時刻が終了時刻を超えています。") },
-            properties = DialogProperties(dismissOnClickOutside = false),
-            confirmButton = {
-                TextButton(onClick = { viewModel.clearStartEndError() }) {
-                    Text("OK")
-                }
-            }
-        )
-    }
+            Spacer(modifier = Modifier.weight(0.2f))
 
-    if(uiState.showElapsedTimeOver) {
-        AlertDialog(
-            onDismissRequest = { viewModel.clearElapsedTimeOver() },
-            title = { Text("注意") },
-            text = { Text("活動時間が時間差より大きいです。\nこのまま保存しますか？") },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.clearElapsedTimeOver()
-                    val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
-                    onSave(startDay, startTime, endDay, endTime, newElapsed, true)
-                }) {
-                    Text("保存")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { viewModel.clearElapsedTimeOver() }) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = {
+                        (context as? Activity)?.finish()
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text("キャンセル")
                 }
+
+                Spacer(modifier = Modifier.width(24.dp))
+
+                Button(
+                    onClick = {
+                        val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
+                        editWorkViewModel.saveWork(
+                            id = id,
+                            startDay = startDay,
+                            startTime = startTime,
+                            endDay = endDay,
+                            endTime = endTime,
+                            elapsedTime = newElapsed,
+                            isNew = isNew,
+                            forceSave = false
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("保存")
+                }
             }
-        )
+
+            Spacer(modifier = Modifier.weight(1f))
+        }
+
+        if (showStartTimePicker) {
+            MaterialTimePickerDialog(
+                initialTime = parseTime(startTime),
+                onDismiss = { showStartTimePicker = false },
+                onTimeSelected = {
+                    startTime = it
+                    showStartTimePicker = false
+                }
+            )
+        }
+
+        if (showEndTimePicker) {
+            MaterialTimePickerDialog(
+                initialTime = parseTime(endTime),
+                onDismiss = { showEndTimePicker = false },
+                onTimeSelected = {
+                    endTime = it
+                    showEndTimePicker = false
+                }
+            )
+        }
+
+        if (showStartDayPicker) {
+            DatePickerModal(
+                initialDate = startDay,
+                onDateSelected = {
+                    startDay = it
+                    showStartDayPicker = false
+                },
+                onDismiss = { showStartDayPicker = false }
+            )
+        }
+
+        if (showEndDayPicker) {
+            DatePickerModal(
+                initialDate = endDay,
+                onDateSelected = {
+                    endDay = it
+                    showEndDayPicker = false
+                },
+                onDismiss = { showEndDayPicker = false }
+            )
+        }
+
+        if (showElapsedPicker) {
+            MaterialTimePickerDialog(
+                initialTime = Pair(elapsedHour, elapsedMinute),
+                onDismiss = { showElapsedPicker = false },
+                onTimeSelected = { timeString ->
+                    val (h, m) = timeString.split(":").map { it.toIntOrNull() ?: 0 }
+                    elapsedHour = h
+                    elapsedMinute = m
+                    showElapsedPicker = false
+                },
+                showToggleIcon = false
+            )
+        }
+
+        if (uiState.showZeroMinutesError) {
+            AlertDialog(
+                onDismissRequest = { editWorkViewModel.clearZeroMinutesError() },
+                title = { Text("エラー") },
+                text = { Text("1分以上からのみ記録が可能です。") },
+                properties = DialogProperties(dismissOnClickOutside = false),
+                confirmButton = {
+                    TextButton(onClick = { editWorkViewModel.clearZeroMinutesError() }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
+        if (uiState.showStartEndError) {
+            AlertDialog(
+                onDismissRequest = { editWorkViewModel.clearStartEndError() },
+                title = { Text("エラー") },
+                text = { Text("開始時刻が終了時刻を超えています。") },
+                properties = DialogProperties(dismissOnClickOutside = false),
+                confirmButton = {
+                    TextButton(onClick = { editWorkViewModel.clearStartEndError() }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
+        if (uiState.showElapsedTimeOver) {
+            AlertDialog(
+                onDismissRequest = { editWorkViewModel.clearElapsedTimeOver() },
+                title = { Text("注意") },
+                text = { Text("活動時間が時間差より大きいです。\nこのまま保存しますか？") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        editWorkViewModel.clearElapsedTimeOver()
+                        val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
+                        editWorkViewModel.saveWork(
+                            id = id,
+                            startDay = startDay,
+                            startTime = startTime,
+                            endDay = endDay,
+                            endTime = endTime,
+                            elapsedTime = newElapsed,
+                            isNew = isNew,
+                            forceSave = true
+                        )
+                    }) {
+                        Text("保存")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { editWorkViewModel.clearElapsedTimeOver() }) {
+                        Text("キャンセル")
+                    }
+                }
+            )
+        }
     }
 }
 

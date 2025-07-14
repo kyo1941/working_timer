@@ -1,17 +1,12 @@
 package com.example.working_timer.ui.main
 
-import android.app.Application
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.working_timer.service.TimerService
 import com.example.working_timer.util.SharedPrefKeys
-import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.Work
+import com.example.working_timer.domain.repository.TimerListener
+import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.domain.repository.WorkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -38,43 +33,19 @@ data class TimerUiState(
 @HiltViewModel
 class MainViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val workRepository: WorkRepository
-) : ViewModel(),
-    TimerService.TimerServiceListener {
-
+    private val workRepository: WorkRepository,
+    private val timerManager: TimerManager
+) : ViewModel(), TimerListener {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState
-
-    private var timerService: TimerService? = null
-    private var isBound = false
 
     private val PREFS_NAME = SharedPrefKeys.PREFS_NAME
     private val START_DATE_KEY = SharedPrefKeys.START_DATE_KEY
     private val START_TIME_STRING_KEY = SharedPrefKeys.START_TIME_STRING_KEY
     private val ELAPSED_TIME_KEY = SharedPrefKeys.ELAPSED_TIME_KEY
 
-    private var pendingStart = false
-
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            val binder = service as TimerService.LocalBinder
-            timerService = binder.getService()
-            isBound = true
-            timerService?.setListener(this@MainViewModel)
-            updateUiState()
-            if (pendingStart) {
-                startTimer()
-            }
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            isBound = false
-            timerService = null
-        }
-    }
-
     init {
-        bindTimerService()
+        timerManager.setListener(this)
         loadElapsedTime()
     }
 
@@ -83,11 +54,7 @@ class MainViewModel @Inject constructor(
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val savedElapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
         updateTimerText(savedElapsedTime)
-        // サービスに接続されていない初期状態でも、UIを更新
-        if (!isBound || timerService == null) {
-            _uiState.value =
-                _uiState.value.copy(status = "", isTimerRunning = false, isPaused = false)
-        }
+        updateUiState()
     }
 
 
@@ -120,57 +87,44 @@ class MainViewModel @Inject constructor(
 
     // UIの状態を更新するヘルパー関数
     private fun updateUiState() {
-        timerService?.let {
-            val isRunning = it.isTimerRunning()
-            val elapsedTime = it.getElapsedTime()
+        val isRunning = timerManager.isTimerRunning()
+        val elapsedTime = timerManager.getElapsedTime()
 
-            val status = when {
-                isRunning -> "労働中"
-                elapsedTime > 0 -> "休憩中"
-                else -> ""
-            }
-            _uiState.value = _uiState.value.copy(
-                status = status,
-                isTimerRunning = isRunning,
-                isPaused = !isRunning && elapsedTime > 0,
-                elapsedTime = elapsedTime
-            )
-            updateTimerText(elapsedTime)
-        } ?: run {
-            _uiState.value = _uiState.value.copy(
-                status = "",
-                isTimerRunning = false,
-                isPaused = false,
-                elapsedTime = 0L,
-                timerText = "00:00"
-            )
+        val status = when {
+            isRunning -> "労働中"
+            elapsedTime > 0 -> "休憩中"
+            else -> ""
         }
+        _uiState.value = _uiState.value.copy(
+            status = status,
+            isTimerRunning = isRunning,
+            isPaused = !isRunning && elapsedTime > 0,
+            elapsedTime = elapsedTime
+        )
+        updateTimerText(elapsedTime)
     }
 
     fun startTimer() {
-        if (timerService == null) {
-            pendingStart = true
-            bindTimerService()
-            return
-        }
-        timerService?.startTimer()
-        pendingStart = false
+        timerManager.startTimer()
         updateUiState()
     }
 
     fun pauseTimer() {
-        timerService?.pauseTimer()
+        timerManager.pauseTimer()
         updateUiState()
     }
 
     fun resumeTimer() {
-        timerService?.resumeTimer()
+        timerManager.resumeTimer()
         updateUiState()
     }
 
     fun stopTimer() {
-        timerService?.pauseTimer()
+        timerManager.pauseTimer()
+        showSaveDialog()
+    }
 
+    private fun showSaveDialog() {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
         val startDate = prefs.getString(START_DATE_KEY, null)
@@ -179,7 +133,8 @@ class MainViewModel @Inject constructor(
         if (startDate == null || startTime == null) {
             _uiState.value = _uiState.value.copy(
                 showSaveDialog = true,
-                dialogMessage = "開始日または開始時刻が正しく取得できませんでした．"
+                dialogMessage = "開始日または開始時刻が正しく取得できませんでした。",
+                isTooShortError = true
             )
             return
         }
@@ -245,10 +200,7 @@ class MainViewModel @Inject constructor(
         // 保存処理
         try {
             workRepository.insert(work)
-            timerService?.stopTimer()
-            context.unbindService(connection)
-            isBound = false
-            timerService = null
+            timerManager.stopTimer()
             updateUiState()
             return true
         } catch (e: Exception) {
@@ -259,24 +211,12 @@ class MainViewModel @Inject constructor(
 
     // 作業を破棄
     fun discardWork() {
-        timerService?.stopTimer()
-        context.unbindService(connection)
-        isBound = false
-        timerService = null
+        timerManager.stopTimer()
         updateUiState()
-    }
-
-    private fun bindTimerService() {
-        Intent(context, TimerService::class.java).also { intent ->
-            context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
-        }
     }
 
     override fun onCleared() {
         super.onCleared()
-        if (isBound) {
-            context.unbindService(connection)
-            isBound = false
-        }
+        timerManager.removeListener()
     }
 }

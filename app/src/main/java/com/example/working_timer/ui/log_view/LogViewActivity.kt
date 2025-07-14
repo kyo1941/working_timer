@@ -13,16 +13,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class LogViewActivity : ComponentActivity() {
-
-    private val viewModel: LogViewViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     LogViewScreen(
-                        viewModel = viewModel,
                         onNavigateToTimer = {
                             startActivity(Intent(this, MainActivity::class.java))
                             overridePendingTransition(0, 0)

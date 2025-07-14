@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import com.example.working_timer.data.AppDatabase
 import com.example.working_timer.data.WorkDao
+import com.example.working_timer.data.repository.DataStoreManagerImpl
 import com.example.working_timer.data.repository.TimerManagerImpl
 import com.example.working_timer.data.repository.WorkRepositoryImpl
+import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.domain.repository.WorkRepository
 import dagger.Binds
@@ -26,6 +28,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindTimerManager(timerManagerImpl: TimerManagerImpl): TimerManager
+
+    @Binds
+    @Singleton
+    abstract fun bindDataStoreManager(dataStoreManagerImpl: DataStoreManagerImpl): DataStoreManager
 }
 
 @Module

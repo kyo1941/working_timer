@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import com.example.working_timer.ui.components.MaterialTimePickerDialog
 import com.example.working_timer.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,14 +19,17 @@ class LogViewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LogViewScreen(
-                viewModel = viewModel,
-                onNavigateToTimer = {
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    overridePendingTransition(0, 0)
+            MaterialTheme {
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    LogViewScreen(
+                        viewModel = viewModel,
+                        onNavigateToTimer = {
+                            startActivity(Intent(this, MainActivity::class.java))
+                            overridePendingTransition(0, 0)
+                        }
+                    )
                 }
-            )
+            }
         }
     }
 }

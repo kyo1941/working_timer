@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Build
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -18,13 +19,27 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.example.working_timer.R
+import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.ui.main.MainActivity
-import com.example.working_timer.util.SharedPrefKeys
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TimerService : Service() {
+    @Inject
+    lateinit var dataStoreManager: DataStoreManager
+
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val binder = LocalBinder()
     private var startTime: Long = 0
@@ -39,18 +54,20 @@ class TimerService : Service() {
             elapsedTime = System.currentTimeMillis() - startTime
             listener?.onTimerTick(elapsedTime)
             updateNotificationChannel()
-            handler.postDelayed(this, 1000) // 1秒ごとに更新
+
+            if ((elapsedTime / 1000) % 60 == 0L) {
+                serviceScope.launch {
+                    dataStoreManager.updateElapsedTime(elapsedTime)
+                }
+            }
+
+            handler.postDelayed(this, 1000)
         }
     }
 
     private var listener: TimerServiceListener? = null
 
-    private val PREFS_NAME = SharedPrefKeys.PREFS_NAME
-    private val START_DATE_KEY = SharedPrefKeys.START_DATE_KEY
-    private val START_TIME_STRING_KEY = SharedPrefKeys.START_TIME_STRING_KEY
-    private val ELAPSED_TIME_KEY = SharedPrefKeys.ELAPSED_TIME_KEY
-
-    private var startTimeCalendar: Calendar = Calendar.getInstance() // タイマー開始時の日付を保持
+    private var startTimeCalendar: Calendar = Calendar.getInstance()
 
     interface TimerServiceListener {
         fun onTimerTick(elapsedTime: Long)
@@ -60,12 +77,27 @@ class TimerService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        restoreTimerState()
+    }
 
-        // SharedPreferences から elapsedTime を復元
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
-        startTimeString = prefs.getString(START_TIME_STRING_KEY, "")
-        startDate = prefs.getString(START_DATE_KEY, "")
+    private fun restoreTimerState() {
+        if (elapsedTime == 0L && startDate == null && startTimeString == null) {
+            serviceScope.launch {
+                val savedElapsedTime = dataStoreManager.getElapsedTimeSync()
+
+                if (savedElapsedTime > 0) {
+                    elapsedTime = savedElapsedTime
+                    isRunning = false
+                    startTimeString = dataStoreManager.getStartTimeSync()
+                    startDate = dataStoreManager.getStartDateSync()
+
+                    withContext(Dispatchers.Main) {
+                        updateNotificationChannel()
+                        listener?.onTimerTick(elapsedTime)
+                    }
+                }
+            }
+        }
     }
 
     inner class LocalBinder : Binder() {
@@ -79,24 +111,22 @@ class TimerService : Service() {
     fun startTimer() {
         startTime = System.currentTimeMillis() - elapsedTime
         isRunning = true
-        startTimeCalendar = Calendar.getInstance() // 開始時の日付を記録
+        startTimeCalendar = Calendar.getInstance()
 
         val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
-        val formattedDate = sdfDate.format(startTimeCalendar.time) // 開始時の日付を取得
-
+        val formattedDate = sdfDate.format(startTimeCalendar.time)
         val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val formattedTime = sdfTime.format(startTimeCalendar.time) // 開始時の時間を取得
+        val formattedTime = sdfTime.format(startTimeCalendar.time)
 
-        // SharedPreferences に開始日を保存
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.putString(START_DATE_KEY, formattedDate)
-        editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
-        editor.putString(START_TIME_STRING_KEY, formattedTime)
-        editor.apply()
+        serviceScope.launch {
+            dataStoreManager.saveTimerState(
+                startDate = formattedDate,
+                startTime = formattedTime,
+                elapsedTime = elapsedTime
+            )
+        }
 
         startForegroundService()
-
         handler.postDelayed(runnable, 0)
     }
 
@@ -107,16 +137,11 @@ class TimerService : Service() {
         elapsedTime = 0
         listener?.onTimerTick(elapsedTime) // 停止時に0を通知
 
-        // SharedPreferences から elapsedTime を削除
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.remove(START_DATE_KEY)
-        editor.remove(ELAPSED_TIME_KEY)
-        editor.remove(START_TIME_STRING_KEY)
-        editor.apply()
+        serviceScope.launch {
+            dataStoreManager.clearTimerState()
+        }
 
         stopForeground(STOP_FOREGROUND_REMOVE)
-        // 通知id"1"しか使っていないので明示的に削除
         NotificationManagerCompat.from(this).cancel(1)
         removeListener()
     }
@@ -124,10 +149,11 @@ class TimerService : Service() {
     fun pauseTimer() {
         handler.removeCallbacks(runnable)
         isRunning = false
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
-        editor.apply()
+
+        serviceScope.launch {
+            dataStoreManager.updateElapsedTime(elapsedTime)
+        }
+
         updateNotificationChannel()
     }
 
@@ -268,10 +294,12 @@ class TimerService : Service() {
         super.onDestroy()
         handler.removeCallbacks(runnable)
 
-        // elapsedTime を SharedPreferences に保存
-        val prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.putLong(ELAPSED_TIME_KEY, elapsedTime)
-        editor.apply()
+        if (elapsedTime > 0) {
+            runBlocking {
+                dataStoreManager.updateElapsedTime(elapsedTime)
+            }
+        }
+
+        serviceScope.cancel()
     }
 }

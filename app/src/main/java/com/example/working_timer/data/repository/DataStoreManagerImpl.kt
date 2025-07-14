@@ -20,8 +20,6 @@ private val Context.dataStore by preferencesDataStore(name = SharedPrefKeys.PREF
 class DataStoreManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : DataStoreManager {
-    private val dataStore = context.dataStore
-
     companion object {
         private val START_DATE_KEY = stringPreferencesKey(SharedPrefKeys.START_DATE_KEY)
         private val START_TIME_STRING_KEY = stringPreferencesKey(SharedPrefKeys.START_TIME_STRING_KEY)

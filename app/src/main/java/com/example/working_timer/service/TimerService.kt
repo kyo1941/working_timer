@@ -293,12 +293,6 @@ class TimerService : Service() {
         super.onDestroy()
         handler.removeCallbacks(runnable)
 
-        if (elapsedTime > 0) {
-            runBlocking {
-                dataStoreManager.updateElapsedTime(elapsedTime)
-            }
-        }
-
         serviceScope.cancel()
     }
 }

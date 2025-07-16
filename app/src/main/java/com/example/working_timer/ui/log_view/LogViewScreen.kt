@@ -47,7 +47,6 @@ fun LogViewScreen(
     onNavigateToEditWork: (Boolean, Int, String, String, String, String, Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
     // Date Range Pickerの表示を制御するState
     var showDateRangePicker by remember { mutableStateOf(false) }
@@ -67,8 +66,7 @@ fun LogViewScreen(
                 val view = inflater.inflate(R.layout.calender_view, null)
                 val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
                 calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                    val selected = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
-                    viewModel.loadWorkList(selected)
+                    viewModel.setSelectedDay(year, month, dayOfMonth)
                 }
                 view
             },

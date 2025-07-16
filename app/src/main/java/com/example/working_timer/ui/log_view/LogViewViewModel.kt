@@ -46,16 +46,14 @@ class LogViewViewModel @Inject constructor(
 
     // 初回起動時に現在日時を取得する
     fun init() {
-        if (_uiState.value.selectedDay.isEmpty()) {
-            val cal = Calendar.getInstance()
-            val today = String.format(
-                "%04d-%02d-%02d",
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH) + 1,
-                cal.get(Calendar.DAY_OF_MONTH)
-            )
-            loadWorkList(today)
-        }
+        val cal = Calendar.getInstance()
+        setSelectedDay(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+        loadWorkList(_uiState.value.selectedDay)
+    }
+
+    fun setSelectedDay(year: Int, month: Int, day: Int) {
+        val selected = String.format("%04d-%02d-%02d", year, month + 1, day)
+        loadWorkList(selected)
     }
 
     fun loadWorkList(day: String) {

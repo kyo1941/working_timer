@@ -21,14 +21,12 @@ import androidx.core.content.ContextCompat
 import com.example.working_timer.R
 import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.navigation.Routes
-import com.example.working_timer.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar

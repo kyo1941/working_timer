@@ -14,4 +14,5 @@ interface TimerManager {
 interface TimerListener {
     fun onTimerTick(elapsedTime: Long)
     fun updateUI()
+    fun onError(error: String)
 }

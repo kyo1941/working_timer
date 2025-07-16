@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import com.example.working_timer.domain.repository.TimerListener
 import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.service.TimerService
@@ -93,6 +94,8 @@ class TimerManagerImpl @Inject constructor(
             val bound = context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
             if (!bound) {
                 pendingStart = false
+                Log.e("TimerManagerImpl", "Failed to bind to TimerService")
+                listener?.onError("タイマーの開始に失敗しました。")
             }
         }
     }

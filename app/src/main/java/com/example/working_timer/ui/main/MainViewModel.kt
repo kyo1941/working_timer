@@ -28,7 +28,8 @@ data class TimerUiState(
     val showSaveDialog: Boolean = false,
     val dialogMessage: String = "",
     val isErrorDialog: Boolean = false,
-    val navigateToLog: Boolean = false
+    val snackbarMessage: String? = null,
+    val navigateToLog: Boolean = false,
 )
 
 @HiltViewModel
@@ -59,6 +60,14 @@ class MainViewModel @Inject constructor(
 
     override fun updateUI() {
         updateUiState()
+    }
+
+    override fun onError(error: String) {
+        _uiState.value = _uiState.value.copy(snackbarMessage = error)
+    }
+
+    fun clearSnackbarMessage() {
+        _uiState.value = _uiState.value.copy(snackbarMessage = null)
     }
 
     private fun updateTimerText(elapsedTime: Long) {

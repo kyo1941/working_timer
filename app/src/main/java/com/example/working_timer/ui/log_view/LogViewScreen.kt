@@ -84,18 +84,6 @@ fun LogViewScreen(
                     work = work,
                     onDelete = { viewModel.showDeleteDialog(work) },
                     onEdit = {
-                        val routeToNavigate = Routes.EditWork().createRoute(
-                            id = work.id,
-                            isNew = false,
-                            startDay = work.start_day,
-                            endDay = work.end_day,
-                            startTime = work.start_time,
-                            endTime = work.end_time,
-                            elapsedTime = work.elapsed_time
-                        )
-                        Log.d("Navigation", "Navigating to: $routeToNavigate")
-
-
                         onNavigateToEditWork(
                             false,
                             work.id,

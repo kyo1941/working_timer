@@ -1,7 +1,5 @@
 package com.example.working_timer.navigation
 
-import android.util.Log
-
 sealed class Routes(val routes: String) {
     object Timer: Routes("timer")
     object LogView: Routes("log_view")

@@ -3,7 +3,7 @@ package com.example.working_timer.ui.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.working_timer.data.Work
+import com.example.working_timer.data.db.Work
 import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.domain.repository.TimerListener
 import com.example.working_timer.domain.repository.TimerManager

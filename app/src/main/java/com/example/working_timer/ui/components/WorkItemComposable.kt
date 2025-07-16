@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import com.example.working_timer.data.Work
+import com.example.working_timer.data.db.Work
 
 @Composable
 fun WorkItemComposable(

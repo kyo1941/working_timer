@@ -1,7 +1,7 @@
 package com.example.working_timer.data.repository
 
-import com.example.working_timer.data.Work
-import com.example.working_timer.data.WorkDao
+import com.example.working_timer.data.db.Work
+import com.example.working_timer.data.db.WorkDao
 import com.example.working_timer.domain.repository.WorkRepository
 import javax.inject.Inject
 

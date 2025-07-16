@@ -2,8 +2,8 @@ package com.example.working_timer.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.working_timer.data.AppDatabase
-import com.example.working_timer.data.WorkDao
+import com.example.working_timer.data.db.AppDatabase
+import com.example.working_timer.data.db.WorkDao
 import com.example.working_timer.data.repository.DataStoreManagerImpl
 import com.example.working_timer.data.repository.TimerManagerImpl
 import com.example.working_timer.data.repository.WorkRepositoryImpl

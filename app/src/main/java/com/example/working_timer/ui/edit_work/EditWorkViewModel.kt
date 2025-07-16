@@ -3,7 +3,7 @@ package com.example.working_timer.ui.edit_work
 import android.database.sqlite.SQLiteException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.working_timer.data.Work
+import com.example.working_timer.data.db.Work
 import com.example.working_timer.domain.repository.WorkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

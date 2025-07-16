@@ -1,6 +1,6 @@
 package com.example.working_timer.domain.repository
 
-import com.example.working_timer.data.Work
+import com.example.working_timer.data.db.Work
 import kotlinx.coroutines.flow.Flow
 
 interface WorkRepository {

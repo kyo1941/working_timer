@@ -142,7 +142,7 @@ fun MainScreen(
                         mainViewModel.startTimer()
                         if (!isNotificationGranted()) {
                             scope.launch {
-                                snackbarHostState.showSnackbar("通知をONにすると，タイマーの進行状況が確認できます．")
+                                snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
                             }
                             // 通知権限が許可されていない場合はリクエスト
                             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)

@@ -168,7 +168,7 @@ class MainViewModel @Inject constructor(
             if (elapsedTime < 60000) {
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
-                    dialogMessage = "1分未満の作業は保存できません．再開または破棄を選択してください．",
+                    dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
                     isErrorDialog = true
                 )
                 return@launch

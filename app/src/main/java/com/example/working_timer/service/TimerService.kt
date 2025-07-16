@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
@@ -19,6 +20,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.example.working_timer.R
 import com.example.working_timer.domain.repository.DataStoreManager
+import com.example.working_timer.navigation.Routes
 import com.example.working_timer.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -206,7 +208,10 @@ class TimerService : Service() {
         }
 
         val channelId = "timer_channel"
-        val notificationIntent = Intent(this, MainActivity::class.java)
+        val notificationIntent = Intent(Intent.ACTION_VIEW, Uri.parse(Routes.TimerDeepLink.routes)).apply {
+            setPackage(packageName)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
@@ -261,7 +266,10 @@ class TimerService : Service() {
 
     private fun startForegroundService() {
         val channelId = "timer_channel"
-        val notificationIntent = Intent(this, MainActivity::class.java)
+        val notificationIntent = Intent(Intent.ACTION_VIEW, Uri.parse(Routes.TimerDeepLink.routes)).apply {
+            setPackage(packageName)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,

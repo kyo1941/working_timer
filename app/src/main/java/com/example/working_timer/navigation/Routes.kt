@@ -24,4 +24,6 @@ sealed class Routes(val routes: String) {
             return "edit_work/$id/$isNew/$startDay/$endDay/$startTime/$endTime/$elapsedTime"
         }
     }
+
+    object TimerDeepLink: Routes("app://working_timer/timer")
 }

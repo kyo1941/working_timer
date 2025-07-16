@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.working_timer.ui.edit_work.EditWorkScreen
 import com.example.working_timer.ui.log_view.LogViewScreen
 import com.example.working_timer.ui.main.MainScreen
@@ -19,7 +20,10 @@ fun AppNavHost (
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(Routes.Timer.routes)  {
+        composable(
+            Routes.Timer.routes,
+            deepLinks = listOf(navDeepLink { uriPattern = Routes.TimerDeepLink.routes })
+        ) {
             MainScreen (
                 onNavigateToLog = {
                     navController.navigate(Routes.LogView.routes) {

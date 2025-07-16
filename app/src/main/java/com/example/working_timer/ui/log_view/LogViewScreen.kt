@@ -49,21 +49,15 @@ fun LogViewScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // EditWorkActivityから結果を受け取るためのランチャー
-    val editWorkLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                viewModel.loadWorkList(uiState.selectedDay)
-            }
-        }
-    )
-
     // Date Range Pickerの表示を制御するState
     var showDateRangePicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.init()
+        if (uiState.selectedDay.isNotEmpty()) {
+            viewModel.loadWorkList(uiState.selectedDay)
+        } else {
+            viewModel.init()
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {

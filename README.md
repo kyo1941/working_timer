@@ -8,45 +8,68 @@
 - 計算結果を共有できて，担当教員への連絡も簡単
 
 ### 使用技術
-Kotlin，Jetpack Compose，Room，Kotlin coroutines
+|||
+| :--- | :--- |
+| **言語** | Kotlin |
+| **UI** | Jetpack Compose |
+| **アーキテクチャ** | MVVM |
+| **データベース** | ・Room<br>・DataStore<br> |
+| **その他** | ・Dagger Hilt<br>・Navigation Compose<br>・Kotlin Coroutines |
 
 ## 構成
 ```
-├── data                                // データベース関連のファイルを格納します．
-|   ├── AppDatabase.kt                  // Roomデータベースのインスタンスを提供します．
-|   ├── Work.kt                         // 勤務記録のエンティティを定義します．
-|   └── WorkDao.kt                      // データベース操作（CRUD）のDAOインターフェースを定義します．
-|
-├── service                             // バックグラウンドサービス関連のファイルを格納します．
-|   ├── TimerActionReceiver.kt          // 通知からのタイマー操作を受け取るBroadcastReceiverです．
-|   └── TimerService.kt                 // タイマーのロジックとフォアグラウンド通知を管理するサービスです．
-|
-├── ui                                  // UIコンポーネントと画面関連のファイルを格納します．
-|   ├── components                      // 再利用可能なUIコンポーネントを格納します．
-|   |   ├── DataRangePickerModal.kt     // 日付範囲選択モダールダイアログを実装します．
-|   |   ├── MaterialDatePickerDialog.kt // 単一の日付選択ダイアログを実装します．
-|   |   ├── MaterialTimePickerDialog.kt // 時刻選択ダイアログを実装します．
-|   |   ├── FooterNavigationBar.kt      // アプリケーションの下部ナビゲーションバーを実装します．
-|   |   └── WorkItemComposable.kt       // 作業記録リストの各項目を表示するUIコンポーネントです．
-|   |
-|   ├── edit_work                       // 作業記録の編集画面関連のファイルを格納します．(以下，MVVMモデルに基づいてファイルを分けています)
-|   |   ├── EditWorkActivity.kt
-|   |   ├── EditWorkScreen.kt
-|   |   └── EditWorkViewModel.kt
-|   |
-|   ├── log_view                        // 作業記録の履歴表示画面関連のファイルを格納します．
-|   |   ├── LogViewActivity.kt
-|   |   ├── LogViewScreen.kt
-|   |   └── LogViewViewModel.kt
-|   |
-|   └── main                            // メインタイマー画面関連のファイルを格納します．
-|       ├── MainActivity.kt
-|       ├── MainScreen.kt
-|       └── MainViewModel.kt
-|
-└── util                                // ユーティリティ関数や定数を格納します．
-    ├── Color.kt                        // アプリケーションで使用される色定数を定義します．
-    └── Constants.kt                    // アプリケーション全体で使用される定数（Shared Preferencesのキーなど）を定義します．
+├── data
+│   ├── db
+│   │   ├── AppDatabase.kt                  # Room Databaseのインスタンスを生成するクラス
+│   │   ├── Work.kt                         # 作業内容を保持するエンティティ
+│   │   └── WorkDao.kt                      # 作業内容のCRUDを行うDAO
+│   │
+│   └── repository
+│       ├── DataStoreManagerImpl.kt         # DataStoreの読み書きを実装するクラス
+│       ├── TimerManagerImpl.kt             # タイマーのロジックを実装するクラス
+│       └── WorkRepositoryImpl.kt           # 作業内容のCRUDを実装するクラス
+│
+├── di
+│   └── AppModule.kt                        # HiltのDIコンテナ
+│
+├── domain
+│   └── repository
+│       ├── DataStoreManager.kt             # DataStoreの読み書きのインターフェース
+│       ├── TimerManager.kt                 # タイマーのロジックのインターフェース
+│       └── WorkRepository.kt               # 作業内容のCRUDのインターフェース
+│
+├── navigation
+│   ├── AppNavHost.kt                       # Navigation Composeのナビゲーションを管理するクラス
+│   └── Routes.kt                           # 画面遷移のルートを定義するクラス
+│
+├── service
+│   ├── TimerActionReceiver.kt              # タイマーの通知からアクションを受け取るBroadcastReceiver
+│   └── TimerService.kt                     # タイマーを管理するService
+│
+├── ui
+│   ├── components
+│   │   ├── DataRangePickerModal.kt         # 期間指定のモーダルダイアログ
+│   │   ├── FooterNavigationBar.kt          # フッターのナビゲーションバー
+│   │   ├── MaterialDatePickerDialog.kt     # Material Designの日付選択ダイアログ
+│   │   ├── MaterialTimePickerDialog.kt     # Material Designの時間選択ダイアログ
+│   │   └── WorkItemComposable.kt           # 作業内容を表示するComposable
+│   │ 
+│   ├── edit_work
+│   │   ├── EditWorkScreen.kt               # 作業内容の編集画面
+│   │   └── EditWorkViewModel.kt            # 作業内容の編集画面のViewModel
+│   │
+│   ├── log_view
+│   │   ├── LogViewScreen.kt                # 作業履歴の表示画面
+│   │   └── LogViewViewModel.kt             # 作業履歴の表示画面のViewModel
+│   │
+│   └── main
+│       ├── MainActivity.kt                 # アプリのエントリポイント
+│       ├── MainScreen.kt                   # メイン画面
+│       └── MainViewModel.kt                # メイン画面のViewModel
+│
+└── util
+    ├── Color.kt                            # アプリで使用する色を定義する
+    └── Constants.kt                        # アプリ全体で使用する定数を定義する
 ```
 
 ## 使い方

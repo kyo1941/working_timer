@@ -44,7 +44,8 @@ fun EditWorkScreen(
     startTime: String,
     endTime: String,
     elapsedTime: Int,
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     var startDay by remember { mutableStateOf(startDay) }
     var endDay by remember { mutableStateOf(endDay) }
@@ -79,7 +80,8 @@ fun EditWorkScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        modifier = modifier
     ) { _ ->
         Column(
             modifier = Modifier

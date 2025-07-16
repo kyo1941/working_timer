@@ -1,16 +1,17 @@
 package com.example.working_timer.ui.log_view
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.working_timer.data.AppDatabase
-import com.example.working_timer.data.Work
+import com.example.working_timer.data.db.Work
+import com.example.working_timer.domain.repository.WorkRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import javax.inject.Inject
 
 // 時間計算のモードを定義する列挙型
 enum class TimeCalculationMode {
@@ -35,31 +36,30 @@ data class LogViewUiState(
     val timeCalculationMode: TimeCalculationMode = TimeCalculationMode.NORMAL
 )
 
-class LogViewViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class LogViewViewModel @Inject constructor(
+    private val workRepository: WorkRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(LogViewUiState())
     val uiState: StateFlow<LogViewUiState> = _uiState
-
-    private val workDao = AppDatabase.getDatabase(application).workDao()
-    private val sdf = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     // 初回起動時に現在日時を取得する
     fun init() {
-        if (_uiState.value.selectedDay.isEmpty()) {
-            val cal = Calendar.getInstance()
-            val today = String.format(
-                "%04d/%02d/%02d",
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH) + 1,
-                cal.get(Calendar.DAY_OF_MONTH)
-            )
-            loadWorkList(today)
-        }
+        val cal = Calendar.getInstance()
+        setSelectedDay(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+        loadWorkList(_uiState.value.selectedDay)
+    }
+
+    fun setSelectedDay(year: Int, month: Int, day: Int) {
+        val selected = String.format("%04d-%02d-%02d", year, month + 1, day)
+        loadWorkList(selected)
     }
 
     fun loadWorkList(day: String) {
         _uiState.value = _uiState.value.copy(isLoading = true, selectedDay = day)
         viewModelScope.launch {
-            val works = workDao.getWorksByDay(day)
+            val works = workRepository.getWorksByDay(day)
             _uiState.value = _uiState.value.copy(workList = works, isLoading = false)
         }
     }
@@ -74,7 +74,7 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
 
     fun deleteWork(work: Work) {
         viewModelScope.launch {
-            workDao.delete(work.id)
+            workRepository.delete(work.id)
             loadWorkList(_uiState.value.selectedDay)
             hideDeleteDialog()
         }
@@ -100,7 +100,7 @@ class LogViewViewModel(application: Application) : AndroidViewModel(application)
             var totalTime = 0L
             while (calendar.timeInMillis <= end) {
                 val day = sdf.format(calendar.time)
-                val works = workDao.getWorksByDay(day)
+                val works = workRepository.getWorksByDay(day)
                 for (work in works) {
                     totalTime += work.elapsed_time
                 }

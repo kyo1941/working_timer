@@ -12,7 +12,7 @@ fun DatePickerModal(
     onDateSelected: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val calendar = Calendar.getInstance()
     calendar.time = dateFormat.parse(initialDate) ?: Date()
 

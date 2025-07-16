@@ -2,10 +2,10 @@ package com.example.working_timer.ui.edit_work
 
 import android.database.sqlite.SQLiteException
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.working_timer.data.Work
-import com.example.working_timer.data.WorkDao
+import com.example.working_timer.data.db.Work
+import com.example.working_timer.domain.repository.WorkRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
+import javax.inject.Inject
 
 data class EditWorkUiState(
     val showZeroMinutesError: Boolean = false,
@@ -21,7 +22,10 @@ data class EditWorkUiState(
     val showElapsedTimeOver: Boolean = false
 )
 
-class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
+@HiltViewModel
+class EditWorkViewModel @Inject constructor(
+    private val workRepository: WorkRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditWorkUiState())
     val uiState = _uiState.asStateFlow()
@@ -35,7 +39,7 @@ class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
     val uiEvent = _uiEvent.asSharedFlow()
 
     private companion object {
-        private const val DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm"
+        private const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm"
     }
 
     fun saveWork(
@@ -103,7 +107,7 @@ class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
                 end_time = endTime,
                 elapsed_time = elapsedTime
             )
-            workDao.update(work)
+            workRepository.update(work)
         } else {
             val work = Work(
                 start_day = startDay,
@@ -112,7 +116,7 @@ class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
                 end_time = endTime,
                 elapsed_time = elapsedTime
             )
-            workDao.insert(work)
+            workRepository.insert(work)
         }
         _uiEvent.emit(UiEvent.SaveSuccess)
     }
@@ -130,12 +134,3 @@ class EditWorkViewModel(private val workDao: WorkDao) : ViewModel() {
     }
 }
 
-class EditWorkViewModelFactory(private val workDao: WorkDao) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(EditWorkViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return EditWorkViewModel(workDao) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}

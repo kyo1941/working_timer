@@ -25,6 +25,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -39,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.working_timer.ui.components.FooterNavigationBar
 import com.example.working_timer.util.PauseButtonColor
 import com.example.working_timer.util.ResumeButtonColor
@@ -52,7 +53,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
-    mainViewModel: MainViewModel = viewModel(),
+    mainViewModel: MainViewModel = hiltViewModel(),
     onNavigateToLog: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
@@ -66,9 +67,9 @@ fun MainScreen(
     ) { isGranted: Boolean ->
         scope.launch {
             if (isGranted) {
-                snackbarHostState.showSnackbar("通知が許可されました．")
+                snackbarHostState.showSnackbar("通知が許可されました。")
             } else {
-                snackbarHostState.showSnackbar("通知が拒否されました．")
+                snackbarHostState.showSnackbar("通知が拒否されました。")
             }
         }
     }
@@ -82,6 +83,20 @@ fun MainScreen(
             ) == PackageManager.PERMISSION_GRANTED
         } else {
             true // Android 12以前は通知権限が不要
+        }
+    }
+
+    LaunchedEffect(uiState.navigateToLog) {
+        if (uiState.navigateToLog) {
+            onNavigateToLog()
+            mainViewModel.onNavigationHandled()
+        }
+    }
+
+    LaunchedEffect(uiState.snackbarMessage) {
+        uiState.snackbarMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            mainViewModel.clearSnackbarMessage()
         }
     }
 
@@ -134,7 +149,7 @@ fun MainScreen(
                         mainViewModel.startTimer()
                         if (!isNotificationGranted()) {
                             scope.launch {
-                                snackbarHostState.showSnackbar("通知をONにすると，タイマーの進行状況が確認できます．")
+                                snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
                             }
                             // 通知権限が許可されていない場合はリクエスト
                             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -207,7 +222,7 @@ fun MainScreen(
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
                     // ダイアログのメッセージによってボタンの挙動を変える
-                    if (uiState.isTooShortError) {
+                    if (uiState.isErrorDialog) {
                         Row {
                             TextButton(onClick = {
                                 mainViewModel.discardWork()
@@ -240,13 +255,7 @@ fun MainScreen(
                                 Text("再開")
                             }
                             TextButton(onClick = {
-                                scope.launch {
-                                    val saved = mainViewModel.saveWork()
-                                    if (saved) {
-                                        mainViewModel.dismissSaveDialog()
-                                        onNavigateToLog()
-                                    }
-                                }
+                                mainViewModel.saveWork()
                             }) {
                                 Text("保存")
                             }

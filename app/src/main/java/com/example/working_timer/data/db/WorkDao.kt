@@ -1,5 +1,4 @@
-
-package com.example.working_timer.data
+package com.example.working_timer.data.db
 
 import androidx.room.Dao
 import androidx.room.Insert

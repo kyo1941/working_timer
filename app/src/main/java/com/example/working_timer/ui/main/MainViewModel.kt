@@ -1,23 +1,22 @@
 package com.example.working_timer.ui.main
 
-import android.app.Application
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import com.example.working_timer.service.TimerService
-import com.example.working_timer.util.SharedPrefKeys
-import com.example.working_timer.data.AppDatabase
-import com.example.working_timer.data.Work
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.working_timer.data.db.Work
+import com.example.working_timer.domain.repository.DataStoreManager
+import com.example.working_timer.domain.repository.TimerListener
+import com.example.working_timer.domain.repository.TimerManager
+import com.example.working_timer.domain.repository.WorkRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 // UIの状態を保持するためのデータクラス
 data class TimerUiState(
@@ -28,72 +27,47 @@ data class TimerUiState(
     val elapsedTime: Long = 0L,
     val showSaveDialog: Boolean = false,
     val dialogMessage: String = "",
-    val isTooShortError: Boolean = false
+    val isErrorDialog: Boolean = false,
+    val snackbarMessage: String? = null,
+    val navigateToLog: Boolean = false,
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application),
-    TimerService.TimerServiceListener {
-
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val workRepository: WorkRepository,
+    private val timerManager: TimerManager,
+    private val dataStoreManager: DataStoreManager
+) : ViewModel(), TimerListener {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState
 
-    private var timerService: TimerService? = null
-    private var isBound = false
-
-    private val PREFS_NAME = SharedPrefKeys.PREFS_NAME
-    private val START_DATE_KEY = SharedPrefKeys.START_DATE_KEY
-    private val START_TIME_STRING_KEY = SharedPrefKeys.START_TIME_STRING_KEY
-    private val ELAPSED_TIME_KEY = SharedPrefKeys.ELAPSED_TIME_KEY
-
-    // データベースアクセス
-    private val workDao = AppDatabase.getDatabase(application).workDao()
-
-    private var pendingStart = false
-
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            val binder = service as TimerService.LocalBinder
-            timerService = binder.getService()
-            isBound = true
-            timerService?.setListener(this@MainViewModel)
-            updateUiState()
-            if (pendingStart) {
-                startTimer()
-            }
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            isBound = false
-            timerService = null
-        }
-    }
-
     init {
-        bindTimerService()
+        timerManager.setListener(this)
         loadElapsedTime()
     }
 
-    // elapsedTimeをSharedPreferencesから読み込み、UIに反映
     private fun loadElapsedTime() {
-        val prefs =
-            getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val savedElapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
-        updateTimerText(savedElapsedTime)
-        // サービスに接続されていない初期状態でも、UIを更新
-        if (!isBound || timerService == null) {
-            _uiState.value =
-                _uiState.value.copy(status = "", isTimerRunning = false, isPaused = false)
+        viewModelScope.launch {
+            val savedElapsedTime = dataStoreManager.getElapsedTimeSync() ?: 0L
+            updateTimerText(savedElapsedTime)
+            updateUiState()
         }
     }
 
-
     override fun onTimerTick(elapsedTime: Long) {
         updateTimerText(elapsedTime)
-        saveElapsedTime(elapsedTime)
     }
 
     override fun updateUI() {
         updateUiState()
+    }
+
+    override fun onError(error: String) {
+        _uiState.value = _uiState.value.copy(snackbarMessage = error)
+    }
+
+    fun clearSnackbarMessage() {
+        _uiState.value = _uiState.value.copy(snackbarMessage = null)
     }
 
     private fun updateTimerText(elapsedTime: Long) {
@@ -109,174 +83,152 @@ class MainViewModel(application: Application) : AndroidViewModel(application),
         _uiState.value = _uiState.value.copy(timerText = formattedTime, elapsedTime = elapsedTime)
     }
 
-    private fun saveElapsedTime(elapsedTime: Long) {
-        val prefs =
-            getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putLong(ELAPSED_TIME_KEY, elapsedTime).apply()
-    }
-
     // UIの状態を更新するヘルパー関数
     private fun updateUiState() {
-        timerService?.let {
-            val isRunning = it.isTimerRunning()
-            val elapsedTime = it.getElapsedTime()
+        val isRunning = timerManager.isTimerRunning()
+        val elapsedTime = timerManager.getElapsedTime()
 
-            val status = when {
-                isRunning -> "労働中"
-                elapsedTime > 0 -> "休憩中"
-                else -> ""
-            }
-            _uiState.value = _uiState.value.copy(
-                status = status,
-                isTimerRunning = isRunning,
-                isPaused = !isRunning && elapsedTime > 0,
-                elapsedTime = elapsedTime
-            )
-            updateTimerText(elapsedTime)
-        } ?: run {
-            _uiState.value = _uiState.value.copy(
-                status = "",
-                isTimerRunning = false,
-                isPaused = false,
-                elapsedTime = 0L,
-                timerText = "00:00"
-            )
+        val status = when {
+            isRunning -> "労働中"
+            elapsedTime > 0 -> "休憩中"
+            else -> ""
         }
+        _uiState.value = _uiState.value.copy(
+            status = status,
+            isTimerRunning = isRunning,
+            isPaused = !isRunning && elapsedTime > 0,
+            elapsedTime = elapsedTime
+        )
+        updateTimerText(elapsedTime)
     }
 
     fun startTimer() {
-        if (timerService == null) {
-            pendingStart = true
-            bindTimerService()
-            return
-        }
-        timerService?.startTimer()
-        pendingStart = false
+        timerManager.startTimer()
         updateUiState()
     }
 
     fun pauseTimer() {
-        timerService?.pauseTimer()
+        timerManager.pauseTimer()
         updateUiState()
     }
 
     fun resumeTimer() {
-        timerService?.resumeTimer()
+        timerManager.resumeTimer()
         updateUiState()
     }
 
     fun stopTimer() {
-        timerService?.pauseTimer()
+        timerManager.pauseTimer()
+        showSaveDialog()
+    }
 
-        val prefs =
-            getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
-        val startDate = prefs.getString(START_DATE_KEY, null)
-        val startTime = prefs.getString(START_TIME_STRING_KEY, null)
+    private fun showSaveDialog() {
+        viewModelScope.launch {
+            val elapsedTime = timerManager.getElapsedTime()
+            val startDate = dataStoreManager.getStartDateSync()
+            val startTime = dataStoreManager.getStartTimeSync()
 
-        if (startDate == null || startTime == null) {
+            if (startDate == null || startTime == null) {
+                _uiState.value = _uiState.value.copy(
+                    showSaveDialog = true,
+                    dialogMessage = "開始日または開始時刻が正しく取得できませんでした。",
+                    isErrorDialog = true
+                )
+                return@launch
+            }
+
+            val rep_sec_time = elapsedTime / 1000
+            val hours = (rep_sec_time / 3600).toInt()
+            val minutes = ((rep_sec_time / 60) % 60).toInt()
+            val formattedTime = if (hours > 0) {
+                String.format("%2d時間 %2d分", hours, minutes)
+            } else {
+                String.format("%2d分", minutes)
+            }
+
             _uiState.value = _uiState.value.copy(
                 showSaveDialog = true,
-                dialogMessage = "開始日または開始時刻が正しく取得できませんでした．"
-            )
-            return
-        }
-
-        val rep_sec_time = elapsedTime / 1000
-        val hours = (rep_sec_time / 3600).toInt()
-        val minutes = ((rep_sec_time / 60) % 60).toInt()
-        val formattedTime = if (hours > 0) {
-            String.format("%2d時間 %2d分", hours, minutes)
-        } else {
-            String.format("%2d分", minutes)
-        }
-
-        _uiState.value = _uiState.value.copy(
-            showSaveDialog = true,
-            dialogMessage = """
+                dialogMessage = """
                 開始日 ： $startDate
                 経過時間 ： $formattedTime
 
                 今回の作業記録を保存しますか？
             """.trimIndent(),
-            isTooShortError = false // 追加
-        )
+                isErrorDialog = false // 追加
+            )
+        }
     }
 
     // ダイアログを閉じる
     fun dismissSaveDialog() {
-        _uiState.value = _uiState.value.copy(showSaveDialog = false, isTooShortError = false) // 追加
+        _uiState.value = _uiState.value.copy(
+            showSaveDialog = false,
+            isErrorDialog = false
+        )
     }
 
     // 作業を保存
-    suspend fun saveWork(): Boolean {
-        val prefs =
-            getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val elapsedTime = prefs.getLong(ELAPSED_TIME_KEY, 0L)
-        val startDate = prefs.getString(START_DATE_KEY, null) ?: return false
-        val startTime = prefs.getString(START_TIME_STRING_KEY, null) ?: return false
+    fun saveWork() {
+        viewModelScope.launch {
+            val elapsedTime = timerManager.getElapsedTime()
+            val startDate = dataStoreManager.getStartDateSync() ?: return@launch
+            val startTime = dataStoreManager.getStartTimeSync() ?: return@launch
 
-        if (elapsedTime < 60000) {
-            _uiState.value = _uiState.value.copy(
-                showSaveDialog = true,
-                dialogMessage = "1分未満の作業は保存できません．再開または破棄を選択してください．",
-                isTooShortError = true
+            if (elapsedTime < 60000) {
+                _uiState.value = _uiState.value.copy(
+                    showSaveDialog = true,
+                    dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
+                    isErrorDialog = true
+                )
+                return@launch
+            }
+
+            val endTimeCalendar = Calendar.getInstance()
+            val sdfDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val endDate = sdfDate.format(endTimeCalendar.time)
+
+            val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
+            val endTime = sdfTime.format(Date())
+            val saveElapsedTime = (elapsedTime / 1000 / 60) * 60
+
+            val work = Work(
+                start_day = startDate,
+                end_day = endDate,
+                start_time = startTime,
+                end_time = endTime,
+                elapsed_time = saveElapsedTime.toInt()
             )
-            return false
-        }
 
-        val endTimeCalendar = Calendar.getInstance()
-        val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
-        val endDate = sdfDate.format(endTimeCalendar.time)
-
-        val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val endTime = sdfTime.format(Date())
-        val saveElapsedTime = (elapsedTime / 1000 / 60) * 60
-
-        val work = Work(
-            start_day = startDate,
-            end_day = endDate,
-            start_time = startTime,
-            end_time = endTime,
-            elapsed_time = saveElapsedTime.toInt()
-        )
-
-        // 保存処理
-        try {
-            workDao.insert(work)
-
-            timerService?.stopTimer()
-            getApplication<Application>().unbindService(connection)
-            isBound = false
-            timerService = null
-            updateUiState()
-            return true
-        } catch (e: Exception) {
-            Log.e("MainViewModel", "Error saving work", e)
-            return false
+            // 保存処理
+            try {
+                workRepository.insert(work)
+                timerManager.stopTimer()
+                updateUiState()
+                dismissSaveDialog()
+                _uiState.value = _uiState.value.copy(navigateToLog = true)
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error saving work", e)
+                _uiState.value = _uiState.value.copy(
+                    showSaveDialog = true,
+                    dialogMessage = "保存に失敗しました。再度お試しください。\nエラー: ${e.message}",
+                    isErrorDialog = true
+                )
+            }
         }
     }
 
     // 作業を破棄
     fun discardWork() {
-        timerService?.stopTimer()
-        getApplication<Application>().unbindService(connection)
-        isBound = false
-        timerService = null
+        timerManager.stopTimer()
         updateUiState()
-    }
-
-    private fun bindTimerService() {
-        Intent(getApplication(), TimerService::class.java).also { intent ->
-            getApplication<Application>().bindService(intent, connection, Context.BIND_AUTO_CREATE)
-        }
     }
 
     override fun onCleared() {
         super.onCleared()
-        if (isBound) {
-            getApplication<Application>().unbindService(connection)
-            isBound = false
-        }
+        timerManager.removeListener()
+    }
+
+    fun onNavigationHandled() {
+        _uiState.value = _uiState.value.copy(navigateToLog = false)
     }
 }

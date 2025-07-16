@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp.gradle.plugin)
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -36,9 +37,6 @@ android {
         viewBinding = true
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.2"
-    }
 
 }
 
@@ -64,4 +62,12 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.5.3")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+
+    implementation("com.google.dagger:hilt-android:2.56.2")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    ksp("com.google.dagger:hilt-android-compiler:2.56.2")
+
+    implementation("androidx.navigation:navigation-compose:2.7.6")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 }

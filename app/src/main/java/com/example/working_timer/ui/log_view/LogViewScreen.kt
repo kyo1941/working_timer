@@ -1,11 +1,9 @@
 package com.example.working_timer.ui.log_view
 
-import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.CalendarView
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,16 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.working_timer.ui.components.DateRangePickerModal
-import com.example.working_timer.ui.edit_work.EditWorkActivity
 import com.example.working_timer.ui.components.FooterNavigationBar
 import com.example.working_timer.R
+import com.example.working_timer.navigation.Routes
 import com.example.working_timer.ui.components.WorkItemComposable
 import java.text.NumberFormat
 import com.example.working_timer.util.BorderColor
@@ -40,27 +37,21 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogViewScreen(
-    viewModel: LogViewViewModel = viewModel(),
-    onNavigateToTimer: () -> Unit
+    viewModel: LogViewViewModel = hiltViewModel(),
+    onNavigateToTimer: () -> Unit,
+    onNavigateToEditWork: (Boolean, Int, String, String, String, String, Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
-
-    // EditWorkActivityから結果を受け取るためのランチャー
-    val editWorkLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                viewModel.loadWorkList(uiState.selectedDay)
-            }
-        }
-    )
 
     // Date Range Pickerの表示を制御するState
     var showDateRangePicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.init()
+        if (uiState.selectedDay.isNotEmpty()) {
+            viewModel.loadWorkList(uiState.selectedDay)
+        } else {
+            viewModel.init()
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -70,8 +61,7 @@ fun LogViewScreen(
                 val view = inflater.inflate(R.layout.calender_view, null)
                 val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
                 calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                    val selected = String.format("%04d/%02d/%02d", year, month + 1, dayOfMonth)
-                    viewModel.loadWorkList(selected)
+                    viewModel.setSelectedDay(year, month, dayOfMonth)
                 }
                 view
             },
@@ -89,16 +79,15 @@ fun LogViewScreen(
                     work = work,
                     onDelete = { viewModel.showDeleteDialog(work) },
                     onEdit = {
-                        val intent = Intent(context, EditWorkActivity::class.java).apply {
-                            putExtra("is_new", false)
-                            putExtra("id", work.id)
-                            putExtra("start_day", work.start_day)
-                            putExtra("end_day", work.end_day)
-                            putExtra("start_time", work.start_time)
-                            putExtra("end_time", work.end_time)
-                            putExtra("elapsed_time", work.elapsed_time)
-                        }
-                        editWorkLauncher.launch(intent)
+                        onNavigateToEditWork(
+                            false,
+                            work.id,
+                            work.start_day,
+                            work.end_day,
+                            work.start_time,
+                            work.end_time,
+                            work.elapsed_time
+                        )
                     }
                 )
                 if (index < uiState.workList.lastIndex) {
@@ -117,12 +106,15 @@ fun LogViewScreen(
             Spacer(modifier = Modifier.width(8.dp))
             FloatingActionButton(
                 onClick = {
-                    val intent = Intent(context, EditWorkActivity::class.java).apply {
-                        putExtra("is_new", true)
-                        putExtra("start_day", uiState.selectedDay)
-                        putExtra("end_day", uiState.selectedDay)
-                    }
-                    editWorkLauncher.launch(intent)
+                    onNavigateToEditWork(
+                        true,
+                        0,
+                        uiState.selectedDay,
+                        uiState.selectedDay,
+                        "00:00",
+                        "00:00",
+                        0
+                    )
                 },
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
                 containerColor = ButtonBackgroundColor,
@@ -223,7 +215,7 @@ fun SumDialog(
         onWageChange(wage)
     }
 
-    val sdf = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
+    val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
     val formattedStartDate =
         remember(startDate) { if (startDate != null) sdf.format(startDate) else "N/A" }
     val formattedEndDate = remember(endDate) { if (endDate != null) sdf.format(endDate) else "N/A" }

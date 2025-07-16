@@ -38,12 +38,12 @@ import kotlinx.coroutines.launch
 fun EditWorkScreen(
     editWorkViewModel: EditWorkViewModel = hiltViewModel(),
     id: Int,
+    isNew: Boolean,
     startDay: String,
     endDay: String,
     startTime: String,
     endTime: String,
     elapsedTime: Int,
-    isNew: Boolean,
     onNavigateBack: () -> Unit = {}
 ) {
     var startDay by remember { mutableStateOf(startDay) }
@@ -210,7 +210,7 @@ fun EditWorkScreen(
             ) {
                 Button(
                     onClick = {
-                        (context as? Activity)?.finish()
+                        onNavigateBack()
                     },
                     modifier = Modifier.weight(1f)
                 ) {
@@ -368,7 +368,7 @@ fun parseTime(time: String): Pair<Int, Int> {
 
 fun formatMonthDay(fullDate: String): String {
     return try {
-        val inputFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val outputFormat = SimpleDateFormat("M/d", Locale.getDefault())
         val date = inputFormat.parse(fullDate)
         outputFormat.format(date)

@@ -112,7 +112,7 @@ class TimerService : Service() {
         isRunning = true
         startTimeCalendar = Calendar.getInstance()
 
-        val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+        val sdfDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val formattedDate = sdfDate.format(startTimeCalendar.time)
         val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
         val formattedTime = sdfTime.format(startTimeCalendar.time)

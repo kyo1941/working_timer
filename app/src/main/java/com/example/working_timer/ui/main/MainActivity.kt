@@ -6,7 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import com.example.working_timer.ui.log_view.LogViewActivity
+import androidx.navigation.compose.rememberNavController
+import com.example.working_timer.navigation.AppNavHost
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -16,13 +17,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    MainScreen(
-                        onNavigateToLog = {
-                            // ログ画面への遷移
-                            startActivity(Intent(this, LogViewActivity::class.java))
-                            overridePendingTransition(0, 0)
-                        }
-                    )
+                    val navController = rememberNavController()
+                    AppNavHost(navController = navController)
                 }
             }
         }

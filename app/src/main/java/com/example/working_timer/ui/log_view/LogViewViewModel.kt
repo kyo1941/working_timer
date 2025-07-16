@@ -42,14 +42,14 @@ class LogViewViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LogViewUiState())
     val uiState: StateFlow<LogViewUiState> = _uiState
-    private val sdf = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     // 初回起動時に現在日時を取得する
     fun init() {
         if (_uiState.value.selectedDay.isEmpty()) {
             val cal = Calendar.getInstance()
             val today = String.format(
-                "%04d/%02d/%02d",
+                "%04d-%02d-%02d",
                 cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH) + 1,
                 cal.get(Calendar.DAY_OF_MONTH)

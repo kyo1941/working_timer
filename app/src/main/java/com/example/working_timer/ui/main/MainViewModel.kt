@@ -175,7 +175,7 @@ class MainViewModel @Inject constructor(
             }
 
             val endTimeCalendar = Calendar.getInstance()
-            val sdfDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+            val sdfDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val endDate = sdfDate.format(endTimeCalendar.time)
 
             val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())

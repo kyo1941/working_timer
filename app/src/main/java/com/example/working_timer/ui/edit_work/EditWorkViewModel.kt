@@ -39,7 +39,7 @@ class EditWorkViewModel @Inject constructor(
     val uiEvent = _uiEvent.asSharedFlow()
 
     private companion object {
-        private const val DATE_TIME_PATTERN = "yyyy/MM/dd HH:mm"
+        private const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm"
     }
 
     fun saveWork(

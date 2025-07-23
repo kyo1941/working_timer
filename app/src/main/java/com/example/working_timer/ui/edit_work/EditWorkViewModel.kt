@@ -17,6 +17,12 @@ import java.util.Locale
 import javax.inject.Inject
 
 data class EditWorkUiState(
+    val startDay: String = "",
+    val endDay: String = "",
+    val startTime: String = "",
+    val endTime: String = "",
+    val elapsedHour: Int = 0,
+    val elapsedMinute: Int = 0,
     val showZeroMinutesError: Boolean = false,
     val showStartEndError: Boolean = false,
     val showElapsedTimeOver: Boolean = false
@@ -119,6 +125,26 @@ class EditWorkViewModel @Inject constructor(
             workRepository.insert(work)
         }
         _uiEvent.emit(UiEvent.SaveSuccess)
+    }
+
+    fun updateStartDay(value: String) {
+        _uiState.value = _uiState.value.copy(startDay = value)
+    }
+
+    fun updateEndDay(value: String) {
+        _uiState.value = _uiState.value.copy(endDay = value)
+    }
+
+    fun updateStartTime(value: String) {
+        _uiState.value = _uiState.value.copy(startTime = value)
+    }
+
+    fun updateEndTime(value: String) {
+        _uiState.value = _uiState.value.copy(endTime = value)
+    }
+
+    fun updateElapsedTime(hour: Int, minute: Int) {
+        _uiState.value = _uiState.value.copy(elapsedHour = hour, elapsedMinute = minute)
     }
 
     fun clearZeroMinutesError() {

@@ -47,13 +47,6 @@ fun EditWorkScreen(
     onNavigateBack: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var startDay by remember { mutableStateOf(startDay) }
-    var endDay by remember { mutableStateOf(endDay) }
-    var startTime by remember { mutableStateOf(startTime) }
-    var endTime by remember { mutableStateOf(endTime) }
-    var elapsedHour by remember { mutableStateOf(elapsedTime / 3600) }
-    var elapsedMinute by remember { mutableStateOf((elapsedTime % 3600) / 60) }
-
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showStartDayPicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
@@ -61,12 +54,20 @@ fun EditWorkScreen(
 
     var showElapsedPicker by remember { mutableStateOf(false) }
 
-    val uiState by editWorkViewModel.uiState.collectAsState(initial = EditWorkUiState())
+    val uiState by editWorkViewModel.uiState.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
+        // 初期値を設定する
+        editWorkViewModel.updateStartDay(startDay)
+        editWorkViewModel.updateEndDay(endDay)
+        editWorkViewModel.updateStartTime(startTime)
+        editWorkViewModel.updateEndTime(endTime)
+        editWorkViewModel.updateElapsedTime(elapsedTime / 3600, (elapsedTime % 3600) / 60)
+
+        // イベントを監視する
         editWorkViewModel.uiEvent.collectLatest { event ->
             when (event) {
                 is EditWorkViewModel.UiEvent.ShowSnackbar -> {
@@ -112,7 +113,7 @@ fun EditWorkScreen(
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(formatMonthDay(startDay))
+                                append(formatMonthDay(uiState.startDay))
                             }
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -126,7 +127,7 @@ fun EditWorkScreen(
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(startTime)
+                                append(uiState.startTime)
                             }
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -148,7 +149,7 @@ fun EditWorkScreen(
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(formatMonthDay(endDay))
+                                append(formatMonthDay(uiState.endDay))
                             }
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -162,7 +163,7 @@ fun EditWorkScreen(
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(endTime)
+                                append(uiState.endTime)
                             }
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -183,14 +184,14 @@ fun EditWorkScreen(
                 TextButton(onClick = { showElapsedPicker = true }) {
                     Text(
                         text = buildAnnotatedString {
-                            if (elapsedHour > 0) {
+                            if (uiState.elapsedHour > 0) {
                                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                    append(String.format("%2d", elapsedHour))
+                                    append(String.format("%2d", uiState.elapsedHour))
                                 }
                                 append(" 時間 ")
                             }
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(String.format("%2d", elapsedMinute))
+                                append(String.format("%2d", uiState.elapsedMinute))
                             }
                             append(" 分")
                         },
@@ -223,13 +224,13 @@ fun EditWorkScreen(
 
                 Button(
                     onClick = {
-                        val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
+                        val newElapsed = uiState.elapsedHour * 3600 + uiState.elapsedMinute * 60
                         editWorkViewModel.saveWork(
                             id = id,
-                            startDay = startDay,
-                            startTime = startTime,
-                            endDay = endDay,
-                            endTime = endTime,
+                            startDay = uiState.startDay,
+                            startTime = uiState.startTime,
+                            endDay = uiState.endDay,
+                            endTime = uiState.endTime,
                             elapsedTime = newElapsed,
                             isNew = isNew,
                             forceSave = false
@@ -246,10 +247,10 @@ fun EditWorkScreen(
 
         if (showStartTimePicker) {
             MaterialTimePickerDialog(
-                initialTime = parseTime(startTime),
+                initialTime = parseTime(uiState.startTime),
                 onDismiss = { showStartTimePicker = false },
                 onTimeSelected = {
-                    startTime = it
+                    editWorkViewModel.updateStartTime(it)
                     showStartTimePicker = false
                 }
             )
@@ -257,10 +258,10 @@ fun EditWorkScreen(
 
         if (showEndTimePicker) {
             MaterialTimePickerDialog(
-                initialTime = parseTime(endTime),
+                initialTime = parseTime(uiState.endTime),
                 onDismiss = { showEndTimePicker = false },
                 onTimeSelected = {
-                    endTime = it
+                    editWorkViewModel.updateEndTime(it)
                     showEndTimePicker = false
                 }
             )
@@ -268,9 +269,9 @@ fun EditWorkScreen(
 
         if (showStartDayPicker) {
             DatePickerModal(
-                initialDate = startDay,
+                initialDate = uiState.startDay,
                 onDateSelected = {
-                    startDay = it
+                    editWorkViewModel.updateStartDay(it)
                     showStartDayPicker = false
                 },
                 onDismiss = { showStartDayPicker = false }
@@ -279,9 +280,9 @@ fun EditWorkScreen(
 
         if (showEndDayPicker) {
             DatePickerModal(
-                initialDate = endDay,
+                initialDate = uiState.endDay,
                 onDateSelected = {
-                    endDay = it
+                    editWorkViewModel.updateEndDay(it)
                     showEndDayPicker = false
                 },
                 onDismiss = { showEndDayPicker = false }
@@ -290,12 +291,11 @@ fun EditWorkScreen(
 
         if (showElapsedPicker) {
             MaterialTimePickerDialog(
-                initialTime = Pair(elapsedHour, elapsedMinute),
+                initialTime = Pair(uiState.elapsedHour, uiState.elapsedMinute),
                 onDismiss = { showElapsedPicker = false },
                 onTimeSelected = { timeString ->
                     val (h, m) = timeString.split(":").map { it.toIntOrNull() ?: 0 }
-                    elapsedHour = h
-                    elapsedMinute = m
+                    editWorkViewModel.updateElapsedTime(h, m)
                     showElapsedPicker = false
                 },
                 showToggleIcon = false
@@ -338,13 +338,13 @@ fun EditWorkScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         editWorkViewModel.clearElapsedTimeOver()
-                        val newElapsed = elapsedHour * 3600 + elapsedMinute * 60
+                        val newElapsed = uiState.elapsedHour * 3600 + uiState.elapsedMinute * 60
                         editWorkViewModel.saveWork(
                             id = id,
-                            startDay = startDay,
-                            startTime = startTime,
-                            endDay = endDay,
-                            endTime = endTime,
+                            startDay = uiState.startDay,
+                            startTime = uiState.startTime,
+                            endDay = uiState.endDay,
+                            endTime = uiState.endTime,
                             elapsedTime = newElapsed,
                             isNew = isNew,
                             forceSave = true

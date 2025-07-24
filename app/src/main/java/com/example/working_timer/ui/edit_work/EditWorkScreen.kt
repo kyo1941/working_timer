@@ -38,12 +38,8 @@ import kotlinx.coroutines.launch
 fun EditWorkScreen(
     editWorkViewModel: EditWorkViewModel = hiltViewModel(),
     id: Int,
-    isNew: Boolean,
     startDay: String,
-    endDay: String,
-    startTime: String,
-    endTime: String,
-    elapsedTime: Int,
+    isNew: Boolean,
     onNavigateBack: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -61,11 +57,7 @@ fun EditWorkScreen(
 
     LaunchedEffect(Unit) {
         // 初期値を設定する
-        editWorkViewModel.updateStartDay(startDay)
-        editWorkViewModel.updateEndDay(endDay)
-        editWorkViewModel.updateStartTime(startTime)
-        editWorkViewModel.updateEndTime(endTime)
-        editWorkViewModel.updateElapsedTime(elapsedTime / 3600, (elapsedTime % 3600) / 60)
+        editWorkViewModel.init(id, isNew, startDay)
 
         // イベントを監視する
         editWorkViewModel.uiEvent.collectLatest { event ->

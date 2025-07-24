@@ -48,6 +48,23 @@ class EditWorkViewModel @Inject constructor(
         private const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm"
     }
 
+    fun init(id: Int, isNew: Boolean, startDay: String) {
+        if (isNew) {
+            // 新規作成時は初期値を設定する
+            _uiState.value = _uiState.value.copy(
+                startDay = startDay,
+                endDay = startDay,
+                startTime = "00:00",
+                endTime = "00:00",
+                elapsedHour = 0,
+                elapsedMinute = 0
+            )
+        } else {
+            // DBから記録を読み込む
+            getWork(id)
+        }
+    }
+
     fun saveWork(
         id: Int,
         startDay: String,
@@ -125,6 +142,21 @@ class EditWorkViewModel @Inject constructor(
             workRepository.insert(work)
         }
         _uiEvent.emit(UiEvent.SaveSuccess)
+    }
+
+    private fun getWork(id: Int) {
+        viewModelScope.launch {
+            workRepository.getWork(id).collect { work ->
+                _uiState.value = _uiState.value.copy(
+                    startDay = work.start_day,
+                    endDay = work.end_day,
+                    startTime = work.start_time,
+                    endTime = work.end_time,
+                    elapsedHour = work.elapsed_time / 3600,
+                    elapsedMinute = (work.elapsed_time % 3600) / 60
+                )
+            }
+        }
     }
 
     fun updateStartDay(value: String) {

@@ -67,19 +67,17 @@ class EditWorkViewModel @Inject constructor(
 
     fun saveWork(
         id: Int,
-        startDay: String,
-        startTime: String,
-        endDay: String,
-        endTime: String,
-        elapsedTime: Int,
         isNew: Boolean,
         forceSave: Boolean = false
     ) {
         viewModelScope.launch {
             try {
+                val currentState = _uiState.value
+                val elapsedTime = currentState.elapsedHour * 3600 + currentState.elapsedMinute * 60
+
                 val dateTimeFormat = SimpleDateFormat(DATE_TIME_PATTERN, Locale.getDefault())
-                val startDateTimeMillis = try { dateTimeFormat.parse("$startDay $startTime")?.time } catch (e: ParseException) { null }
-                val endDateTimeMillis = try { dateTimeFormat.parse("$endDay $endTime")?.time } catch (e: ParseException) { null }
+                val startDateTimeMillis = try { dateTimeFormat.parse("${currentState.startDay} ${currentState.startTime}")?.time } catch (e: ParseException) { null }
+                val endDateTimeMillis = try { dateTimeFormat.parse("${currentState.endDay} ${currentState.endTime}")?.time } catch (e: ParseException) { null }
 
                 if (startDateTimeMillis == null || endDateTimeMillis == null) {
                     _uiEvent.emit(UiEvent.ShowSnackbar("日付または時刻の形式が無効です。"))
@@ -102,7 +100,28 @@ class EditWorkViewModel @Inject constructor(
                     return@launch
                 }
 
-                performSave(id, startDay, startTime, endDay, endTime, elapsedTime, isNew)
+                // データベースへの保存処理
+                if (!isNew) {
+                    val work = Work(
+                        id = id,
+                        start_day = currentState.startDay,
+                        start_time = currentState.startTime,
+                        end_day = currentState.endDay,
+                        end_time = currentState.endTime,
+                        elapsed_time = elapsedTime
+                    )
+                    workRepository.update(work)
+                } else {
+                    val work = Work(
+                        start_day = currentState.startDay,
+                        start_time = currentState.startTime,
+                        end_day = currentState.endDay,
+                        end_time = currentState.endTime,
+                        elapsed_time = elapsedTime
+                    )
+                    workRepository.insert(work)
+                }
+                _uiEvent.emit(UiEvent.SaveSuccess)
 
             } catch (e: SQLiteException) {
                 _uiEvent.emit(UiEvent.ShowSnackbar("データベースエラーが発生しました。"))
@@ -110,38 +129,6 @@ class EditWorkViewModel @Inject constructor(
                 _uiEvent.emit(UiEvent.ShowSnackbar("予期しないエラーが発生しました: ${e.localizedMessage ?: "詳細不明"}"))
             }
         }
-    }
-
-    private suspend fun performSave(
-        id: Int,
-        startDay: String,
-        startTime: String,
-        endDay: String,
-        endTime: String,
-        elapsedTime: Int,
-        isNew: Boolean
-    ) {
-        if (!isNew) {
-            val work = Work(
-                id = id,
-                start_day = startDay,
-                start_time = startTime,
-                end_day = endDay,
-                end_time = endTime,
-                elapsed_time = elapsedTime
-            )
-            workRepository.update(work)
-        } else {
-            val work = Work(
-                start_day = startDay,
-                start_time = startTime,
-                end_day = endDay,
-                end_time = endTime,
-                elapsed_time = elapsedTime
-            )
-            workRepository.insert(work)
-        }
-        _uiEvent.emit(UiEvent.SaveSuccess)
     }
 
     private fun getWork(id: Int) {
@@ -191,4 +178,3 @@ class EditWorkViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(showElapsedTimeOver = false)
     }
 }
-

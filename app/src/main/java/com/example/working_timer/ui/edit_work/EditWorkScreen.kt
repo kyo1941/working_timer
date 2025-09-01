@@ -216,14 +216,8 @@ fun EditWorkScreen(
 
                 Button(
                     onClick = {
-                        val newElapsed = uiState.elapsedHour * 3600 + uiState.elapsedMinute * 60
                         editWorkViewModel.saveWork(
                             id = id,
-                            startDay = uiState.startDay,
-                            startTime = uiState.startTime,
-                            endDay = uiState.endDay,
-                            endTime = uiState.endTime,
-                            elapsedTime = newElapsed,
                             isNew = isNew,
                             forceSave = false
                         )
@@ -330,14 +324,8 @@ fun EditWorkScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         editWorkViewModel.clearElapsedTimeOver()
-                        val newElapsed = uiState.elapsedHour * 3600 + uiState.elapsedMinute * 60
                         editWorkViewModel.saveWork(
                             id = id,
-                            startDay = uiState.startDay,
-                            startTime = uiState.startTime,
-                            endDay = uiState.endDay,
-                            endTime = uiState.endTime,
-                            elapsedTime = newElapsed,
                             isNew = isNew,
                             forceSave = true
                         )
@@ -370,6 +358,3 @@ fun formatMonthDay(fullDate: String): String {
         fullDate
     }
 }
-
-
-

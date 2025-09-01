@@ -39,7 +39,7 @@ import java.util.*
 fun LogViewScreen(
     viewModel: LogViewViewModel = hiltViewModel(),
     onNavigateToTimer: () -> Unit,
-    onNavigateToEditWork: (Boolean, Int, String, String, String, String, Int) -> Unit
+    onNavigateToEditWork: (Int, String, Boolean) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -80,13 +80,9 @@ fun LogViewScreen(
                     onDelete = { viewModel.showDeleteDialog(work) },
                     onEdit = {
                         onNavigateToEditWork(
-                            false,
                             work.id,
                             work.start_day,
-                            work.end_day,
-                            work.start_time,
-                            work.end_time,
-                            work.elapsed_time
+                            false
                         )
                     }
                 )
@@ -107,13 +103,9 @@ fun LogViewScreen(
             FloatingActionButton(
                 onClick = {
                     onNavigateToEditWork(
-                        true,
                         0,
                         uiState.selectedDay,
-                        uiState.selectedDay,
-                        "00:00",
-                        "00:00",
-                        0
+                        true
                     )
                 },
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),

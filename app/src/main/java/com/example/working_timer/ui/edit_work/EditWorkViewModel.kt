@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -17,6 +18,12 @@ import java.util.Locale
 import javax.inject.Inject
 
 data class EditWorkUiState(
+    val startDay: String = "",
+    val endDay: String = "",
+    val startTime: String = "",
+    val endTime: String = "",
+    val elapsedHour: Int = 0,
+    val elapsedMinute: Int = 0,
     val showZeroMinutesError: Boolean = false,
     val showStartEndError: Boolean = false,
     val showElapsedTimeOver: Boolean = false
@@ -42,21 +49,36 @@ class EditWorkViewModel @Inject constructor(
         private const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm"
     }
 
+    fun init(id: Int, isNew: Boolean, startDay: String) {
+        if (isNew) {
+            // 新規作成時は初期値を設定する
+            _uiState.value = _uiState.value.copy(
+                startDay = startDay,
+                endDay = startDay,
+                startTime = "00:00",
+                endTime = "00:00",
+                elapsedHour = 0,
+                elapsedMinute = 0
+            )
+        } else {
+            // DBから記録を読み込む
+            getWork(id)
+        }
+    }
+
     fun saveWork(
         id: Int,
-        startDay: String,
-        startTime: String,
-        endDay: String,
-        endTime: String,
-        elapsedTime: Int,
         isNew: Boolean,
         forceSave: Boolean = false
     ) {
         viewModelScope.launch {
             try {
+                val currentState = _uiState.value
+                val elapsedTime = currentState.elapsedHour * 3600 + currentState.elapsedMinute * 60
+
                 val dateTimeFormat = SimpleDateFormat(DATE_TIME_PATTERN, Locale.getDefault())
-                val startDateTimeMillis = try { dateTimeFormat.parse("$startDay $startTime")?.time } catch (e: ParseException) { null }
-                val endDateTimeMillis = try { dateTimeFormat.parse("$endDay $endTime")?.time } catch (e: ParseException) { null }
+                val startDateTimeMillis = try { dateTimeFormat.parse("${currentState.startDay} ${currentState.startTime}")?.time } catch (e: ParseException) { null }
+                val endDateTimeMillis = try { dateTimeFormat.parse("${currentState.endDay} ${currentState.endTime}")?.time } catch (e: ParseException) { null }
 
                 if (startDateTimeMillis == null || endDateTimeMillis == null) {
                     _uiEvent.emit(UiEvent.ShowSnackbar("日付または時刻の形式が無効です。"))
@@ -79,7 +101,28 @@ class EditWorkViewModel @Inject constructor(
                     return@launch
                 }
 
-                performSave(id, startDay, startTime, endDay, endTime, elapsedTime, isNew)
+                // データベースへの保存処理
+                if (!isNew) {
+                    val work = Work(
+                        id = id,
+                        start_day = currentState.startDay,
+                        start_time = currentState.startTime,
+                        end_day = currentState.endDay,
+                        end_time = currentState.endTime,
+                        elapsed_time = elapsedTime
+                    )
+                    workRepository.update(work)
+                } else {
+                    val work = Work(
+                        start_day = currentState.startDay,
+                        start_time = currentState.startTime,
+                        end_day = currentState.endDay,
+                        end_time = currentState.endTime,
+                        elapsed_time = elapsedTime
+                    )
+                    workRepository.insert(work)
+                }
+                _uiEvent.emit(UiEvent.SaveSuccess)
 
             } catch (e: SQLiteException) {
                 _uiEvent.emit(UiEvent.ShowSnackbar("データベースエラーが発生しました。"))
@@ -89,36 +132,39 @@ class EditWorkViewModel @Inject constructor(
         }
     }
 
-    private suspend fun performSave(
-        id: Int,
-        startDay: String,
-        startTime: String,
-        endDay: String,
-        endTime: String,
-        elapsedTime: Int,
-        isNew: Boolean
-    ) {
-        if (!isNew) {
-            val work = Work(
-                id = id,
-                start_day = startDay,
-                start_time = startTime,
-                end_day = endDay,
-                end_time = endTime,
-                elapsed_time = elapsedTime
-            )
-            workRepository.update(work)
-        } else {
-            val work = Work(
-                start_day = startDay,
-                start_time = startTime,
-                end_day = endDay,
-                end_time = endTime,
-                elapsed_time = elapsedTime
-            )
-            workRepository.insert(work)
+    private fun getWork(id: Int) {
+        viewModelScope.launch {
+            workRepository.getWork(id).firstOrNull()?.let { work ->
+                _uiState.value = _uiState.value.copy(
+                    startDay = work.start_day,
+                    endDay = work.end_day,
+                    startTime = work.start_time,
+                    endTime = work.end_time,
+                    elapsedHour = work.elapsed_time / 3600,
+                    elapsedMinute = (work.elapsed_time % 3600) / 60
+                )
+            }
         }
-        _uiEvent.emit(UiEvent.SaveSuccess)
+    }
+
+    fun updateStartDay(value: String) {
+        _uiState.value = _uiState.value.copy(startDay = value)
+    }
+
+    fun updateEndDay(value: String) {
+        _uiState.value = _uiState.value.copy(endDay = value)
+    }
+
+    fun updateStartTime(value: String) {
+        _uiState.value = _uiState.value.copy(startTime = value)
+    }
+
+    fun updateEndTime(value: String) {
+        _uiState.value = _uiState.value.copy(endTime = value)
+    }
+
+    fun updateElapsedTime(hour: Int, minute: Int) {
+        _uiState.value = _uiState.value.copy(elapsedHour = hour, elapsedMinute = minute)
     }
 
     fun clearZeroMinutesError() {
@@ -133,4 +179,3 @@ class EditWorkViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(showElapsedTimeOver = false)
     }
 }
-

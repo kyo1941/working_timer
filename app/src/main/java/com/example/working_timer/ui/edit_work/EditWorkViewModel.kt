@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -133,7 +134,7 @@ class EditWorkViewModel @Inject constructor(
 
     private fun getWork(id: Int) {
         viewModelScope.launch {
-            workRepository.getWork(id).collect { work ->
+            workRepository.getWork(id).firstOrNull()?.let { work ->
                 _uiState.value = _uiState.value.copy(
                     startDay = work.start_day,
                     endDay = work.end_day,

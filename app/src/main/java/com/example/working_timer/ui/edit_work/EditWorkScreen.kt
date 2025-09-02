@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditWorkScreen(
+fun EditWorkScreenHolder(
     editWorkViewModel: EditWorkViewModel = hiltViewModel(),
     id: Int,
     startDay: String,
@@ -43,17 +43,16 @@ fun EditWorkScreen(
     onNavigateBack: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val uiState by editWorkViewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Pickerの表示状態を管理
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showStartDayPicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
     var showEndDayPicker by remember { mutableStateOf(false) }
-
     var showElapsedPicker by remember { mutableStateOf(false) }
-
-    val uiState by editWorkViewModel.uiState.collectAsState()
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         // 初期値を設定する
@@ -72,6 +71,72 @@ fun EditWorkScreen(
         }
     }
 
+    EditWorkScreen(
+        uiState = uiState,
+        snackbarHostState = snackbarHostState,
+        isNew = isNew,
+        showStartTimePicker = showStartTimePicker,
+        showStartDayPicker = showStartDayPicker,
+        showEndTimePicker = showEndTimePicker,
+        showEndDayPicker = showEndDayPicker,
+        showElapsedPicker = showElapsedPicker,
+        onNavigateBack = onNavigateBack,
+        onUpdateStartTime = { editWorkViewModel.updateStartTime(it) },
+        onUpdateEndTime = { editWorkViewModel.updateEndTime(it) },
+        onUpdateStartDay = { editWorkViewModel.updateStartDay(it) },
+        onUpdateEndDay = { editWorkViewModel.updateEndDay(it) },
+        onUpdateElapsedTime = { hour, minute -> editWorkViewModel.updateElapsedTime(hour, minute) },
+        onSaveWork = { editWorkViewModel.saveWork(id, isNew, it) },
+        onClearZeroMinutesError = { editWorkViewModel.clearZeroMinutesError() },
+        onClearStartEndError = { editWorkViewModel.clearStartEndError() },
+        onClearElapsedTimeOver = { editWorkViewModel.clearElapsedTimeOver() },
+        onShowStartTimePicker = { showStartTimePicker = true },
+        onHideStartTimePicker = { showStartTimePicker = false },
+        onShowStartDayPicker = { showStartDayPicker = true },
+        onHideStartDayPicker = { showStartDayPicker = false },
+        onShowEndTimePicker = { showEndTimePicker = true },
+        onHideEndTimePicker = { showEndTimePicker = false },
+        onShowEndDayPicker = { showEndDayPicker = true },
+        onHideEndDayPicker = { showEndDayPicker = false },
+        onShowElapsedPicker = { showElapsedPicker = true },
+        onHideElapsedPicker = { showElapsedPicker = false },
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditWorkScreen(
+    uiState: EditWorkUiState,
+    snackbarHostState: SnackbarHostState,
+    isNew: Boolean,
+    showStartTimePicker: Boolean,
+    showStartDayPicker: Boolean,
+    showEndTimePicker: Boolean,
+    showEndDayPicker: Boolean,
+    showElapsedPicker: Boolean,
+    onNavigateBack: () -> Unit,
+    onUpdateStartTime: (String) -> Unit,
+    onUpdateEndTime: (String) -> Unit,
+    onUpdateStartDay: (String) -> Unit,
+    onUpdateEndDay: (String) -> Unit,
+    onUpdateElapsedTime: (Int, Int) -> Unit,
+    onSaveWork: (Boolean) -> Unit,
+    onClearZeroMinutesError: () -> Unit,
+    onClearStartEndError: () -> Unit,
+    onClearElapsedTimeOver: () -> Unit,
+    onShowStartTimePicker: () -> Unit,
+    onHideStartTimePicker: () -> Unit,
+    onShowStartDayPicker: () -> Unit,
+    onHideStartDayPicker: () -> Unit,
+    onShowEndTimePicker: () -> Unit,
+    onHideEndTimePicker: () -> Unit,
+    onShowEndDayPicker: () -> Unit,
+    onHideEndDayPicker: () -> Unit,
+    onShowElapsedPicker: () -> Unit,
+    onHideElapsedPicker: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = modifier
@@ -101,7 +166,7 @@ fun EditWorkScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { showStartDayPicker = true }) {
+                TextButton(onClick = onShowStartDayPicker) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -115,7 +180,7 @@ fun EditWorkScreen(
                     )
                 }
                 Spacer(modifier = Modifier.width(32.dp))
-                TextButton(onClick = { showStartTimePicker = true }) {
+                TextButton(onClick = onShowStartTimePicker) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -137,7 +202,7 @@ fun EditWorkScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { showEndDayPicker = true }) {
+                TextButton(onClick = onShowEndDayPicker) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -151,7 +216,7 @@ fun EditWorkScreen(
                     )
                 }
                 Spacer(modifier = Modifier.width(32.dp))
-                TextButton(onClick = { showEndTimePicker = true }) {
+                TextButton(onClick = onShowEndTimePicker) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -173,7 +238,7 @@ fun EditWorkScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { showElapsedPicker = true }) {
+                TextButton(onClick = onShowElapsedPicker) {
                     Text(
                         text = buildAnnotatedString {
                             if (uiState.elapsedHour > 0) {
@@ -192,7 +257,6 @@ fun EditWorkScreen(
                             textAlign = TextAlign.Center
                         )
                     )
-
                 }
             }
 
@@ -204,9 +268,7 @@ fun EditWorkScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = {
-                        onNavigateBack()
-                    },
+                    onClick = onNavigateBack,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("キャンセル")
@@ -215,13 +277,7 @@ fun EditWorkScreen(
                 Spacer(modifier = Modifier.width(24.dp))
 
                 Button(
-                    onClick = {
-                        editWorkViewModel.saveWork(
-                            id = id,
-                            isNew = isNew,
-                            forceSave = false
-                        )
-                    },
+                    onClick = { onSaveWork(false) },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("保存")
@@ -234,10 +290,10 @@ fun EditWorkScreen(
         if (showStartTimePicker) {
             MaterialTimePickerDialog(
                 initialTime = parseTime(uiState.startTime),
-                onDismiss = { showStartTimePicker = false },
+                onDismiss = onHideStartTimePicker,
                 onTimeSelected = {
-                    editWorkViewModel.updateStartTime(it)
-                    showStartTimePicker = false
+                    onUpdateStartTime(it)
+                    onHideStartTimePicker()
                 }
             )
         }
@@ -245,10 +301,10 @@ fun EditWorkScreen(
         if (showEndTimePicker) {
             MaterialTimePickerDialog(
                 initialTime = parseTime(uiState.endTime),
-                onDismiss = { showEndTimePicker = false },
+                onDismiss = onHideEndTimePicker,
                 onTimeSelected = {
-                    editWorkViewModel.updateEndTime(it)
-                    showEndTimePicker = false
+                    onUpdateEndTime(it)
+                    onHideEndTimePicker()
                 }
             )
         }
@@ -257,10 +313,10 @@ fun EditWorkScreen(
             DatePickerModal(
                 initialDate = uiState.startDay,
                 onDateSelected = {
-                    editWorkViewModel.updateStartDay(it)
-                    showStartDayPicker = false
+                    onUpdateStartDay(it)
+                    onHideStartDayPicker()
                 },
-                onDismiss = { showStartDayPicker = false }
+                onDismiss = onHideStartDayPicker
             )
         }
 
@@ -268,21 +324,21 @@ fun EditWorkScreen(
             DatePickerModal(
                 initialDate = uiState.endDay,
                 onDateSelected = {
-                    editWorkViewModel.updateEndDay(it)
-                    showEndDayPicker = false
+                    onUpdateEndDay(it)
+                    onHideEndDayPicker()
                 },
-                onDismiss = { showEndDayPicker = false }
+                onDismiss = onHideEndDayPicker
             )
         }
 
         if (showElapsedPicker) {
             MaterialTimePickerDialog(
                 initialTime = Pair(uiState.elapsedHour, uiState.elapsedMinute),
-                onDismiss = { showElapsedPicker = false },
+                onDismiss = onHideElapsedPicker,
                 onTimeSelected = { timeString ->
                     val (h, m) = timeString.split(":").map { it.toIntOrNull() ?: 0 }
-                    editWorkViewModel.updateElapsedTime(h, m)
-                    showElapsedPicker = false
+                    onUpdateElapsedTime(h, m)
+                    onHideElapsedPicker()
                 },
                 showToggleIcon = false
             )
@@ -290,12 +346,12 @@ fun EditWorkScreen(
 
         if (uiState.showZeroMinutesError) {
             AlertDialog(
-                onDismissRequest = { editWorkViewModel.clearZeroMinutesError() },
+                onDismissRequest = onClearZeroMinutesError,
                 title = { Text("エラー") },
                 text = { Text("1分以上からのみ記録が可能です。") },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
-                    TextButton(onClick = { editWorkViewModel.clearZeroMinutesError() }) {
+                    TextButton(onClick = onClearZeroMinutesError) {
                         Text("OK")
                     }
                 }
@@ -304,12 +360,12 @@ fun EditWorkScreen(
 
         if (uiState.showStartEndError) {
             AlertDialog(
-                onDismissRequest = { editWorkViewModel.clearStartEndError() },
+                onDismissRequest = onClearStartEndError,
                 title = { Text("エラー") },
                 text = { Text("開始時刻が終了時刻を超えています。") },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
-                    TextButton(onClick = { editWorkViewModel.clearStartEndError() }) {
+                    TextButton(onClick = onClearStartEndError) {
                         Text("OK")
                     }
                 }
@@ -318,23 +374,19 @@ fun EditWorkScreen(
 
         if (uiState.showElapsedTimeOver) {
             AlertDialog(
-                onDismissRequest = { editWorkViewModel.clearElapsedTimeOver() },
+                onDismissRequest = onClearElapsedTimeOver,
                 title = { Text("注意") },
                 text = { Text("活動時間が時間差より大きいです。\nこのまま保存しますか？") },
                 confirmButton = {
                     TextButton(onClick = {
-                        editWorkViewModel.clearElapsedTimeOver()
-                        editWorkViewModel.saveWork(
-                            id = id,
-                            isNew = isNew,
-                            forceSave = true
-                        )
+                        onClearElapsedTimeOver()
+                        onSaveWork(true)
                     }) {
                         Text("保存")
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { editWorkViewModel.clearElapsedTimeOver() }) {
+                    TextButton(onClick = onClearElapsedTimeOver) {
                         Text("キャンセル")
                     }
                 }

@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.example.working_timer.ui.edit_work.EditWorkScreen
+import com.example.working_timer.ui.edit_work.EditWorkScreenHolder
 import com.example.working_timer.ui.log_view.LogViewScreenHolder
 import com.example.working_timer.ui.main.MainScreenHolder
 
@@ -66,7 +66,7 @@ fun AppNavHost (
             val startDay = backStackEntry.arguments?.getString("startDay") ?: ""
             val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: true
 
-            EditWorkScreen(
+            EditWorkScreenHolder(
                 id = id,
                 startDay = startDay,
                 isNew = isNew,

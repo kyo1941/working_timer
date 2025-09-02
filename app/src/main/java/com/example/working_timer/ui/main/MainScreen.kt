@@ -52,6 +52,22 @@ import com.example.working_timer.util.StatusWorkingColor
 import com.example.working_timer.util.StopButtonColor
 import kotlinx.coroutines.launch
 
+data class MainScreenState(
+    val uiState: TimerUiState,
+    val snackbarHostState: SnackbarHostState
+)
+
+data class MainScreenActions(
+    val onNavigateToLog: () -> Unit,
+    val onStartTimer: () -> Unit,
+    val onStopTimer: () -> Unit,
+    val onPauseTimer: () -> Unit,
+    val onResumeTimer: () -> Unit,
+    val onDiscardWork: () -> Unit,
+    val onSaveWork: () -> Unit,
+    val onDismissSaveDialog: () -> Unit
+)
+
 @Composable
 fun MainScreenHolder(
     mainViewModel: MainViewModel = hiltViewModel(),
@@ -106,49 +122,45 @@ fun MainScreenHolder(
     }
 
     MainScreen(
-        uiState = uiState,
-        snackbarHostState = snackbarHostState,
-        onNavigateToLog = onNavigateToLog,
-        onStartTimer = {
-            mainViewModel.startTimer()
-            if (!isNotificationGranted) {
-                scope.launch {
-                    snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
+        state = MainScreenState(
+            uiState = uiState,
+            snackbarHostState = snackbarHostState
+        ),
+        actions = MainScreenActions(
+            onNavigateToLog = onNavigateToLog,
+            onStartTimer = {
+                mainViewModel.startTimer()
+                if (!isNotificationGranted) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        },
-        onStopTimer = { mainViewModel.stopTimer() },
-        onPauseTimer = { mainViewModel.pauseTimer() },
-        onResumeTimer = { mainViewModel.resumeTimer() },
-        onDiscardWork = { mainViewModel.discardWork() },
-        onSaveWork = { mainViewModel.saveWork() },
-        onDismissSaveDialog = { mainViewModel.dismissSaveDialog() }
+            },
+            onStopTimer = { mainViewModel.stopTimer() },
+            onPauseTimer = { mainViewModel.pauseTimer() },
+            onResumeTimer = { mainViewModel.resumeTimer() },
+            onDiscardWork = { mainViewModel.discardWork() },
+            onSaveWork = { mainViewModel.saveWork() },
+            onDismissSaveDialog = { mainViewModel.dismissSaveDialog() }
+        )
     )
 }
 
 @Composable
 fun MainScreen(
-    uiState: TimerUiState,
-    snackbarHostState: SnackbarHostState,
-    onNavigateToLog: () -> Unit,
-    onStartTimer: () -> Unit,
-    onStopTimer: () -> Unit,
-    onPauseTimer: () -> Unit,
-    onResumeTimer: () -> Unit,
-    onDiscardWork: () -> Unit,
-    onSaveWork: () -> Unit,
-    onDismissSaveDialog: () -> Unit
+    state: MainScreenState,
+    actions: MainScreenActions
 ) {
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(state.snackbarHostState) },
         bottomBar = {
             FooterNavigationBar(
                 selectedIndex = 0,
                 onTimerClick = {},
-                onLogClick = onNavigateToLog
+                onLogClick = actions.onNavigateToLog
             )
         }
     ) { paddingValues ->
@@ -162,11 +174,11 @@ fun MainScreen(
             Spacer(Modifier.weight(1f))
 
             Text(
-                text = uiState.status,
+                text = state.uiState.status,
                 textAlign = TextAlign.Center,
                 fontSize = 48.sp,
                 fontWeight = FontWeight.Bold,
-                color = when (uiState.status) {
+                color = when (state.uiState.status) {
                     "労働中" -> StatusWorkingColor
                     "休憩中" -> StatusPauseColor
                     else -> StatusDefaultColor
@@ -176,7 +188,7 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = uiState.timerText,
+                text = state.uiState.timerText,
                 textAlign = TextAlign.Center,
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold
@@ -185,9 +197,9 @@ fun MainScreen(
             Spacer(Modifier.weight(1f))
 
             // 開始ボタン
-            if (!uiState.isTimerRunning && !uiState.isPaused) {
+            if (!state.uiState.isTimerRunning && !state.uiState.isPaused) {
                 Button(
-                    onClick = onStartTimer,
+                    onClick = actions.onStartTimer,
                     modifier = Modifier.size(100.dp),
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = StartButtonColor)
@@ -197,7 +209,7 @@ fun MainScreen(
             }
 
             // 終了、休憩ボタン
-            if (uiState.isTimerRunning) {
+            if (state.uiState.isTimerRunning) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
@@ -205,7 +217,7 @@ fun MainScreen(
                     Spacer(Modifier.weight(1f))
 
                     Button(
-                        onClick = onStopTimer,
+                        onClick = actions.onStopTimer,
                         modifier = Modifier.size(100.dp),
                         shape = RoundedCornerShape(40.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = StopButtonColor)
@@ -216,7 +228,7 @@ fun MainScreen(
                     Spacer(Modifier.weight(1f))
 
                     Button(
-                        onClick = onPauseTimer,
+                        onClick = actions.onPauseTimer,
                         modifier = Modifier.size(100.dp),
                         shape = RoundedCornerShape(40.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = PauseButtonColor)
@@ -229,9 +241,9 @@ fun MainScreen(
             }
 
             // 再開ボタン
-            if (uiState.isPaused) {
+            if (state.uiState.isPaused) {
                 Button(
-                    onClick = onResumeTimer,
+                    onClick = actions.onResumeTimer,
                     modifier = Modifier.size(100.dp),
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = ResumeButtonColor)
@@ -244,28 +256,28 @@ fun MainScreen(
         }
 
         // 保存確認ダイアログ
-        if (uiState.showSaveDialog) {
+        if (state.uiState.showSaveDialog) {
             AlertDialog(
-                onDismissRequest = onDismissSaveDialog,
+                onDismissRequest = actions.onDismissSaveDialog,
                 title = { Text("確認") },
                 text = { Text(
-                    uiState.dialogMessage,
+                    state.uiState.dialogMessage,
                     fontWeight = FontWeight.Medium
                 ) },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
                     // ダイアログのメッセージによってボタンの挙動を変える
-                    if (uiState.isErrorDialog) {
+                    if (state.uiState.isErrorDialog) {
                         Row {
                             TextButton(onClick = {
-                                onDiscardWork()
-                                onDismissSaveDialog()
+                                actions.onDiscardWork()
+                                actions.onDismissSaveDialog()
                             }) {
                                 Text("破棄")
                             }
                             TextButton(onClick = {
-                                onResumeTimer()
-                                onDismissSaveDialog()
+                                actions.onResumeTimer()
+                                actions.onDismissSaveDialog()
                             }) {
                                 Text("再開")
                             }
@@ -273,8 +285,8 @@ fun MainScreen(
                     } else {
                         Row {
                             TextButton(onClick = {
-                                onDiscardWork()
-                                onDismissSaveDialog()
+                                actions.onDiscardWork()
+                                actions.onDismissSaveDialog()
                             }) {
                                 Text("破棄")
                             }
@@ -282,12 +294,12 @@ fun MainScreen(
                             Spacer(modifier = Modifier.width(64.dp))
 
                             TextButton(onClick = {
-                                onResumeTimer()
-                                onDismissSaveDialog()
+                                actions.onResumeTimer()
+                                actions.onDismissSaveDialog()
                             }) {
                                 Text("再開")
                             }
-                            TextButton(onClick = onSaveWork) {
+                            TextButton(onClick = actions.onSaveWork) {
                                 Text("保存")
                             }
                         }
@@ -309,10 +321,14 @@ fun MainScreenPreviewBeforeStart() {
         showSaveDialog = false
     )
     MainScreen(
-        uiState = state,
-        snackbarHostState = remember { SnackbarHostState() },
-        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        state = MainScreenState(
+            uiState = state,
+            snackbarHostState = remember { SnackbarHostState() }
+        ),
+        actions = MainScreenActions(
+            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        )
     )
 }
 
@@ -326,10 +342,14 @@ fun MainScreenPreviewWorking() {
         isPaused = false
     )
     MainScreen(
-        uiState = state,
-        snackbarHostState = remember { SnackbarHostState() },
-        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        state = MainScreenState(
+            uiState = state,
+            snackbarHostState = remember { SnackbarHostState() }
+        ),
+        actions = MainScreenActions(
+            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        )
     )
 }
 
@@ -343,10 +363,14 @@ fun MainScreenPreviewPaused() {
         isPaused = true
     )
     MainScreen(
-        uiState = state,
-        snackbarHostState = remember { SnackbarHostState() },
-        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        state = MainScreenState(
+            uiState = state,
+            snackbarHostState = remember { SnackbarHostState() }
+        ),
+        actions = MainScreenActions(
+            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        )
     )
 }
 
@@ -370,10 +394,14 @@ fun MainScreenPreviewSaveDialog() {
     )
 
     MainScreen(
-        uiState = sampleState,
-        snackbarHostState = remember { SnackbarHostState() },
-        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        state = MainScreenState(
+            uiState = sampleState,
+            snackbarHostState = remember { SnackbarHostState() }
+        ),
+        actions = MainScreenActions(
+            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        )
     )
 }
 
@@ -390,9 +418,13 @@ fun MainScreenPreviewSaveDialogError() {
         isErrorDialog = true
     )
     MainScreen(
-        uiState = state,
-        snackbarHostState = remember { SnackbarHostState() },
-        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        state = MainScreenState(
+            uiState = state,
+            snackbarHostState = remember { SnackbarHostState() }
+        ),
+        actions = MainScreenActions(
+            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        )
     )
 }

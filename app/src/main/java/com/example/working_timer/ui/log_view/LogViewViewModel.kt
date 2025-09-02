@@ -108,8 +108,8 @@ class LogViewViewModel @Inject constructor(
                 }
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
             }
-            val totalHours = totalTime / 3600
-            val totalMinutes = (totalTime % 3600) / 60
+            val totalHours = totalTime / SECOND_IN_HOURS
+            val totalMinutes = (totalTime % SECOND_IN_HOURS) / SECOND_IN_MINUTES
 
             initialTotalTime = totalTime
 
@@ -122,19 +122,24 @@ class LogViewViewModel @Inject constructor(
 
     fun changeCalcMode(wage: Long) {
         val adjustTotalTime = when(_uiState.value.timeCalculationMode) {
-            TimeCalculationMode.ROUND_UP -> Math.ceil(initialTotalTime.toDouble() / 3600).toLong() * 3600
-            TimeCalculationMode.ROUND_DOWN -> Math.floor(initialTotalTime.toDouble() / 3600).toLong() * 3600
+            TimeCalculationMode.ROUND_UP -> Math.ceil(initialTotalTime.toDouble() / SECOND_IN_HOURS).toLong() * SECOND_IN_HOURS
+            TimeCalculationMode.ROUND_DOWN -> Math.floor(initialTotalTime.toDouble() / SECOND_IN_HOURS).toLong() * SECOND_IN_HOURS
             else -> initialTotalTime
         }
 
-        val adjustTotalHours = adjustTotalTime / 3600
-        val adjustTotalMinutes = (adjustTotalTime % 3600) / 60
-        val totalWage = (adjustTotalTime * wage) / 3600
+        val adjustTotalHours = adjustTotalTime / SECOND_IN_HOURS
+        val adjustTotalMinutes = (adjustTotalTime % SECOND_IN_HOURS) / SECOND_IN_MINUTES
+        val totalWage = (adjustTotalTime * wage) / SECOND_IN_HOURS
 
         _uiState.value = _uiState.value.copy(
             totalHours = adjustTotalHours,
             totalMinutes = adjustTotalMinutes,
             totalWage = totalWage
         )
+    }
+
+    companion object {
+        private const val SECOND_IN_HOURS = 3600L
+        private const val SECOND_IN_MINUTES = 60L
     }
 }

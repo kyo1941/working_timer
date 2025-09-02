@@ -95,18 +95,6 @@ fun MainScreenHolder(
         }
     }
 
-    // 通知権限が許可されているか確認
-    val isNotificationGranted = remember(context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        } else {
-            true // Android 12以前は通知権限が不要
-        }
-    }
-
     // 通知権限ランチャー
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -130,7 +118,15 @@ fun MainScreenHolder(
             onNavigateToLog = onNavigateToLog,
             onStartTimer = {
                 mainViewModel.startTimer()
-                if (!isNotificationGranted) {
+                val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                } else {
+                    true
+                }
+                if (!hasPermission) {
                     scope.launch {
                         snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
                     }

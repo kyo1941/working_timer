@@ -5,7 +5,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -18,14 +17,15 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.example.working_timer.R
+import com.example.working_timer.di.IoDispatcher
 import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.navigation.Routes
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -34,11 +34,9 @@ import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TimerService : Service() {
+class TimerService : LifecycleService() {
     @Inject
     lateinit var dataStoreManager: DataStoreManager
-
-    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val binder = LocalBinder()
     private var startTime: Long = 0
@@ -48,6 +46,10 @@ class TimerService : Service() {
     private var isRunning = false
     private val handler = Handler(Looper.getMainLooper())
 
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher: CoroutineDispatcher
+
     private val runnable = object : Runnable {
         override fun run() {
             elapsedTime = System.currentTimeMillis() - startTime
@@ -55,7 +57,7 @@ class TimerService : Service() {
             updateNotificationChannel()
 
             if ((elapsedTime / 1000) % 60 == 0L) {
-                serviceScope.launch {
+                lifecycleScope.launch(ioDispatcher) {
                     dataStoreManager.updateElapsedTime(elapsedTime)
                 }
             }
@@ -81,7 +83,7 @@ class TimerService : Service() {
 
     private fun restoreTimerState() {
         if (elapsedTime == 0L && startDate == null && startTimeString == null) {
-            serviceScope.launch {
+            lifecycleScope.launch(ioDispatcher) {
                 val savedElapsedTime = dataStoreManager.getElapsedTimeSync()
 
                 if (savedElapsedTime > 0) {
@@ -104,6 +106,7 @@ class TimerService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder {
+        super.onBind(intent)
         return binder
     }
 
@@ -117,7 +120,7 @@ class TimerService : Service() {
         val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
         val formattedTime = sdfTime.format(startTimeCalendar.time)
 
-        serviceScope.launch {
+        lifecycleScope.launch(ioDispatcher) {
             dataStoreManager.saveTimerState(
                 startDate = formattedDate,
                 startTime = formattedTime,
@@ -136,7 +139,7 @@ class TimerService : Service() {
         elapsedTime = 0
         listener?.onTimerTick(elapsedTime) // 停止時に0を通知
 
-        serviceScope.launch {
+        lifecycleScope.launch(ioDispatcher) {
             dataStoreManager.clearTimerState()
         }
 
@@ -149,7 +152,7 @@ class TimerService : Service() {
         handler.removeCallbacks(runnable)
         isRunning = false
 
-        serviceScope.launch {
+        lifecycleScope.launch(ioDispatcher) {
             dataStoreManager.updateElapsedTime(elapsedTime)
         }
 
@@ -285,6 +288,7 @@ class TimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         val action = intent?.getStringExtra("action")
         when (action) {
             "pause" -> pauseTimer()
@@ -298,7 +302,5 @@ class TimerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(runnable)
-
-        serviceScope.cancel()
     }
 }

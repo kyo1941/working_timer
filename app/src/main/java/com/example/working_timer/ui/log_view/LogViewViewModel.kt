@@ -44,6 +44,8 @@ class LogViewViewModel @Inject constructor(
     val uiState: StateFlow<LogViewUiState> = _uiState
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+    private var initialTotalTime: Long = 0L
+
     // 初回起動時に現在日時を取得する
     fun init() {
         val cal = Calendar.getInstance()
@@ -108,6 +110,9 @@ class LogViewViewModel @Inject constructor(
             }
             val totalHours = totalTime / 3600
             val totalMinutes = (totalTime % 3600) / 60
+
+            initialTotalTime = totalTime
+
             _uiState.value = _uiState.value.copy(
                 totalHours = totalHours,
                 totalMinutes = totalMinutes
@@ -116,21 +121,28 @@ class LogViewViewModel @Inject constructor(
     }
 
     fun updateTotalWage(wage: Long) {
-        val initialTotalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
+        val initialTotalHour = initialTotalTime / 3600
+        val initialTotalMinute = (initialTotalTime % 3600) / 60
 
-        val adjustTotalTime = when (_uiState.value.timeCalculationMode) {
-            TimeCalculationMode.ROUND_UP -> {
-                Math.ceil(initialTotalTime / 3600.0).toLong() * 3600
-            }
-            TimeCalculationMode.ROUND_DOWN -> {
-                Math.floor(initialTotalTime / 3600.0).toLong() * 3600
-            }
-            else -> {
-                initialTotalTime
-            }
+        val adjustTotalHours = when (_uiState.value.timeCalculationMode) {
+            TimeCalculationMode.ROUND_UP -> initialTotalHour + 1
+            TimeCalculationMode.ROUND_DOWN -> initialTotalHour
+            else -> initialTotalHour
         }
 
+        val adjustTotalMinutes = when (_uiState.value.timeCalculationMode) {
+            TimeCalculationMode.ROUND_UP -> 0
+            TimeCalculationMode.ROUND_DOWN -> 0
+            else -> initialTotalMinute
+        }
+
+        val adjustTotalTime = adjustTotalHours * 3600 + adjustTotalMinutes * 60
+
         val totalWage = (adjustTotalTime * wage) / 3600
-        _uiState.value = _uiState.value.copy(totalWage = totalWage)
+        _uiState.value = _uiState.value.copy(
+            totalHours = adjustTotalHours,
+            totalMinutes = adjustTotalMinutes,
+            totalWage = totalWage
+        )
     }
 }

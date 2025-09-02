@@ -120,7 +120,7 @@ class LogViewViewModel @Inject constructor(
         }
     }
 
-    fun updateTotalWage(wage: Long) {
+    fun changeCalcMode(wage: Long) {
         val initialTotalHour = initialTotalTime / 3600
         val initialTotalMinute = (initialTotalTime % 3600) / 60
 

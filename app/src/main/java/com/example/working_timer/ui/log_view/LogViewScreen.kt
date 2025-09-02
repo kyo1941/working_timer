@@ -167,7 +167,7 @@ fun LogViewScreen(
             totalWage = uiState.totalWage,
             calculationMode = uiState.timeCalculationMode,
             onDismiss = { viewModel.hideSumDialog() },
-            onWageChange = { viewModel.changeCalcMode(it) },
+            onWageChange = { viewModel.recalculateNewMode(it) },
             onCalculationModeChange = { viewModel.setTimeCalculationMode(it) }
         )
     }

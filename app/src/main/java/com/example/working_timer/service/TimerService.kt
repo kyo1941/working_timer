@@ -44,6 +44,8 @@ class TimerService : LifecycleService() {
     private var isRunning = false
     private val handler = Handler(Looper.getMainLooper())
 
+    private val ioDispatcher = Dispatchers.IO
+
     private val runnable = object : Runnable {
         override fun run() {
             elapsedTime = System.currentTimeMillis() - startTime
@@ -51,7 +53,7 @@ class TimerService : LifecycleService() {
             updateNotificationChannel()
 
             if ((elapsedTime / 1000) % 60 == 0L) {
-                lifecycleScope.launch(Dispatchers.IO) {
+                lifecycleScope.launch(ioDispatcher) {
                     dataStoreManager.updateElapsedTime(elapsedTime)
                 }
             }
@@ -77,7 +79,7 @@ class TimerService : LifecycleService() {
 
     private fun restoreTimerState() {
         if (elapsedTime == 0L && startDate == null && startTimeString == null) {
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch(ioDispatcher) {
                 val savedElapsedTime = dataStoreManager.getElapsedTimeSync()
 
                 if (savedElapsedTime > 0) {
@@ -114,7 +116,7 @@ class TimerService : LifecycleService() {
         val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
         val formattedTime = sdfTime.format(startTimeCalendar.time)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(ioDispatcher) {
             dataStoreManager.saveTimerState(
                 startDate = formattedDate,
                 startTime = formattedTime,
@@ -133,7 +135,7 @@ class TimerService : LifecycleService() {
         elapsedTime = 0
         listener?.onTimerTick(elapsedTime) // 停止時に0を通知
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(ioDispatcher) {
             dataStoreManager.clearTimerState()
         }
 
@@ -146,7 +148,7 @@ class TimerService : LifecycleService() {
         handler.removeCallbacks(runnable)
         isRunning = false
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(ioDispatcher) {
             dataStoreManager.updateElapsedTime(elapsedTime)
         }
 

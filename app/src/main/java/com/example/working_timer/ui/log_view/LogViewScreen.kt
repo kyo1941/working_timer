@@ -1,10 +1,8 @@
 package com.example.working_timer.ui.log_view
 
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.CalendarView
-import android.widget.FrameLayout
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape

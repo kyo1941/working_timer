@@ -120,7 +120,7 @@ class LogViewViewModel @Inject constructor(
         }
     }
 
-    fun recalculateNewMode(wage: Long) {
+    fun updateTotalWage(wage: Long) {
         val adjustTotalTime = when(_uiState.value.timeCalculationMode) {
             TimeCalculationMode.ROUND_UP -> Math.ceil(initialTotalTime.toDouble() / SECOND_IN_HOURS).toLong() * SECOND_IN_HOURS
             TimeCalculationMode.ROUND_DOWN -> Math.floor(initialTotalTime.toDouble() / SECOND_IN_HOURS).toLong() * SECOND_IN_HOURS

@@ -28,33 +28,92 @@ import com.example.working_timer.ui.components.WorkItemComposable
 import java.text.NumberFormat
 import com.example.working_timer.util.BorderColor
 import com.example.working_timer.util.ButtonBackgroundColor
+import com.example.working_timer.data.db.Work
 
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogViewScreen(
+fun LogViewScreenHolder(
     viewModel: LogViewViewModel = hiltViewModel(),
     onNavigateToTimer: () -> Unit,
     onNavigateToEditWork: (Int, String, Boolean) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Date formatter for calendar updates
-    val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
-
     // Date Range Pickerの表示を制御するState
     var showDateRangePicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-
         if (uiState.selectedDay.isNotEmpty()) {
             viewModel.loadWorkList(uiState.selectedDay)
         } else {
             viewModel.init()
         }
     }
+
+    LogViewScreen(
+        uiState = uiState,
+        showDateRangePicker = showDateRangePicker,
+        onNavigateToTimer = onNavigateToTimer,
+        onNavigateToEditWork = onNavigateToEditWork,
+        onDateSelected = { year, month, dayOfMonth ->
+            viewModel.setSelectedDay(year, month, dayOfMonth)
+        },
+        onShowDeleteDialog = { work ->
+            viewModel.showDeleteDialog(work)
+        },
+        onHideDeleteDialog = {
+            viewModel.hideDeleteDialog()
+        },
+        onDeleteWork = { work ->
+            viewModel.deleteWork(work)
+        },
+        onShowDateRangePicker = {
+            showDateRangePicker = true
+        },
+        onHideDateRangePicker = {
+            showDateRangePicker = false
+        },
+        onDateRangeSelected = { startDate, endDate ->
+            if (startDate != null && endDate != null) {
+                viewModel.showSumDialog(startDate, endDate)
+            }
+            showDateRangePicker = false
+        },
+        onHideSumDialog = {
+            viewModel.hideSumDialog()
+        },
+        onUpdateTotalWage = { wage ->
+            viewModel.updateTotalWage(wage)
+        },
+        onSetTimeCalculationMode = { mode ->
+            viewModel.setTimeCalculationMode(mode)
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LogViewScreen(
+    uiState: LogViewUiState,
+    showDateRangePicker: Boolean,
+    onNavigateToTimer: () -> Unit,
+    onNavigateToEditWork: (Int, String, Boolean) -> Unit,
+    onDateSelected: (Int, Int, Int) -> Unit,
+    onShowDeleteDialog: (Work) -> Unit,
+    onHideDeleteDialog: () -> Unit,
+    onDeleteWork: (Work) -> Unit,
+    onShowDateRangePicker: () -> Unit,
+    onHideDateRangePicker: () -> Unit,
+    onDateRangeSelected: (Long?, Long?) -> Unit,
+    onHideSumDialog: () -> Unit,
+    onUpdateTotalWage: (Long) -> Unit,
+    onSetTimeCalculationMode: (TimeCalculationMode) -> Unit
+) {
+    // Date formatter for calendar updates
+    val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         AndroidView(
@@ -63,7 +122,7 @@ fun LogViewScreen(
                 val view = inflater.inflate(R.layout.calender_view, null)
                 val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
                 calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                    viewModel.setSelectedDay(year, month, dayOfMonth)
+                    onDateSelected(year, month, dayOfMonth)
                 }
                 view
             },
@@ -86,7 +145,7 @@ fun LogViewScreen(
             itemsIndexed(uiState.workList) { index, work ->
                 WorkItemComposable(
                     work = work,
-                    onDelete = { viewModel.showDeleteDialog(work) },
+                    onDelete = { onShowDeleteDialog(work) },
                     onEdit = {
                         onNavigateToEditWork(
                             work.id,
@@ -131,7 +190,7 @@ fun LogViewScreen(
                 )
             }
             FloatingActionButton(
-                onClick = { showDateRangePicker = true },
+                onClick = onShowDateRangePicker,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
                 containerColor = ButtonBackgroundColor,
                 contentColor = Color.White,
@@ -154,14 +213,14 @@ fun LogViewScreen(
     // 削除ダイアログ
     if (uiState.showDeleteDialog && uiState.workToDelete != null) {
         AlertDialog(
-            onDismissRequest = { viewModel.hideDeleteDialog() },
+            onDismissRequest = onHideDeleteDialog,
             title = { Text("確認") },
             text = { Text("本当にこの記録を削除しますか？") },
             confirmButton = {
-                TextButton(onClick = { viewModel.deleteWork(uiState.workToDelete!!) }) { Text("はい") }
+                TextButton(onClick = { onDeleteWork(uiState.workToDelete) }) { Text("はい") }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.hideDeleteDialog() }) { Text("いいえ") }
+                TextButton(onClick = onHideDeleteDialog) { Text("いいえ") }
             }
         )
     }
@@ -175,9 +234,9 @@ fun LogViewScreen(
             totalMinutes = uiState.totalMinutes,
             totalWage = uiState.totalWage,
             calculationMode = uiState.timeCalculationMode,
-            onDismiss = { viewModel.hideSumDialog() },
-            onWageChange = { viewModel.updateTotalWage(it) },
-            onCalculationModeChange = { viewModel.setTimeCalculationMode(it) }
+            onDismiss = onHideSumDialog,
+            onWageChange = onUpdateTotalWage,
+            onCalculationModeChange = onSetTimeCalculationMode
         )
     }
 
@@ -186,12 +245,9 @@ fun LogViewScreen(
         DateRangePickerModal(
             onDateRangeSelected = { pair ->
                 val (startDate, endDate) = pair
-                if (startDate != null && endDate != null) {
-                    viewModel.showSumDialog(startDate, endDate)
-                }
-                showDateRangePicker = false
+                onDateRangeSelected(startDate, endDate)
             },
-            onDismiss = { showDateRangePicker = false }
+            onDismiss = onHideDateRangePicker
         )
     }
 }

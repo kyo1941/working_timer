@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.working_timer.ui.edit_work.EditWorkScreen
-import com.example.working_timer.ui.log_view.LogViewScreen
+import com.example.working_timer.ui.log_view.LogViewScreenHolder
 import com.example.working_timer.ui.main.MainScreenHolder
 
 @Composable
@@ -34,7 +34,7 @@ fun AppNavHost (
         }
 
         composable(Routes.LogView.routes) {
-            LogViewScreen(
+            LogViewScreenHolder(
                 onNavigateToTimer = {
                     navController.navigate(Routes.Timer.routes) {
                         launchSingleTop = true

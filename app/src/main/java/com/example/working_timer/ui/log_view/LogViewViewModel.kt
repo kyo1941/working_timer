@@ -44,6 +44,8 @@ class LogViewViewModel @Inject constructor(
     val uiState: StateFlow<LogViewUiState> = _uiState
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+    private var initialTotalTime: Long = 0L
+
     // 初回起動時に現在日時を取得する
     fun init() {
         val cal = Calendar.getInstance()
@@ -106,8 +108,11 @@ class LogViewViewModel @Inject constructor(
                 }
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
             }
-            val totalHours = totalTime / 3600
-            val totalMinutes = (totalTime % 3600) / 60
+            val totalHours = totalTime / SECOND_IN_HOURS
+            val totalMinutes = (totalTime % SECOND_IN_HOURS) / SECOND_IN_MINUTES
+
+            initialTotalTime = totalTime
+
             _uiState.value = _uiState.value.copy(
                 totalHours = totalHours,
                 totalMinutes = totalMinutes
@@ -116,21 +121,25 @@ class LogViewViewModel @Inject constructor(
     }
 
     fun updateTotalWage(wage: Long) {
-        val initialTotalTime = _uiState.value.totalHours * 3600 + _uiState.value.totalMinutes * 60
-
-        val adjustTotalTime = when (_uiState.value.timeCalculationMode) {
-            TimeCalculationMode.ROUND_UP -> {
-                Math.ceil(initialTotalTime / 3600.0).toLong() * 3600
-            }
-            TimeCalculationMode.ROUND_DOWN -> {
-                Math.floor(initialTotalTime / 3600.0).toLong() * 3600
-            }
-            else -> {
-                initialTotalTime
-            }
+        val adjustTotalTime = when(_uiState.value.timeCalculationMode) {
+            TimeCalculationMode.ROUND_UP -> Math.ceil(initialTotalTime.toDouble() / SECOND_IN_HOURS).toLong() * SECOND_IN_HOURS
+            TimeCalculationMode.ROUND_DOWN -> Math.floor(initialTotalTime.toDouble() / SECOND_IN_HOURS).toLong() * SECOND_IN_HOURS
+            else -> initialTotalTime
         }
 
-        val totalWage = (adjustTotalTime * wage) / 3600
-        _uiState.value = _uiState.value.copy(totalWage = totalWage)
+        val adjustTotalHours = adjustTotalTime / SECOND_IN_HOURS
+        val adjustTotalMinutes = (adjustTotalTime % SECOND_IN_HOURS) / SECOND_IN_MINUTES
+        val totalWage = (adjustTotalTime * wage) / SECOND_IN_HOURS
+
+        _uiState.value = _uiState.value.copy(
+            totalHours = adjustTotalHours,
+            totalMinutes = adjustTotalMinutes,
+            totalWage = totalWage
+        )
+    }
+
+    companion object {
+        private const val SECOND_IN_HOURS = 3600L
+        private const val SECOND_IN_MINUTES = 60L
     }
 }

@@ -16,6 +16,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
 
 @Module
@@ -54,4 +56,13 @@ object DatabaseModule {
     fun provideWorkDao(appDatabase: AppDatabase): WorkDao {
         return appDatabase.workDao()
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object DispatchersModule {
+    @IoDispatcher
+    @Singleton
+    @Provides
+    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }

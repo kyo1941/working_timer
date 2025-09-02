@@ -20,9 +20,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.example.working_timer.R
+import com.example.working_timer.di.IoDispatcher
 import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.navigation.Routes
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,7 +46,9 @@ class TimerService : LifecycleService() {
     private var isRunning = false
     private val handler = Handler(Looper.getMainLooper())
 
-    private val ioDispatcher = Dispatchers.IO
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher: CoroutineDispatcher
 
     private val runnable = object : Runnable {
         override fun run() {

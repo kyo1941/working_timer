@@ -58,15 +58,6 @@ fun LogViewScreen(
         }
     }
 
-    // uiState.selectedDayの変更を監視し、ログに出力
-    LaunchedEffect(uiState.selectedDay) {
-        if (uiState.selectedDay.isNotEmpty()) {
-            Log.d("LogViewScreen", "uiState.selectedDayが変更されました: ${uiState.selectedDay}")
-            Log.d("LogViewScreen", "DBクエリに使用する日付: ${uiState.selectedDay}")
-            viewModel.loadWorkList(uiState.selectedDay)
-        }
-    }
-
     Column(modifier = Modifier.fillMaxSize()) {
         AndroidView(
             factory = { context ->

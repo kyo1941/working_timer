@@ -14,6 +14,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -91,4 +92,13 @@ fun DateRangePickerModal(
                 .heightIn(max = 500.dp)
         )
     }
+}
+
+@Preview(showBackground = true, name = "DateRangePickerModal")
+@Composable
+fun DateRangePickerModalPreview () {
+    DateRangePickerModal(
+        onDateRangeSelected = { },
+        onDismiss = { }
+    )
 }

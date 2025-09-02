@@ -4,6 +4,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.CalendarView
+import android.widget.FrameLayout
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,7 +26,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.working_timer.ui.components.DateRangePickerModal
 import com.example.working_timer.ui.components.FooterNavigationBar
 import com.example.working_timer.R
-import com.example.working_timer.navigation.Routes
 import com.example.working_timer.ui.components.WorkItemComposable
 import java.text.NumberFormat
 import com.example.working_timer.util.BorderColor
@@ -43,14 +43,27 @@ fun LogViewScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    // Date formatter for calendar updates
+    val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+
     // Date Range Pickerの表示を制御するState
     var showDateRangePicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+
         if (uiState.selectedDay.isNotEmpty()) {
             viewModel.loadWorkList(uiState.selectedDay)
         } else {
             viewModel.init()
+        }
+    }
+
+    // uiState.selectedDayの変更を監視し、ログに出力
+    LaunchedEffect(uiState.selectedDay) {
+        if (uiState.selectedDay.isNotEmpty()) {
+            Log.d("LogViewScreen", "uiState.selectedDayが変更されました: ${uiState.selectedDay}")
+            Log.d("LogViewScreen", "DBクエリに使用する日付: ${uiState.selectedDay}")
+            viewModel.loadWorkList(uiState.selectedDay)
         }
     }
 
@@ -64,6 +77,13 @@ fun LogViewScreen(
                     viewModel.setSelectedDay(year, month, dayOfMonth)
                 }
                 view
+            },
+            update = { rootView ->
+                val calendarView = rootView.findViewById<CalendarView>(R.id.calendarView)
+                val dateMillis = if (uiState.selectedDay.isNotEmpty()) sdf.parse(uiState.selectedDay)?.time else null
+                if (dateMillis != null) {
+                    calendarView.date = dateMillis
+                }
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -288,7 +308,7 @@ fun SumDialog(
                     val shareText = lines.joinToString("\n")
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, "$shareText")
+                        putExtra(Intent.EXTRA_TEXT, shareText)
                     }
                     context.startActivity(Intent.createChooser(intent, "共有"))
                 }) { Text("共有") }

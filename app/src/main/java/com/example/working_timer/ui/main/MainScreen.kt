@@ -52,31 +52,35 @@ import com.example.working_timer.util.StopButtonColor
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(
+fun MainScreenHolder(
     mainViewModel: MainViewModel = hiltViewModel(),
     onNavigateToLog: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
+
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // 通知権限ランチャー
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        scope.launch {
-            if (isGranted) {
-                snackbarHostState.showSnackbar("通知が許可されました。")
-            } else {
-                snackbarHostState.showSnackbar("通知が拒否されました。")
-            }
+    // ViewModelからのsnackbarMessage監視
+    LaunchedEffect(uiState.snackbarMessage) {
+        uiState.snackbarMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            mainViewModel.clearSnackbarMessage()
+        }
+    }
+
+    // ナビゲーション処理はステートフルで管理
+    LaunchedEffect(uiState.navigateToLog) {
+        if (uiState.navigateToLog) {
+            onNavigateToLog()
+            mainViewModel.onNavigationHandled()
         }
     }
 
     // 通知権限が許可されているか確認
-    fun isNotificationGranted(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    val isNotificationGranted = remember(context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
@@ -86,20 +90,57 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(uiState.navigateToLog) {
-        if (uiState.navigateToLog) {
-            onNavigateToLog()
-            mainViewModel.onNavigationHandled()
-        }
-    }
-
-    LaunchedEffect(uiState.snackbarMessage) {
-        uiState.snackbarMessage?.let { message ->
+    // 通知権限ランチャー
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        scope.launch {
+            val message = if (isGranted) {
+                "通知が許可されました。"
+            } else {
+                "通知が拒否されました。"
+            }
             snackbarHostState.showSnackbar(message)
-            mainViewModel.clearSnackbarMessage()
         }
     }
 
+    MainScreen(
+        uiState = uiState,
+        snackbarHostState = snackbarHostState,
+        onNavigateToLog = onNavigateToLog,
+        onStartTimer = {
+            mainViewModel.startTimer()
+            if (!isNotificationGranted) {
+                scope.launch {
+                    snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        },
+        onStopTimer = { mainViewModel.stopTimer() },
+        onPauseTimer = { mainViewModel.pauseTimer() },
+        onResumeTimer = { mainViewModel.resumeTimer() },
+        onDiscardWork = { mainViewModel.discardWork() },
+        onSaveWork = { mainViewModel.saveWork() },
+        onDismissSaveDialog = { mainViewModel.dismissSaveDialog() }
+    )
+}
+
+@Composable
+fun MainScreen(
+    uiState: TimerUiState,
+    snackbarHostState: SnackbarHostState,
+    onNavigateToLog: () -> Unit,
+    onStartTimer: () -> Unit,
+    onStopTimer: () -> Unit,
+    onPauseTimer: () -> Unit,
+    onResumeTimer: () -> Unit,
+    onDiscardWork: () -> Unit,
+    onSaveWork: () -> Unit,
+    onDismissSaveDialog: () -> Unit
+) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
@@ -145,16 +186,7 @@ fun MainScreen(
             // 開始ボタン
             if (!uiState.isTimerRunning && !uiState.isPaused) {
                 Button(
-                    onClick = {
-                        mainViewModel.startTimer()
-                        if (!isNotificationGranted()) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
-                            }
-                            // 通知権限が許可されていない場合はリクエスト
-                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        }
-                    },
+                    onClick = onStartTimer,
                     modifier = Modifier.size(100.dp),
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = StartButtonColor)
@@ -172,7 +204,7 @@ fun MainScreen(
                     Spacer(Modifier.weight(1f))
 
                     Button(
-                        onClick = { mainViewModel.stopTimer() },
+                        onClick = onStopTimer,
                         modifier = Modifier.size(100.dp),
                         shape = RoundedCornerShape(40.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = StopButtonColor)
@@ -183,7 +215,7 @@ fun MainScreen(
                     Spacer(Modifier.weight(1f))
 
                     Button(
-                        onClick = { mainViewModel.pauseTimer() },
+                        onClick = onPauseTimer,
                         modifier = Modifier.size(100.dp),
                         shape = RoundedCornerShape(40.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = PauseButtonColor)
@@ -198,7 +230,7 @@ fun MainScreen(
             // 再開ボタン
             if (uiState.isPaused) {
                 Button(
-                    onClick = { mainViewModel.resumeTimer() },
+                    onClick = onResumeTimer,
                     modifier = Modifier.size(100.dp),
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = ResumeButtonColor)
@@ -213,7 +245,7 @@ fun MainScreen(
         // 保存確認ダイアログ
         if (uiState.showSaveDialog) {
             AlertDialog(
-                onDismissRequest = { mainViewModel.dismissSaveDialog() },
+                onDismissRequest = onDismissSaveDialog,
                 title = { Text("確認") },
                 text = { Text(
                     uiState.dialogMessage,
@@ -225,14 +257,14 @@ fun MainScreen(
                     if (uiState.isErrorDialog) {
                         Row {
                             TextButton(onClick = {
-                                mainViewModel.discardWork()
-                                mainViewModel.dismissSaveDialog()
+                                onDiscardWork()
+                                onDismissSaveDialog()
                             }) {
                                 Text("破棄")
                             }
                             TextButton(onClick = {
-                                mainViewModel.resumeTimer()
-                                mainViewModel.dismissSaveDialog()
+                                onResumeTimer()
+                                onDismissSaveDialog()
                             }) {
                                 Text("再開")
                             }
@@ -240,8 +272,8 @@ fun MainScreen(
                     } else {
                         Row {
                             TextButton(onClick = {
-                                mainViewModel.discardWork()
-                                mainViewModel.dismissSaveDialog()
+                                onDiscardWork()
+                                onDismissSaveDialog()
                             }) {
                                 Text("破棄")
                             }
@@ -249,14 +281,12 @@ fun MainScreen(
                             Spacer(modifier = Modifier.width(64.dp))
 
                             TextButton(onClick = {
-                                mainViewModel.resumeTimer()
-                                mainViewModel.dismissSaveDialog()
+                                onResumeTimer()
+                                onDismissSaveDialog()
                             }) {
                                 Text("再開")
                             }
-                            TextButton(onClick = {
-                                mainViewModel.saveWork()
-                            }) {
+                            TextButton(onClick = onSaveWork) {
                                 Text("保存")
                             }
                         }

@@ -9,7 +9,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.example.working_timer.ui.edit_work.EditWorkScreen
 import com.example.working_timer.ui.log_view.LogViewScreen
-import com.example.working_timer.ui.main.MainScreen
+import com.example.working_timer.ui.main.MainScreenHolder
 
 @Composable
 fun AppNavHost (
@@ -24,7 +24,7 @@ fun AppNavHost (
             Routes.Timer.routes,
             deepLinks = listOf(navDeepLink { uriPattern = Routes.TimerDeepLink.routes })
         ) {
-            MainScreen (
+            MainScreenHolder (
                 onNavigateToLog = {
                     navController.navigate(Routes.LogView.routes) {
                         launchSingleTop = true

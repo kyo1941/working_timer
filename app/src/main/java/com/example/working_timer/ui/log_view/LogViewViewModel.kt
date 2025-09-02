@@ -121,24 +121,16 @@ class LogViewViewModel @Inject constructor(
     }
 
     fun changeCalcMode(wage: Long) {
-        val initialTotalHour = initialTotalTime / 3600
-        val initialTotalMinute = (initialTotalTime % 3600) / 60
-
-        val adjustTotalHours = when (_uiState.value.timeCalculationMode) {
-            TimeCalculationMode.ROUND_UP -> initialTotalHour + 1
-            TimeCalculationMode.ROUND_DOWN -> initialTotalHour
-            else -> initialTotalHour
+        val adjustTotalTime = when(_uiState.value.timeCalculationMode) {
+            TimeCalculationMode.ROUND_UP -> Math.ceil(initialTotalTime.toDouble() / 3600).toLong() * 3600
+            TimeCalculationMode.ROUND_DOWN -> Math.floor(initialTotalTime.toDouble() / 3600).toLong() * 3600
+            else -> initialTotalTime
         }
 
-        val adjustTotalMinutes = when (_uiState.value.timeCalculationMode) {
-            TimeCalculationMode.ROUND_UP -> 0
-            TimeCalculationMode.ROUND_DOWN -> 0
-            else -> initialTotalMinute
-        }
-
-        val adjustTotalTime = adjustTotalHours * 3600 + adjustTotalMinutes * 60
-
+        val adjustTotalHours = adjustTotalTime / 3600
+        val adjustTotalMinutes = (adjustTotalTime % 3600) / 60
         val totalWage = (adjustTotalTime * wage) / 3600
+
         _uiState.value = _uiState.value.copy(
             totalHours = adjustTotalHours,
             totalMinutes = adjustTotalMinutes,

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.working_timer.ui.components.FooterNavigationBar
 import com.example.working_timer.util.PauseButtonColor
 import com.example.working_timer.util.ResumeButtonColor
@@ -295,4 +296,103 @@ fun MainScreen(
             )
         }
     }
+}
+
+@Preview(showBackground = true, name = "BeforeStart")
+@Composable
+fun MainScreenPreviewBeforeStart() {
+    val state = TimerUiState(
+        status = "",
+        timerText = "00:00",
+        isTimerRunning = false,
+        isPaused = false,
+        showSaveDialog = false
+    )
+    MainScreen(
+        uiState = state,
+        snackbarHostState = remember { SnackbarHostState() },
+        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Working")
+@Composable
+fun MainScreenPreviewWorking() {
+    val state = TimerUiState(
+        status = "労働中",
+        timerText = "00:12:34",
+        isTimerRunning = true,
+        isPaused = false
+    )
+    MainScreen(
+        uiState = state,
+        snackbarHostState = remember { SnackbarHostState() },
+        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Paused")
+@Composable
+fun MainScreenPreviewPaused() {
+    val state = TimerUiState(
+        status = "休憩中",
+        timerText = "05:00",
+        isTimerRunning = false,
+        isPaused = true
+    )
+    MainScreen(
+        uiState = state,
+        snackbarHostState = remember { SnackbarHostState() },
+        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreviewSaveDialog() {
+    val sampleState = TimerUiState(
+        status = "労働中",
+        timerText = "01:23:45",
+        isTimerRunning = true,
+        isPaused = false,
+        elapsedTime = 5025000L,
+        showSaveDialog = true,
+        dialogMessage = """
+            開始日 ： 2025-09-02
+            経過時間 ： 1時間 23分
+
+            今回の作業記録を保存しますか？
+        """.trimIndent(),
+        isErrorDialog = false
+    )
+
+    MainScreen(
+        uiState = sampleState,
+        snackbarHostState = remember { SnackbarHostState() },
+        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+    )
+}
+
+@Preview(showBackground = true, name = "SaveDialog_Error")
+@Composable
+fun MainScreenPreviewSaveDialogError() {
+    val state = TimerUiState(
+        status = "労働中",
+        timerText = "00:00",
+        isTimerRunning = true,
+        isPaused = false,
+        showSaveDialog = true,
+        dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
+        isErrorDialog = true
+    )
+    MainScreen(
+        uiState = state,
+        snackbarHostState = remember { SnackbarHostState() },
+        onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+        onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+    )
 }

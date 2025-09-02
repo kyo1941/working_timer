@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.working_timer.ui.components.DateRangePickerModal
 import com.example.working_timer.ui.components.FooterNavigationBar
@@ -29,7 +30,6 @@ import java.text.NumberFormat
 import com.example.working_timer.util.BorderColor
 import com.example.working_timer.util.ButtonBackgroundColor
 import com.example.working_timer.data.db.Work
-
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -407,4 +407,215 @@ fun SegmentedControl(
             }
         }
     }
+}
+
+@Preview(showBackground = true, name = "Empty State")
+@Composable
+fun LogViewScreenPreviewEmpty() {
+    val emptyUiState = LogViewUiState(
+        selectedDay = "2025-01-02",
+        workList = emptyList(),
+        showDeleteDialog = false,
+        workToDelete = null,
+        showSumDialog = false,
+        sumStartDate = null,
+        sumEndDate = null,
+        totalHours = 0L,
+        totalMinutes = 0L,
+        totalWage = 0L,
+        timeCalculationMode = TimeCalculationMode.NORMAL
+    )
+
+    LogViewScreen(
+        uiState = emptyUiState,
+        showDateRangePicker = false,
+        onNavigateToTimer = {},
+        onNavigateToEditWork = { _, _, _ -> },
+        onDateSelected = { _, _, _ -> },
+        onShowDeleteDialog = {},
+        onHideDeleteDialog = {},
+        onDeleteWork = {},
+        onShowDateRangePicker = {},
+        onHideDateRangePicker = {},
+        onDateRangeSelected = { _, _ -> },
+        onHideSumDialog = {},
+        onUpdateTotalWage = {},
+        onSetTimeCalculationMode = {}
+    )
+}
+
+@Preview(showBackground = true, name = "With Work List")
+@Composable
+fun LogViewScreenPreviewWithWorkList() {
+    val sampleWorkList = listOf(
+        Work(
+            id = 1,
+            start_day = "2025-01-02",
+            end_day = "2025-01-02",
+            start_time = "09:00",
+            end_time = "17:00",
+            elapsed_time = 4800
+        ),
+        Work(
+            id = 2,
+            start_day = "2025-01-02",
+            end_day = "2025-01-02",
+            start_time = "10:00",
+            end_time = "14:00",
+            elapsed_time = 2400
+        ),
+        Work(
+            id = 3,
+            start_day = "2025-01-02",
+            end_day = "2025-01-02",
+            start_time = "18:00",
+            end_time = "22:00",
+            elapsed_time = 3800
+        )
+    )
+
+    val uiStateWithWork = LogViewUiState(
+        selectedDay = "2025-01-02",
+        workList = sampleWorkList,
+        showDeleteDialog = false,
+        workToDelete = null,
+        showSumDialog = false,
+        sumStartDate = null,
+        sumEndDate = null,
+        totalHours = 0L,
+        totalMinutes = 0L,
+        totalWage = 0L,
+        timeCalculationMode = TimeCalculationMode.NORMAL
+    )
+
+    LogViewScreen(
+        uiState = uiStateWithWork,
+        showDateRangePicker = false,
+        onNavigateToTimer = {},
+        onNavigateToEditWork = { _, _, _ -> },
+        onDateSelected = { _, _, _ -> },
+        onShowDeleteDialog = {},
+        onHideDeleteDialog = {},
+        onDeleteWork = {},
+        onShowDateRangePicker = {},
+        onHideDateRangePicker = {},
+        onDateRangeSelected = { _, _ -> },
+        onHideSumDialog = {},
+        onUpdateTotalWage = {},
+        onSetTimeCalculationMode = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Delete Dialog")
+@Composable
+fun LogViewScreenPreviewDeleteDialog() {
+    val workToDelete = Work(
+        id = 1,
+        start_day = "2025-01-02",
+        end_day = "2025-01-02",
+        start_time = "09:00",
+        end_time = "17:00",
+        elapsed_time = 480 // 8時間 (分単位)
+    )
+
+    val uiStateWithDeleteDialog = LogViewUiState(
+        selectedDay = "2025-01-02",
+        workList = listOf(workToDelete),
+        showDeleteDialog = true,
+        workToDelete = workToDelete,
+        showSumDialog = false,
+        sumStartDate = null,
+        sumEndDate = null,
+        totalHours = 0L,
+        totalMinutes = 0L,
+        totalWage = 0L,
+        timeCalculationMode = TimeCalculationMode.NORMAL
+    )
+
+    LogViewScreen(
+        uiState = uiStateWithDeleteDialog,
+        showDateRangePicker = false,
+        onNavigateToTimer = {},
+        onNavigateToEditWork = { _, _, _ -> },
+        onDateSelected = { _, _, _ -> },
+        onShowDeleteDialog = {},
+        onHideDeleteDialog = {},
+        onDeleteWork = {},
+        onShowDateRangePicker = {},
+        onHideDateRangePicker = {},
+        onDateRangeSelected = { _, _ -> },
+        onHideSumDialog = {},
+        onUpdateTotalWage = {},
+        onSetTimeCalculationMode = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Sum Dialog")
+@Composable
+fun LogViewScreenPreviewSumDialog() {
+    val uiStateWithSumDialog = LogViewUiState(
+        selectedDay = "2025-01-02",
+        workList = emptyList(),
+        showDeleteDialog = false,
+        workToDelete = null,
+        showSumDialog = true,
+        sumStartDate = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000L, // 1週間前
+        sumEndDate = System.currentTimeMillis(),
+        totalHours = 40L,
+        totalMinutes = 30L,
+        totalWage = 40500L,
+        timeCalculationMode = TimeCalculationMode.NORMAL
+    )
+
+    LogViewScreen(
+        uiState = uiStateWithSumDialog,
+        showDateRangePicker = false,
+        onNavigateToTimer = {},
+        onNavigateToEditWork = { _, _, _ -> },
+        onDateSelected = { _, _, _ -> },
+        onShowDeleteDialog = {},
+        onHideDeleteDialog = {},
+        onDeleteWork = {},
+        onShowDateRangePicker = {},
+        onHideDateRangePicker = {},
+        onDateRangeSelected = { _, _ -> },
+        onHideSumDialog = {},
+        onUpdateTotalWage = {},
+        onSetTimeCalculationMode = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Date Range Picker")
+@Composable
+fun LogViewScreenPreviewDateRangePicker() {
+    val uiState = LogViewUiState(
+        selectedDay = "2025-01-02",
+        workList = emptyList(),
+        showDeleteDialog = false,
+        workToDelete = null,
+        showSumDialog = false,
+        sumStartDate = null,
+        sumEndDate = null,
+        totalHours = 0L,
+        totalMinutes = 0L,
+        totalWage = 0L,
+        timeCalculationMode = TimeCalculationMode.NORMAL
+    )
+
+    LogViewScreen(
+        uiState = uiState,
+        showDateRangePicker = true,
+        onNavigateToTimer = {},
+        onNavigateToEditWork = { _, _, _ -> },
+        onDateSelected = { _, _, _ -> },
+        onShowDeleteDialog = {},
+        onHideDeleteDialog = {},
+        onDeleteWork = {},
+        onShowDateRangePicker = {},
+        onHideDateRangePicker = {},
+        onDateRangeSelected = { _, _ -> },
+        onHideSumDialog = {},
+        onUpdateTotalWage = {},
+        onSetTimeCalculationMode = {}
+    )
 }

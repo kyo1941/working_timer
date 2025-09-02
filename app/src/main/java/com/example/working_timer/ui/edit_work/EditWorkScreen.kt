@@ -28,14 +28,49 @@ import com.example.working_timer.ui.components.MaterialTimePickerDialog
 import com.example.working_timer.R
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
+data class EditWorkScreenState(
+    val uiState: EditWorkUiState,
+    val snackbarHostState: SnackbarHostState,
+    val isNew: Boolean,
+    val showStartTimePicker: Boolean,
+    val showStartDayPicker: Boolean,
+    val showEndTimePicker: Boolean,
+    val showEndDayPicker: Boolean,
+    val showElapsedPicker: Boolean
+)
+
+data class EditWorkScreenActions(
+    val onNavigateBack: () -> Unit,
+    val onUpdateStartTime: (String) -> Unit,
+    val onUpdateEndTime: (String) -> Unit,
+    val onUpdateStartDay: (String) -> Unit,
+    val onUpdateEndDay: (String) -> Unit,
+    val onUpdateElapsedTime: (Int, Int) -> Unit,
+    val onSaveWork: (Boolean) -> Unit,
+    val onClearZeroMinutesError: () -> Unit,
+    val onClearStartEndError: () -> Unit,
+    val onClearElapsedTimeOver: () -> Unit,
+    val onShowStartTimePicker: () -> Unit,
+    val onHideStartTimePicker: () -> Unit,
+    val onShowStartDayPicker: () -> Unit,
+    val onHideStartDayPicker: () -> Unit,
+    val onShowEndTimePicker: () -> Unit,
+    val onHideEndTimePicker: () -> Unit,
+    val onShowEndDayPicker: () -> Unit,
+    val onHideEndDayPicker: () -> Unit,
+    val onShowElapsedPicker: () -> Unit,
+    val onHideElapsedPicker: () -> Unit
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditWorkScreen(
+fun EditWorkScreenHolder(
     editWorkViewModel: EditWorkViewModel = hiltViewModel(),
     id: Int,
     startDay: String,
@@ -43,17 +78,16 @@ fun EditWorkScreen(
     onNavigateBack: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val uiState by editWorkViewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Pickerの表示状態を管理
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showStartDayPicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
     var showEndDayPicker by remember { mutableStateOf(false) }
-
     var showElapsedPicker by remember { mutableStateOf(false) }
-
-    val uiState by editWorkViewModel.uiState.collectAsState()
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         // 初期値を設定する
@@ -72,8 +106,52 @@ fun EditWorkScreen(
         }
     }
 
+    EditWorkScreen(
+        state = EditWorkScreenState(
+            uiState = uiState,
+            snackbarHostState = snackbarHostState,
+            isNew = isNew,
+            showStartTimePicker = showStartTimePicker,
+            showStartDayPicker = showStartDayPicker,
+            showEndTimePicker = showEndTimePicker,
+            showEndDayPicker = showEndDayPicker,
+            showElapsedPicker = showElapsedPicker
+        ),
+        actions = EditWorkScreenActions(
+            onNavigateBack = onNavigateBack,
+            onUpdateStartTime = { editWorkViewModel.updateStartTime(it) },
+            onUpdateEndTime = { editWorkViewModel.updateEndTime(it) },
+            onUpdateStartDay = { editWorkViewModel.updateStartDay(it) },
+            onUpdateEndDay = { editWorkViewModel.updateEndDay(it) },
+            onUpdateElapsedTime = { hour, minute -> editWorkViewModel.updateElapsedTime(hour, minute) },
+            onSaveWork = { editWorkViewModel.saveWork(id, isNew, it) },
+            onClearZeroMinutesError = { editWorkViewModel.clearZeroMinutesError() },
+            onClearStartEndError = { editWorkViewModel.clearStartEndError() },
+            onClearElapsedTimeOver = { editWorkViewModel.clearElapsedTimeOver() },
+            onShowStartTimePicker = { showStartTimePicker = true },
+            onHideStartTimePicker = { showStartTimePicker = false },
+            onShowStartDayPicker = { showStartDayPicker = true },
+            onHideStartDayPicker = { showStartDayPicker = false },
+            onShowEndTimePicker = { showEndTimePicker = true },
+            onHideEndTimePicker = { showEndTimePicker = false },
+            onShowEndDayPicker = { showEndDayPicker = true },
+            onHideEndDayPicker = { showEndDayPicker = false },
+            onShowElapsedPicker = { showElapsedPicker = true },
+            onHideElapsedPicker = { showElapsedPicker = false }
+        ),
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditWorkScreen(
+    state: EditWorkScreenState,
+    actions: EditWorkScreenActions,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
         modifier = modifier
     ) { _ ->
         Column(
@@ -84,7 +162,7 @@ fun EditWorkScreen(
         ) {
             val context = LocalContext.current
             Text(
-                text = context.getString(if (isNew) R.string.new_record else R.string.edit_record),
+                text = context.getString(if (state.isNew) R.string.new_record else R.string.edit_record),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -101,11 +179,11 @@ fun EditWorkScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { showStartDayPicker = true }) {
+                TextButton(onClick = actions.onShowStartDayPicker) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(formatMonthDay(uiState.startDay))
+                                append(formatMonthDay(state.uiState.startDay))
                             }
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -115,11 +193,11 @@ fun EditWorkScreen(
                     )
                 }
                 Spacer(modifier = Modifier.width(32.dp))
-                TextButton(onClick = { showStartTimePicker = true }) {
+                TextButton(onClick = actions.onShowStartTimePicker) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(uiState.startTime)
+                                append(state.uiState.startTime)
                             }
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -137,11 +215,11 @@ fun EditWorkScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { showEndDayPicker = true }) {
+                TextButton(onClick = actions.onShowEndDayPicker) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(formatMonthDay(uiState.endDay))
+                                append(formatMonthDay(state.uiState.endDay))
                             }
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -151,11 +229,11 @@ fun EditWorkScreen(
                     )
                 }
                 Spacer(modifier = Modifier.width(32.dp))
-                TextButton(onClick = { showEndTimePicker = true }) {
+                TextButton(onClick = actions.onShowEndTimePicker) {
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(uiState.endTime)
+                                append(state.uiState.endTime)
                             }
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -173,17 +251,17 @@ fun EditWorkScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { showElapsedPicker = true }) {
+                TextButton(onClick = actions.onShowElapsedPicker) {
                     Text(
                         text = buildAnnotatedString {
-                            if (uiState.elapsedHour > 0) {
+                            if (state.uiState.elapsedHour > 0) {
                                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                    append(String.format("%2d", uiState.elapsedHour))
+                                    append(String.format("%2d", state.uiState.elapsedHour))
                                 }
                                 append(" 時間 ")
                             }
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(String.format("%2d", uiState.elapsedMinute))
+                                append(String.format("%2d", state.uiState.elapsedMinute))
                             }
                             append(" 分")
                         },
@@ -192,7 +270,6 @@ fun EditWorkScreen(
                             textAlign = TextAlign.Center
                         )
                     )
-
                 }
             }
 
@@ -204,9 +281,7 @@ fun EditWorkScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = {
-                        onNavigateBack()
-                    },
+                    onClick = actions.onNavigateBack,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("キャンセル")
@@ -215,13 +290,7 @@ fun EditWorkScreen(
                 Spacer(modifier = Modifier.width(24.dp))
 
                 Button(
-                    onClick = {
-                        editWorkViewModel.saveWork(
-                            id = id,
-                            isNew = isNew,
-                            forceSave = false
-                        )
-                    },
+                    onClick = { actions.onSaveWork(false) },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("保存")
@@ -231,110 +300,106 @@ fun EditWorkScreen(
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        if (showStartTimePicker) {
+        if (state.showStartTimePicker) {
             MaterialTimePickerDialog(
-                initialTime = parseTime(uiState.startTime),
-                onDismiss = { showStartTimePicker = false },
+                initialTime = parseTime(state.uiState.startTime),
+                onDismiss = actions.onHideStartTimePicker,
                 onTimeSelected = {
-                    editWorkViewModel.updateStartTime(it)
-                    showStartTimePicker = false
+                    actions.onUpdateStartTime(it)
+                    actions.onHideStartTimePicker()
                 }
             )
         }
 
-        if (showEndTimePicker) {
+        if (state.showEndTimePicker) {
             MaterialTimePickerDialog(
-                initialTime = parseTime(uiState.endTime),
-                onDismiss = { showEndTimePicker = false },
+                initialTime = parseTime(state.uiState.endTime),
+                onDismiss = actions.onHideEndTimePicker,
                 onTimeSelected = {
-                    editWorkViewModel.updateEndTime(it)
-                    showEndTimePicker = false
+                    actions.onUpdateEndTime(it)
+                    actions.onHideEndTimePicker()
                 }
             )
         }
 
-        if (showStartDayPicker) {
+        if (state.showStartDayPicker) {
             DatePickerModal(
-                initialDate = uiState.startDay,
+                initialDate = state.uiState.startDay,
                 onDateSelected = {
-                    editWorkViewModel.updateStartDay(it)
-                    showStartDayPicker = false
+                    actions.onUpdateStartDay(it)
+                    actions.onHideStartDayPicker()
                 },
-                onDismiss = { showStartDayPicker = false }
+                onDismiss = actions.onHideStartDayPicker
             )
         }
 
-        if (showEndDayPicker) {
+        if (state.showEndDayPicker) {
             DatePickerModal(
-                initialDate = uiState.endDay,
+                initialDate = state.uiState.endDay,
                 onDateSelected = {
-                    editWorkViewModel.updateEndDay(it)
-                    showEndDayPicker = false
+                    actions.onUpdateEndDay(it)
+                    actions.onHideEndDayPicker()
                 },
-                onDismiss = { showEndDayPicker = false }
+                onDismiss = actions.onHideEndDayPicker
             )
         }
 
-        if (showElapsedPicker) {
+        if (state.showElapsedPicker) {
             MaterialTimePickerDialog(
-                initialTime = Pair(uiState.elapsedHour, uiState.elapsedMinute),
-                onDismiss = { showElapsedPicker = false },
+                initialTime = Pair(state.uiState.elapsedHour, state.uiState.elapsedMinute),
+                onDismiss = actions.onHideElapsedPicker,
                 onTimeSelected = { timeString ->
                     val (h, m) = timeString.split(":").map { it.toIntOrNull() ?: 0 }
-                    editWorkViewModel.updateElapsedTime(h, m)
-                    showElapsedPicker = false
+                    actions.onUpdateElapsedTime(h, m)
+                    actions.onHideElapsedPicker()
                 },
                 showToggleIcon = false
             )
         }
 
-        if (uiState.showZeroMinutesError) {
+        if (state.uiState.showZeroMinutesError) {
             AlertDialog(
-                onDismissRequest = { editWorkViewModel.clearZeroMinutesError() },
+                onDismissRequest = actions.onClearZeroMinutesError,
                 title = { Text("エラー") },
                 text = { Text("1分以上からのみ記録が可能です。") },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
-                    TextButton(onClick = { editWorkViewModel.clearZeroMinutesError() }) {
+                    TextButton(onClick = actions.onClearZeroMinutesError) {
                         Text("OK")
                     }
                 }
             )
         }
 
-        if (uiState.showStartEndError) {
+        if (state.uiState.showStartEndError) {
             AlertDialog(
-                onDismissRequest = { editWorkViewModel.clearStartEndError() },
+                onDismissRequest = actions.onClearStartEndError,
                 title = { Text("エラー") },
                 text = { Text("開始時刻が終了時刻を超えています。") },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
-                    TextButton(onClick = { editWorkViewModel.clearStartEndError() }) {
+                    TextButton(onClick = actions.onClearStartEndError) {
                         Text("OK")
                     }
                 }
             )
         }
 
-        if (uiState.showElapsedTimeOver) {
+        if (state.uiState.showElapsedTimeOver) {
             AlertDialog(
-                onDismissRequest = { editWorkViewModel.clearElapsedTimeOver() },
+                onDismissRequest = actions.onClearElapsedTimeOver,
                 title = { Text("注意") },
                 text = { Text("活動時間が時間差より大きいです。\nこのまま保存しますか？") },
                 confirmButton = {
                     TextButton(onClick = {
-                        editWorkViewModel.clearElapsedTimeOver()
-                        editWorkViewModel.saveWork(
-                            id = id,
-                            isNew = isNew,
-                            forceSave = true
-                        )
+                        actions.onClearElapsedTimeOver()
+                        actions.onSaveWork(true)
                     }) {
                         Text("保存")
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { editWorkViewModel.clearElapsedTimeOver() }) {
+                    TextButton(onClick = actions.onClearElapsedTimeOver) {
                         Text("キャンセル")
                     }
                 }
@@ -357,4 +422,237 @@ fun formatMonthDay(fullDate: String): String {
     } catch (e: Exception) {
         fullDate
     }
+}
+
+@Preview(showBackground = true, name = "EditWorkScreen - 新規作成")
+@Composable
+fun EditWorkScreenPreviewNew() {
+    EditWorkScreen(
+        state = EditWorkScreenState(
+            uiState = EditWorkUiState(
+                startDay = "2024-03-15",
+                endDay = "2024-03-15",
+                startTime = "09:00",
+                endTime = "18:00",
+                elapsedHour = 8,
+                elapsedMinute = 0
+            ),
+            snackbarHostState = SnackbarHostState(),
+            isNew = true,
+            showStartTimePicker = false,
+            showStartDayPicker = false,
+            showEndTimePicker = false,
+            showEndDayPicker = false,
+            showElapsedPicker = false
+        ),
+        actions = EditWorkScreenActions(
+            onNavigateBack = {},
+            onUpdateStartTime = {},
+            onUpdateEndTime = {},
+            onUpdateStartDay = {},
+            onUpdateEndDay = {},
+            onUpdateElapsedTime = { _, _ -> },
+            onSaveWork = {},
+            onClearZeroMinutesError = {},
+            onClearStartEndError = {},
+            onClearElapsedTimeOver = {},
+            onShowStartTimePicker = {},
+            onHideStartTimePicker = {},
+            onShowStartDayPicker = {},
+            onHideStartDayPicker = {},
+            onShowEndTimePicker = {},
+            onHideEndTimePicker = {},
+            onShowEndDayPicker = {},
+            onHideEndDayPicker = {},
+            onShowElapsedPicker = {},
+            onHideElapsedPicker = {}
+        )
+    )
+}
+
+@Preview(showBackground = true, name = "EditWorkScreen - 編集")
+@Composable
+fun EditWorkScreenPreviewEdit() {
+    EditWorkScreen(
+        state = EditWorkScreenState(
+            uiState = EditWorkUiState(
+                startDay = "2024-03-15",
+                endDay = "2024-03-15",
+                startTime = "14:30",
+                endTime = "17:45",
+                elapsedHour = 3,
+                elapsedMinute = 15
+            ),
+            snackbarHostState = SnackbarHostState(),
+            isNew = false,
+            showStartTimePicker = false,
+            showStartDayPicker = false,
+            showEndTimePicker = false,
+            showEndDayPicker = false,
+            showElapsedPicker = false
+        ),
+        actions = EditWorkScreenActions(
+            onNavigateBack = {},
+            onUpdateStartTime = {},
+            onUpdateEndTime = {},
+            onUpdateStartDay = {},
+            onUpdateEndDay = {},
+            onUpdateElapsedTime = { _, _ -> },
+            onSaveWork = {},
+            onClearZeroMinutesError = {},
+            onClearStartEndError = {},
+            onClearElapsedTimeOver = {},
+            onShowStartTimePicker = {},
+            onHideStartTimePicker = {},
+            onShowStartDayPicker = {},
+            onHideStartDayPicker = {},
+            onShowEndTimePicker = {},
+            onHideEndTimePicker = {},
+            onShowEndDayPicker = {},
+            onHideEndDayPicker = {},
+            onShowElapsedPicker = {},
+            onHideElapsedPicker = {}
+        )
+    )
+}
+
+@Preview(showBackground = true, name = "EditWorkScreen - 0分エラーダイアログ")
+@Composable
+fun EditWorkScreenPreviewZeroMinutesError() {
+    EditWorkScreen(
+        state = EditWorkScreenState(
+            uiState = EditWorkUiState(
+                startDay = "2024-03-15",
+                endDay = "2024-03-15",
+                startTime = "09:00",
+                endTime = "09:00",
+                elapsedHour = 0,
+                elapsedMinute = 0,
+                showZeroMinutesError = true
+            ),
+            snackbarHostState = SnackbarHostState(),
+            isNew = true,
+            showStartTimePicker = false,
+            showStartDayPicker = false,
+            showEndTimePicker = false,
+            showEndDayPicker = false,
+            showElapsedPicker = false
+        ),
+        actions = EditWorkScreenActions(
+            onNavigateBack = {},
+            onUpdateStartTime = {},
+            onUpdateEndTime = {},
+            onUpdateStartDay = {},
+            onUpdateEndDay = {},
+            onUpdateElapsedTime = { _, _ -> },
+            onSaveWork = {},
+            onClearZeroMinutesError = {},
+            onClearStartEndError = {},
+            onClearElapsedTimeOver = {},
+            onShowStartTimePicker = {},
+            onHideStartTimePicker = {},
+            onShowStartDayPicker = {},
+            onHideStartDayPicker = {},
+            onShowEndTimePicker = {},
+            onHideEndTimePicker = {},
+            onShowEndDayPicker = {},
+            onHideEndDayPicker = {},
+            onShowElapsedPicker = {},
+            onHideElapsedPicker = {}
+        )
+    )
+}
+
+@Preview(showBackground = true, name = "EditWorkScreen - 開始終了時刻エラーダイアログ")
+@Composable
+fun EditWorkScreenPreviewStartEndError() {
+    EditWorkScreen(
+        state = EditWorkScreenState(
+            uiState = EditWorkUiState(
+                startDay = "2024-03-15",
+                endDay = "2024-03-15",
+                startTime = "18:00",
+                endTime = "09:00",
+                elapsedHour = 0,
+                elapsedMinute = 30,
+                showStartEndError = true
+            ),
+            snackbarHostState = SnackbarHostState(),
+            isNew = false,
+            showStartTimePicker = false,
+            showStartDayPicker = false,
+            showEndTimePicker = false,
+            showEndDayPicker = false,
+            showElapsedPicker = false
+        ),
+        actions = EditWorkScreenActions(
+            onNavigateBack = {},
+            onUpdateStartTime = {},
+            onUpdateEndTime = {},
+            onUpdateStartDay = {},
+            onUpdateEndDay = {},
+            onUpdateElapsedTime = { _, _ -> },
+            onSaveWork = {},
+            onClearZeroMinutesError = {},
+            onClearStartEndError = {},
+            onClearElapsedTimeOver = {},
+            onShowStartTimePicker = {},
+            onHideStartTimePicker = {},
+            onShowStartDayPicker = {},
+            onHideStartDayPicker = {},
+            onShowEndTimePicker = {},
+            onHideEndTimePicker = {},
+            onShowEndDayPicker = {},
+            onHideEndDayPicker = {},
+            onShowElapsedPicker = {},
+            onHideElapsedPicker = {}
+        )
+    )
+}
+
+@Preview(showBackground = true, name = "EditWorkScreen - 活動時間超過警告ダイアログ")
+@Composable
+fun EditWorkScreenPreviewElapsedTimeOver() {
+    EditWorkScreen(
+        state = EditWorkScreenState(
+            uiState = EditWorkUiState(
+                startDay = "2024-03-15",
+                endDay = "2024-03-15",
+                startTime = "09:00",
+                endTime = "17:00",
+                elapsedHour = 10,
+                elapsedMinute = 0,
+                showElapsedTimeOver = true
+            ),
+            snackbarHostState = SnackbarHostState(),
+            isNew = false,
+            showStartTimePicker = false,
+            showStartDayPicker = false,
+            showEndTimePicker = false,
+            showEndDayPicker = false,
+            showElapsedPicker = false
+        ),
+        actions = EditWorkScreenActions(
+            onNavigateBack = {},
+            onUpdateStartTime = {},
+            onUpdateEndTime = {},
+            onUpdateStartDay = {},
+            onUpdateEndDay = {},
+            onUpdateElapsedTime = { _, _ -> },
+            onSaveWork = {},
+            onClearZeroMinutesError = {},
+            onClearStartEndError = {},
+            onClearElapsedTimeOver = {},
+            onShowStartTimePicker = {},
+            onHideStartTimePicker = {},
+            onShowStartDayPicker = {},
+            onHideStartDayPicker = {},
+            onShowEndTimePicker = {},
+            onHideEndTimePicker = {},
+            onShowEndDayPicker = {},
+            onHideEndDayPicker = {},
+            onShowElapsedPicker = {},
+            onHideElapsedPicker = {}
+        )
+    )
 }

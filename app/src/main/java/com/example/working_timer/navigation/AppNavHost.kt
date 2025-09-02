@@ -7,9 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.example.working_timer.ui.edit_work.EditWorkScreen
-import com.example.working_timer.ui.log_view.LogViewScreen
-import com.example.working_timer.ui.main.MainScreen
+import com.example.working_timer.ui.edit_work.EditWorkScreenHolder
+import com.example.working_timer.ui.log_view.LogViewScreenHolder
+import com.example.working_timer.ui.main.MainScreenHolder
 
 @Composable
 fun AppNavHost (
@@ -24,7 +24,7 @@ fun AppNavHost (
             Routes.Timer.routes,
             deepLinks = listOf(navDeepLink { uriPattern = Routes.TimerDeepLink.routes })
         ) {
-            MainScreen (
+            MainScreenHolder (
                 onNavigateToLog = {
                     navController.navigate(Routes.LogView.routes) {
                         launchSingleTop = true
@@ -34,7 +34,7 @@ fun AppNavHost (
         }
 
         composable(Routes.LogView.routes) {
-            LogViewScreen(
+            LogViewScreenHolder(
                 onNavigateToTimer = {
                     navController.navigate(Routes.Timer.routes) {
                         launchSingleTop = true
@@ -66,7 +66,7 @@ fun AppNavHost (
             val startDay = backStackEntry.arguments?.getString("startDay") ?: ""
             val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: true
 
-            EditWorkScreen(
+            EditWorkScreenHolder(
                 id = id,
                 startDay = startDay,
                 isNew = isNew,

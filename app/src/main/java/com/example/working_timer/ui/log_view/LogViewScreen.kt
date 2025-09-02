@@ -103,7 +103,6 @@ fun LogViewScreenHolder(
                 if (startDate != null && endDate != null) {
                     viewModel.showSumDialog(startDate, endDate)
                 }
-                showDateRangePicker = false
             },
             onHideSumDialog = {
                 viewModel.hideSumDialog()

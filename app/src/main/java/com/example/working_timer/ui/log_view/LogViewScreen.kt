@@ -515,7 +515,7 @@ fun LogViewScreenPreviewDeleteDialog() {
         end_day = "2025-01-02",
         start_time = "09:00",
         end_time = "17:00",
-        elapsed_time = 480 // 8時間 (分単位)
+        elapsed_time = 480
     )
 
     val uiStateWithDeleteDialog = LogViewUiState(

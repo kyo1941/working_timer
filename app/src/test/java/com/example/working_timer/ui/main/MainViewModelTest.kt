@@ -3,6 +3,11 @@ package com.example.working_timer.ui.main
 import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.domain.repository.WorkRepository
+import com.example.working_timer.ui.main.MainViewModel.Companion.EMPTY_STATUS
+import com.example.working_timer.ui.main.MainViewModel.Companion.RESTING_STATUS
+import com.example.working_timer.ui.main.MainViewModel.Companion.WORKING_STATUS
+import com.example.working_timer.util.Constants.ONE_HOUR_MS
+import com.example.working_timer.util.Constants.ONE_MINUTE_MS
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,9 +22,7 @@ class MainViewModelTest {
 
     // 定数定義
     companion object {
-        private const val ONE_MINUTE_MS = 60000L
         private const val THIRTY_MINUTES_MS = 1800000L
-        private const val ONE_HOUR_MS = 3600000L
         private const val ONE_HOUR_ONE_MINUTE_ONE_SECOND_MS = 3661000L
         private const val THIRTY_SECONDS_MS = 30000L
         private const val ONE_MINUTE_ONE_SECOND_MS = 61000L
@@ -28,11 +31,6 @@ class MainViewModelTest {
         private const val TEST_START_TIME = "09:00"
         private const val TEST_ERROR_MESSAGE = "タイマーエラーが発生しました"
         private const val TEST_SNACKBAR_MESSAGE = "テストメッセージ"
-
-        private const val WORKING_STATUS = "労働中"
-        private const val RESTING_STATUS = "休憩中"
-        private const val EMPTY_STATUS = ""
-
         private const val ONE_HOUR_TEXT = "01:00:00"
         private const val THIRTY_MINUTES_TEXT = "30:00"
         private const val ONE_HOUR_ONE_MINUTE_ONE_SECOND_TEXT = "01:01:01"

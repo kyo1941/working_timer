@@ -1,6 +1,5 @@
 package com.example.working_timer.ui.main
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.working_timer.data.db.Work
@@ -8,6 +7,7 @@ import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.domain.repository.TimerListener
 import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.domain.repository.WorkRepository
+import com.example.working_timer.util.Constants.ONE_MINUTE_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,9 +89,9 @@ class MainViewModel @Inject constructor(
         val elapsedTime = timerManager.getElapsedTime()
 
         val status = when {
-            isRunning -> "労働中"
-            elapsedTime > 0 -> "休憩中"
-            else -> ""
+            isRunning -> WORKING_STATUS
+            elapsedTime > 0 -> RESTING_STATUS
+            else -> EMPTY_STATUS
         }
         _uiState.value = _uiState.value.copy(
             status = status,
@@ -174,7 +174,7 @@ class MainViewModel @Inject constructor(
             val startDate = dataStoreManager.getStartDateSync() ?: return@launch
             val startTime = dataStoreManager.getStartTimeSync() ?: return@launch
 
-            if (elapsedTime < 60000) {
+            if (elapsedTime < ONE_MINUTE_MS) {
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
                     dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
@@ -229,5 +229,11 @@ class MainViewModel @Inject constructor(
 
     fun onNavigationHandled() {
         _uiState.value = _uiState.value.copy(navigateToLog = false)
+    }
+
+    companion object {
+        const val WORKING_STATUS = "労働中"
+        const val RESTING_STATUS = "休憩中"
+        const val EMPTY_STATUS = ""
     }
 }

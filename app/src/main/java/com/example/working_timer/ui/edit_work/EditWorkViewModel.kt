@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.working_timer.data.db.Work
 import com.example.working_timer.domain.repository.WorkRepository
+import com.example.working_timer.util.Constants.SECOND_IN_HOURS
+import com.example.working_timer.util.Constants.SECOND_IN_MINUTES
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,10 +47,6 @@ class EditWorkViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private companion object {
-        private const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm"
-    }
-
     fun init(id: Int, isNew: Boolean, startDay: String) {
         if (isNew) {
             // 新規作成時は初期値を設定する
@@ -74,14 +72,14 @@ class EditWorkViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentState = _uiState.value
-                val elapsedTime = currentState.elapsedHour * 3600 + currentState.elapsedMinute * 60
+                val elapsedTime = currentState.elapsedHour * SECOND_IN_HOURS + currentState.elapsedMinute * SECOND_IN_MINUTES
 
                 val dateTimeFormat = SimpleDateFormat(DATE_TIME_PATTERN, Locale.getDefault())
                 val startDateTimeMillis = try { dateTimeFormat.parse("${currentState.startDay} ${currentState.startTime}")?.time } catch (e: ParseException) { null }
                 val endDateTimeMillis = try { dateTimeFormat.parse("${currentState.endDay} ${currentState.endTime}")?.time } catch (e: ParseException) { null }
 
                 if (startDateTimeMillis == null || endDateTimeMillis == null) {
-                    _uiEvent.emit(UiEvent.ShowSnackbar("日付または時刻の形式が無効です。"))
+                    _uiEvent.emit(UiEvent.ShowSnackbar(ERROR_MSG_DATE_TIME_PATTERN))
                     return@launch
                 }
 
@@ -109,7 +107,7 @@ class EditWorkViewModel @Inject constructor(
                         start_time = currentState.startTime,
                         end_day = currentState.endDay,
                         end_time = currentState.endTime,
-                        elapsed_time = elapsedTime
+                        elapsed_time = elapsedTime.toInt()
                     )
                     workRepository.update(work)
                 } else {
@@ -118,16 +116,16 @@ class EditWorkViewModel @Inject constructor(
                         start_time = currentState.startTime,
                         end_day = currentState.endDay,
                         end_time = currentState.endTime,
-                        elapsed_time = elapsedTime
+                        elapsed_time = elapsedTime.toInt()
                     )
                     workRepository.insert(work)
                 }
                 _uiEvent.emit(UiEvent.SaveSuccess)
 
             } catch (e: SQLiteException) {
-                _uiEvent.emit(UiEvent.ShowSnackbar("データベースエラーが発生しました。"))
+                _uiEvent.emit(UiEvent.ShowSnackbar(ERROR_MSG_DB_FAILED))
             } catch (e: Exception) {
-                _uiEvent.emit(UiEvent.ShowSnackbar("予期しないエラーが発生しました: ${e.localizedMessage ?: "詳細不明"}"))
+                _uiEvent.emit(UiEvent.ShowSnackbar("$ERROR_MSG_UNKNOWN ${e.localizedMessage ?: "詳細不明"}"))
             }
         }
     }
@@ -140,8 +138,8 @@ class EditWorkViewModel @Inject constructor(
                     endDay = work.end_day,
                     startTime = work.start_time,
                     endTime = work.end_time,
-                    elapsedHour = work.elapsed_time / 3600,
-                    elapsedMinute = (work.elapsed_time % 3600) / 60
+                    elapsedHour = work.elapsed_time / SECOND_IN_HOURS.toInt(),
+                    elapsedMinute = (work.elapsed_time % SECOND_IN_HOURS.toInt()) / SECOND_IN_MINUTES.toInt()
                 )
             }
         }
@@ -177,5 +175,12 @@ class EditWorkViewModel @Inject constructor(
 
     fun clearElapsedTimeOver() {
         _uiState.value = _uiState.value.copy(showElapsedTimeOver = false)
+    }
+
+    companion object {
+        const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm"
+        const val ERROR_MSG_DATE_TIME_PATTERN = "日付または時刻の形式が無効です。"
+        const val ERROR_MSG_DB_FAILED = "データベースエラーが発生しました。"
+        const val ERROR_MSG_UNKNOWN = "予期しないエラーが発生しました:"
     }
 }

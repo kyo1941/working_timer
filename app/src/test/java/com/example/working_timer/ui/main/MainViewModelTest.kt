@@ -4,6 +4,9 @@ import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.domain.repository.WorkRepository
 import com.example.working_timer.ui.main.MainViewModel.Companion.EMPTY_STATUS
+import com.example.working_timer.ui.main.MainViewModel.Companion.ERROR_MSG_DATA_NOT_FOUND
+import com.example.working_timer.ui.main.MainViewModel.Companion.ERROR_MSG_SAVE_FAILED
+import com.example.working_timer.ui.main.MainViewModel.Companion.ERROR_MSG_TIME_TOO_SHORT
 import com.example.working_timer.ui.main.MainViewModel.Companion.RESTING_STATUS
 import com.example.working_timer.ui.main.MainViewModel.Companion.WORKING_STATUS
 import com.example.working_timer.util.Constants.ONE_HOUR_MS
@@ -214,7 +217,7 @@ class MainViewModelTest {
         val uiState = viewModel.uiState.value
         assertTrue(uiState.showSaveDialog)
         assertTrue(uiState.isErrorDialog)
-        assertTrue(uiState.dialogMessage.contains("開始日または開始時刻が正しく取得できませんでした"))
+        assertTrue(uiState.dialogMessage.contains(ERROR_MSG_DATA_NOT_FOUND))
     }
 
     @Test
@@ -230,7 +233,7 @@ class MainViewModelTest {
         val uiState = viewModel.uiState.value
         assertTrue(uiState.showSaveDialog)
         assertTrue(uiState.isErrorDialog)
-        assertTrue(uiState.dialogMessage.contains("1分未満の作業は保存できません"))
+        assertTrue(uiState.dialogMessage.contains(ERROR_MSG_TIME_TOO_SHORT))
     }
 
     @Test
@@ -271,7 +274,7 @@ class MainViewModelTest {
         val uiState = viewModel.uiState.value
         assertTrue(uiState.showSaveDialog)
         assertTrue(uiState.isErrorDialog)
-        assertTrue(uiState.dialogMessage.contains("保存に失敗しました。再度お試しください。"))
+        assertTrue(uiState.dialogMessage.contains(ERROR_MSG_SAVE_FAILED))
         assertTrue(uiState.dialogMessage.contains("Database error"))
     }
 
@@ -438,7 +441,7 @@ class MainViewModelTest {
         // Given
         every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
         coEvery { mockDataStoreManager.getStartDateSync() } returns null
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
+        coEvery { mockDataStoreManager.getStartTimeSync() } returns TEST_START_TIME
 
         // When
         viewModel.saveWork()
@@ -451,7 +454,7 @@ class MainViewModelTest {
     fun `saveWork実行時にstartTimeがnullなら何もせず終了する`() = runTest {
         // Given
         every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
+        coEvery { mockDataStoreManager.getStartDateSync() } returns TEST_DATE
         coEvery { mockDataStoreManager.getStartTimeSync() } returns null
 
         // When
@@ -465,8 +468,8 @@ class MainViewModelTest {
     fun `saveWorkでDB保存後にタイマー停止が失敗した場合`() = runTest {
         // Given
         every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
+        coEvery { mockDataStoreManager.getStartDateSync() } returns TEST_DATE
+        coEvery { mockDataStoreManager.getStartTimeSync() } returns TEST_START_TIME
 
         // insertは成功する
         coEvery { mockWorkRepository.insert(any()) } just Runs
@@ -480,7 +483,7 @@ class MainViewModelTest {
         val uiState = viewModel.uiState.value
         assertTrue(uiState.showSaveDialog)
         assertTrue(uiState.isErrorDialog)
-        assertTrue(uiState.dialogMessage.contains("保存に失敗しました"))
+        assertTrue(uiState.dialogMessage.contains(ERROR_MSG_SAVE_FAILED))
 
         // 同時に、insertは呼ばれたことも確認する
         coVerify(exactly = 1) { mockWorkRepository.insert(any()) }

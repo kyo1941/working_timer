@@ -131,7 +131,7 @@ class MainViewModel @Inject constructor(
             if (startDate == null || startTime == null) {
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
-                    dialogMessage = "開始日または開始時刻が正しく取得できませんでした。",
+                    dialogMessage = ERROR_MSG_DATA_NOT_FOUND,
                     isErrorDialog = true
                 )
                 return@launch
@@ -177,7 +177,7 @@ class MainViewModel @Inject constructor(
             if (elapsedTime < ONE_MINUTE_MS) {
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
-                    dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
+                    dialogMessage = ERROR_MSG_TIME_TOO_SHORT,
                     isErrorDialog = true
                 )
                 return@launch
@@ -209,7 +209,7 @@ class MainViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
-                    dialogMessage = "保存に失敗しました。再度お試しください。\nエラー: ${e.message}",
+                    dialogMessage = "$ERROR_MSG_SAVE_FAILED ${e.message}",
                     isErrorDialog = true
                 )
             }
@@ -235,5 +235,8 @@ class MainViewModel @Inject constructor(
         const val WORKING_STATUS = "労働中"
         const val RESTING_STATUS = "休憩中"
         const val EMPTY_STATUS = ""
+        const val ERROR_MSG_SAVE_FAILED = "保存に失敗しました。再度お試しください。\nエラー: "
+        const val ERROR_MSG_TIME_TOO_SHORT = "1分未満の作業は保存できません。再開または破棄を選択してください。"
+        const val ERROR_MSG_DATA_NOT_FOUND = "開始日または開始時刻が正しく取得できませんでした。"
     }
 }

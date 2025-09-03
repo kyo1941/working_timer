@@ -44,10 +44,14 @@ class LogViewViewModelTest {
     private lateinit var mockWorkRepository: WorkRepository
     private lateinit var viewModel: LogViewViewModel
 
+    // テスト用のデフォルトワーク
+    private val defaultTestWork = createTestWork()
+    private val defaultTestWorkList = listOf(defaultTestWork)
+
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        mockWorkRepository = mockk()
+        mockWorkRepository = mockk(relaxed = true)
         viewModel = LogViewViewModel(mockWorkRepository)
     }
 
@@ -56,21 +60,34 @@ class LogViewViewModelTest {
         Dispatchers.resetMain()
     }
 
-    // 共通セットアップメソッド
-    private fun setupMockWorkList(works: List<Work> = listOf(createTestWork())) {
+    // 共通セットアップメソッド群
+    private fun setupMockWorkList(works: List<Work> = defaultTestWorkList) {
         coEvery { mockWorkRepository.getWorksByDay(any()) } returns works
+    }
+
+    private fun setupEmptyWorkList() {
+        setupMockWorkList(emptyList())
+    }
+
+    private fun setupSumDialogWithWorks(works: List<Work> = defaultTestWorkList) {
+        coEvery { mockWorkRepository.getWorksByDay(TEST_DATE_STRING) } returns works
+        coEvery { mockWorkRepository.getWorksByDay(neq(TEST_DATE_STRING)) } returns emptyList()
+        viewModel.showSumDialog(TEST_START_TIMESTAMP, TEST_END_TIMESTAMP)
+    }
+
+    private fun setupDeleteScenario(workToDelete: Work = defaultTestWork) {
+        coEvery { mockWorkRepository.delete(workToDelete.id) } returns Unit
+        coEvery { mockWorkRepository.getWorksByDay(TEST_DATE_STRING) } returns emptyList()
+        viewModel.loadWorkList(TEST_DATE_STRING)
     }
 
     @Test
     fun `初期化時に現在日時が設定され作業リストが読み込まれる`() = runTest {
-        // Given
         setupMockWorkList()
 
-        // When
         viewModel.init()
         advanceUntilIdle()
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertFalse(uiState.isLoading)
         assertTrue(uiState.selectedDay.isNotEmpty())
@@ -79,14 +96,11 @@ class LogViewViewModelTest {
 
     @Test
     fun `setSelectedDay実行時に日付が正しくフォーマットされ作業リストが読み込まれる`() = runTest {
-        // Given
         setupMockWorkList()
 
-        // When
         viewModel.setSelectedDay(TEST_YEAR, TEST_MONTH, TEST_DAY)
         advanceUntilIdle()
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertEquals(TEST_DATE_STRING, uiState.selectedDay)
         assertEquals(1, uiState.workList.size)
@@ -96,10 +110,8 @@ class LogViewViewModelTest {
 
     @Test
     fun `loadWorkList実行時にローディング状態が設定され作業リストが更新される`() = runTest {
-        // Given
         setupMockWorkList()
 
-        // When
         viewModel.loadWorkList(TEST_DATE_STRING)
 
         // ローディング状態を確認
@@ -109,7 +121,7 @@ class LogViewViewModelTest {
 
         advanceUntilIdle()
 
-        // Then
+        // 最終状態を確認
         val finalState = viewModel.uiState.first()
         assertFalse(finalState.isLoading)
         assertEquals(1, finalState.workList.size)
@@ -118,28 +130,18 @@ class LogViewViewModelTest {
 
     @Test
     fun `showDeleteDialog実行時に削除ダイアログが表示される`() = runTest {
-        // Given
-        val testWork = createTestWork()
+        viewModel.showDeleteDialog(defaultTestWork)
 
-        // When
-        viewModel.showDeleteDialog(testWork)
-
-        // Then
         val uiState = viewModel.uiState.first()
         assertTrue(uiState.showDeleteDialog)
-        assertEquals(testWork, uiState.workToDelete)
+        assertEquals(defaultTestWork, uiState.workToDelete)
     }
 
     @Test
     fun `hideDeleteDialog実行時に削除ダイアログが非表示になる`() = runTest {
-        // Given
-        val testWork = createTestWork()
-        viewModel.showDeleteDialog(testWork)
-
-        // When
+        viewModel.showDeleteDialog(defaultTestWork)
         viewModel.hideDeleteDialog()
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertFalse(uiState.showDeleteDialog)
         assertNull(uiState.workToDelete)
@@ -147,21 +149,12 @@ class LogViewViewModelTest {
 
     @Test
     fun `deleteWork実行時に作業が削除され作業リストが再読み込みされる`() = runTest {
-        // Given
-        val testWork = createTestWork()
-        val updatedWorks = emptyList<Work>()
-        coEvery { mockWorkRepository.delete(TEST_WORK_ID) } returns Unit
-        coEvery { mockWorkRepository.getWorksByDay(TEST_DATE_STRING) } returns updatedWorks
-
-        // 初期状態を設定
-        viewModel.loadWorkList(TEST_DATE_STRING)
+        setupDeleteScenario()
         advanceUntilIdle()
 
-        // When
-        viewModel.deleteWork(testWork)
+        viewModel.deleteWork(defaultTestWork)
         advanceUntilIdle()
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertFalse(uiState.showDeleteDialog)
         assertNull(uiState.workToDelete)
@@ -171,14 +164,11 @@ class LogViewViewModelTest {
 
     @Test
     fun `showSumDialog実行時に合計ダイアログが表示され日付範囲が設定される`() = runTest {
-        // Given
-        coEvery { mockWorkRepository.getWorksByDay(any()) } returns emptyList()
+        setupEmptyWorkList()
 
-        // When
         viewModel.showSumDialog(TEST_START_TIMESTAMP, TEST_END_TIMESTAMP)
         advanceUntilIdle()
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertTrue(uiState.showSumDialog)
         assertEquals(TEST_START_TIMESTAMP, uiState.sumStartDate)
@@ -187,15 +177,11 @@ class LogViewViewModelTest {
 
     @Test
     fun `hideSumDialog実行時に合計ダイアログが非表示になる`() = runTest {
-        // Given
-        coEvery { mockWorkRepository.getWorksByDay(any()) } returns emptyList()
-        viewModel.showSumDialog(TEST_START_TIMESTAMP, TEST_END_TIMESTAMP)
+        setupSumDialogWithWorks(emptyList())
         advanceUntilIdle()
 
-        // When
         viewModel.hideSumDialog()
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertFalse(uiState.showSumDialog)
         assertNull(uiState.sumStartDate)
@@ -204,33 +190,21 @@ class LogViewViewModelTest {
 
     @Test
     fun `setTimeCalculationMode実行時に時間計算モードが更新される`() = runTest {
-        // When
         viewModel.setTimeCalculationMode(TimeCalculationMode.ROUND_UP)
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertEquals(TimeCalculationMode.ROUND_UP, uiState.timeCalculationMode)
     }
 
     @Test
     fun `calculateSum実行時に合計時間が正しく計算される`() = runTest {
-        // Given
         val testWorks = listOf(
             createTestWork(elapsedTime = SECOND_IN_HOURS.toInt()), // 1時間
             createTestWork(id = 2, elapsedTime = SECOND_IN_HOURS.toInt() * 2) // 2時間
         )
-
-        // テスト用の日付 2023-12-15 の日付でのみ testWorks を返すように設定
-        coEvery { mockWorkRepository.getWorksByDay(TEST_DATE_STRING) } returns testWorks
-
-        // それ以外の任意の日付では空のリストを返すように設定
-        coEvery { mockWorkRepository.getWorksByDay(neq(TEST_DATE_STRING)) } returns emptyList()
-
-        // When
-        viewModel.showSumDialog(TEST_START_TIMESTAMP, TEST_END_TIMESTAMP)
+        setupSumDialogWithWorks(testWorks)
         advanceUntilIdle()
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertEquals(3L, uiState.totalHours) // 合計3時間
         assertEquals(0L, uiState.totalMinutes) // 0分
@@ -238,22 +212,11 @@ class LogViewViewModelTest {
 
     @Test
     fun `updateTotalWage実行時にNORMALモードで給与が正しく計算される`() = runTest {
-        // Given
-        val testWorks = listOf(createTestWork(elapsedTime = TEST_ELAPSED_TIME))
-
-        // テスト用の日付 2023-12-15 の日付でのみ testWorks を返すように設定
-        coEvery { mockWorkRepository.getWorksByDay(TEST_DATE_STRING) } returns testWorks
-
-        // それ以外の任意の日付では空のリストを返すように設定
-        coEvery { mockWorkRepository.getWorksByDay(neq(TEST_DATE_STRING)) } returns emptyList()
-
-        viewModel.showSumDialog(TEST_START_TIMESTAMP, TEST_END_TIMESTAMP)
+        setupSumDialogWithWorks()
         advanceUntilIdle()
 
-        // When
         viewModel.updateTotalWage(TEST_WAGE)
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertEquals(8L, uiState.totalHours) // 8時間
         assertEquals(0L, uiState.totalMinutes) // 0分
@@ -262,23 +225,13 @@ class LogViewViewModelTest {
 
     @Test
     fun `updateTotalWage実行時にROUND_UPモードで時間が切り上げられる`() = runTest {
-        // Given
         val testWorks = listOf(createTestWork(elapsedTime = TWO_HALF_HOUR_SECONDS)) // 2.5時間
-
-        // テスト用の日付 2023-12-15 の日付でのみ testWorks を返すように設定
-        coEvery { mockWorkRepository.getWorksByDay(TEST_DATE_STRING) } returns testWorks
-
-        // それ以外の任意の日付では空のリストを返すように設定
-        coEvery { mockWorkRepository.getWorksByDay(neq(TEST_DATE_STRING)) } returns emptyList()
-
-        viewModel.showSumDialog(TEST_START_TIMESTAMP, TEST_END_TIMESTAMP)
+        setupSumDialogWithWorks(testWorks)
         advanceUntilIdle()
 
-        // When
         viewModel.setTimeCalculationMode(TimeCalculationMode.ROUND_UP)
         viewModel.updateTotalWage(TEST_WAGE)
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertEquals(3L, uiState.totalHours) // 3時間に切り上げ
         assertEquals(0L, uiState.totalMinutes)
@@ -287,23 +240,13 @@ class LogViewViewModelTest {
 
     @Test
     fun `updateTotalWage実行時にROUND_DOWNモードで時間が切り下げられる`() = runTest {
-        // Given
         val testWorks = listOf(createTestWork(elapsedTime = TWO_HALF_HOUR_SECONDS)) // 2.5時間
-
-        // テスト用の日付 2023-12-15 の日付でのみ testWorks を返すように設定
-        coEvery { mockWorkRepository.getWorksByDay(TEST_DATE_STRING) } returns testWorks
-
-        // それ以外の任意の日付では空のリストを返すように設定
-        coEvery { mockWorkRepository.getWorksByDay(neq(TEST_DATE_STRING)) } returns emptyList()
-
-        viewModel.showSumDialog(TEST_START_TIMESTAMP, TEST_END_TIMESTAMP)
+        setupSumDialogWithWorks(testWorks)
         advanceUntilIdle()
 
-        // When
         viewModel.setTimeCalculationMode(TimeCalculationMode.ROUND_DOWN)
         viewModel.updateTotalWage(TEST_WAGE)
 
-        // Then
         val uiState = viewModel.uiState.first()
         assertEquals(2L, uiState.totalHours) // 2時間に切り下げ
         assertEquals(0L, uiState.totalMinutes)
@@ -312,10 +255,8 @@ class LogViewViewModelTest {
 
     @Test
     fun `初期UI状態は正しいデフォルト値を持つ`() = runTest {
-        // When
         val uiState = viewModel.uiState.first()
 
-        // Then
         assertEquals("", uiState.selectedDay)
         assertTrue(uiState.workList.isEmpty())
         assertFalse(uiState.isLoading)

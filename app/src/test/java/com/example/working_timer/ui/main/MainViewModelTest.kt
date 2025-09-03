@@ -15,6 +15,30 @@ import org.junit.Assert.*
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
 
+    // 定数定義
+    companion object {
+        private const val ONE_MINUTE_MS = 60000L
+        private const val THIRTY_MINUTES_MS = 1800000L
+        private const val ONE_HOUR_MS = 3600000L
+        private const val ONE_HOUR_ONE_MINUTE_ONE_SECOND_MS = 3661000L
+        private const val THIRTY_SECONDS_MS = 30000L
+        private const val ONE_MINUTE_ONE_SECOND_MS = 61000L
+
+        private const val TEST_DATE = "2025-01-03"
+        private const val TEST_START_TIME = "09:00"
+        private const val TEST_ERROR_MESSAGE = "タイマーエラーが発生しました"
+        private const val TEST_SNACKBAR_MESSAGE = "テストメッセージ"
+
+        private const val WORKING_STATUS = "労働中"
+        private const val RESTING_STATUS = "休憩中"
+        private const val EMPTY_STATUS = ""
+
+        private const val ONE_HOUR_TEXT = "01:00:00"
+        private const val THIRTY_MINUTES_TEXT = "30:00"
+        private const val ONE_HOUR_ONE_MINUTE_ONE_SECOND_TEXT = "01:01:01"
+        private const val ONE_MINUTE_ONE_SECOND_TEXT = "01:01"
+    }
+
     private lateinit var viewModel: MainViewModel
     private lateinit var mockWorkRepository: WorkRepository
     private lateinit var mockTimerManager: TimerManager
@@ -52,109 +76,137 @@ class MainViewModelTest {
         verify { mockTimerManager.setListener(viewModel) }
     }
 
+    // 共通セットアップメソッド
+    private fun setupTimerManagerForRunning(elapsedTime: Long = ONE_MINUTE_MS) {
+        every { mockTimerManager.isTimerRunning() } returns true
+        every { mockTimerManager.getElapsedTime() } returns elapsedTime
+    }
+
+    private fun setupTimerManagerForStopped(elapsedTime: Long = ONE_MINUTE_MS) {
+        every { mockTimerManager.isTimerRunning() } returns false
+        every { mockTimerManager.getElapsedTime() } returns elapsedTime
+    }
+
+    private fun setupDataStoreManagerForSave(
+        startDate: String? = TEST_DATE,
+        startTime: String? = TEST_START_TIME
+    ) {
+        coEvery { mockDataStoreManager.getStartDateSync() } returns startDate
+        coEvery { mockDataStoreManager.getStartTimeSync() } returns startTime
+    }
+
+    private fun setupSuccessfulWorkSave() {
+        every { mockTimerManager.stopTimer() } just Runs
+        setupDataStoreManagerForSave()
+        coEvery { mockWorkRepository.insert(any()) } just Runs
+    }
+
+    private fun verifyStandardTimerActions(action: String) {
+        when (action) {
+            "start" -> verify { mockTimerManager.startTimer() }
+            "pause" -> verify { mockTimerManager.pauseTimer() }
+            "resume" -> verify { mockTimerManager.resumeTimer() }
+            "stop" -> verify { mockTimerManager.stopTimer() }
+        }
+    }
+
     @Test
     fun `初期化時に保存された経過時間がロードされる`() = runTest {
         // Given
-        val savedElapsedTime = 3600000L // 1時間
         val localMockDataStoreManager = mockk<DataStoreManager>()
-        coEvery { localMockDataStoreManager.getElapsedTimeSync() } returns savedElapsedTime
+        coEvery { localMockDataStoreManager.getElapsedTimeSync() } returns ONE_HOUR_MS
         coEvery { localMockDataStoreManager.getStartDateSync() } returns null
         coEvery { localMockDataStoreManager.getStartTimeSync() } returns null
 
         val localMockTimerManager = mockk<TimerManager> {
             every { setListener(any()) } just Runs
             every { isTimerRunning() } returns false
-            every { getElapsedTime() } returns savedElapsedTime
+            every { getElapsedTime() } returns ONE_HOUR_MS
         }
 
         // When
         val newViewModel = MainViewModel(mockWorkRepository, localMockTimerManager, localMockDataStoreManager)
 
         // Then
-        assertEquals("01:00:00", newViewModel.uiState.value.timerText)
-        assertEquals(savedElapsedTime, newViewModel.uiState.value.elapsedTime)
+        assertEquals(ONE_HOUR_TEXT, newViewModel.uiState.value.timerText)
+        assertEquals(ONE_HOUR_MS, newViewModel.uiState.value.elapsedTime)
     }
 
     @Test
     fun `startTimer実行時にTimerManagerが開始され状態が更新される`() {
         // Given
-        every { mockTimerManager.isTimerRunning() } returns true
-        every { mockTimerManager.getElapsedTime() } returns 60000L // 1分
+        setupTimerManagerForRunning()
         every { mockTimerManager.startTimer() } just Runs
 
         // When
         viewModel.startTimer()
 
         // Then
-        verify { mockTimerManager.startTimer() }
+        verifyStandardTimerActions("start")
         val uiState = viewModel.uiState.value
         assertTrue(uiState.isTimerRunning)
-        assertEquals("労働中", uiState.status)
+        assertEquals(WORKING_STATUS, uiState.status)
         assertFalse(uiState.isPaused)
     }
 
     @Test
     fun `pauseTimer実行時にTimerManagerが一時停止され状態が更新される`() {
         // Given
-        every { mockTimerManager.isTimerRunning() } returns false
-        every { mockTimerManager.getElapsedTime() } returns 60000L // 1分
+        setupTimerManagerForStopped()
         every { mockTimerManager.pauseTimer() } just Runs
 
         // When
         viewModel.pauseTimer()
 
         // Then
-        verify { mockTimerManager.pauseTimer() }
+        verifyStandardTimerActions("pause")
         val uiState = viewModel.uiState.value
         assertFalse(uiState.isTimerRunning)
-        assertEquals("休憩中", uiState.status)
+        assertEquals(RESTING_STATUS, uiState.status)
         assertTrue(uiState.isPaused)
     }
 
     @Test
     fun `resumeTimer実行時にTimerManagerが再開され状態が更新される`() {
         // Given
-        every { mockTimerManager.isTimerRunning() } returns true
-        every { mockTimerManager.getElapsedTime() } returns 60000L // 1分
+        setupTimerManagerForRunning()
         every { mockTimerManager.resumeTimer() } just Runs
 
         // When
         viewModel.resumeTimer()
 
         // Then
-        verify { mockTimerManager.resumeTimer() }
+        verifyStandardTimerActions("resume")
         val uiState = viewModel.uiState.value
         assertTrue(uiState.isTimerRunning)
-        assertEquals("労働中", uiState.status)
+        assertEquals(WORKING_STATUS, uiState.status)
         assertFalse(uiState.isPaused)
     }
 
     @Test
     fun `stopTimer実行時に保存ダイアログが表示される`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 3600000L // 1時間
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
+        setupDataStoreManagerForSave()
         every { mockTimerManager.pauseTimer() } just Runs
 
         // When
         viewModel.stopTimer()
 
         // Then
-        verify { mockTimerManager.pauseTimer() }
+        verifyStandardTimerActions("pause")
         val uiState = viewModel.uiState.value
         assertTrue(uiState.showSaveDialog)
         assertFalse(uiState.isErrorDialog)
-        assertTrue(uiState.dialogMessage.contains("2025-01-03"))
+        assertTrue(uiState.dialogMessage.contains(TEST_DATE))
         assertTrue(uiState.dialogMessage.contains(" 1時間"))
     }
 
     @Test
     fun `stopTimer実行時に開始日が取得できない場合はエラーダイアログが表示される`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 3600000L
-        coEvery { mockDataStoreManager.getStartDateSync() } returns null
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
+        setupDataStoreManagerForSave(startDate = null)
         every { mockTimerManager.pauseTimer() } just Runs
 
         // When
@@ -170,9 +222,8 @@ class MainViewModelTest {
     @Test
     fun `saveWork実行時に1分未満の場合はエラーダイアログが表示される`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 30000L // 30秒
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
+        every { mockTimerManager.getElapsedTime() } returns THIRTY_SECONDS_MS
+        setupDataStoreManagerForSave()
 
         // When
         viewModel.saveWork()
@@ -187,11 +238,8 @@ class MainViewModelTest {
     @Test
     fun `saveWork実行時に正常な場合は作業が保存されログ画面に遷移する`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 3600000L // 1時間
-        every { mockTimerManager.stopTimer() } just Runs
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
-        coEvery { mockWorkRepository.insert(any()) } just Runs
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
+        setupSuccessfulWorkSave()
 
         // When
         viewModel.saveWork()
@@ -199,12 +247,12 @@ class MainViewModelTest {
         // Then
         coVerify {
             mockWorkRepository.insert(match { work ->
-                work.start_day == "2025-01-03" &&
-                work.start_time == "09:00" &&
+                work.start_day == TEST_DATE &&
+                work.start_time == TEST_START_TIME &&
                 work.elapsed_time == 3600 // 秒単位
             })
         }
-        verify { mockTimerManager.stopTimer() }
+        verifyStandardTimerActions("stop")
 
         val uiState = viewModel.uiState.value
         assertFalse(uiState.showSaveDialog)
@@ -214,9 +262,8 @@ class MainViewModelTest {
     @Test
     fun `saveWork実行時に保存に失敗した場合はエラーダイアログが表示される`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 3600000L
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
+        setupDataStoreManagerForSave()
         coEvery { mockWorkRepository.insert(any()) } throws Exception("Database error")
 
         // When
@@ -234,31 +281,27 @@ class MainViewModelTest {
     fun `discardWork実行時にタイマーが停止され状態が更新される`() {
         // Given
         every { mockTimerManager.stopTimer() } just Runs
-        every { mockTimerManager.isTimerRunning() } returns false
-        every { mockTimerManager.getElapsedTime() } returns 0L
+        setupTimerManagerForStopped(0L)
 
         // When
         viewModel.discardWork()
 
         // Then
-        verify { mockTimerManager.stopTimer() }
+        verifyStandardTimerActions("stop")
         val uiState = viewModel.uiState.value
         assertFalse(uiState.isTimerRunning)
         assertFalse(uiState.isPaused)
-        assertEquals("", uiState.status)
+        assertEquals(EMPTY_STATUS, uiState.status)
     }
 
     @Test
-    fun `dismissSaveDialog実行時にダイアログが閉じられる`() {
+    fun `dismissSaveDialog実行時にダイアログが閉じられる`() = runTest {
         // Given - まず保存ダイアログを表示する状態にする
-        every { mockTimerManager.getElapsedTime() } returns 3600000L
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
+        setupDataStoreManagerForSave()
         every { mockTimerManager.pauseTimer() } just Runs
 
-        runTest {
-            viewModel.stopTimer()
-        }
+        viewModel.stopTimer()
 
         // When
         viewModel.dismissSaveDialog()
@@ -271,49 +314,40 @@ class MainViewModelTest {
 
     @Test
     fun `onTimerTick実行時にタイマーテキストが更新される`() {
-        // Given
-        val elapsedTime = 3661000L // 1時間1分1秒
-
         // When
-        viewModel.onTimerTick(elapsedTime)
+        viewModel.onTimerTick(ONE_HOUR_ONE_MINUTE_ONE_SECOND_MS)
 
         // Then
         val uiState = viewModel.uiState.value
-        assertEquals("01:01:01", uiState.timerText)
-        assertEquals(elapsedTime, uiState.elapsedTime)
+        assertEquals(ONE_HOUR_ONE_MINUTE_ONE_SECOND_TEXT, uiState.timerText)
+        assertEquals(ONE_HOUR_ONE_MINUTE_ONE_SECOND_MS, uiState.elapsedTime)
     }
 
     @Test
     fun `onTimerTick実行時に1時間未満の場合は分秒表示になる`() {
-        // Given
-        val elapsedTime = 61000L // 1分1秒
-
         // When
-        viewModel.onTimerTick(elapsedTime)
+        viewModel.onTimerTick(ONE_MINUTE_ONE_SECOND_MS)
 
         // Then
         val uiState = viewModel.uiState.value
-        assertEquals("01:01", uiState.timerText)
-        assertEquals(elapsedTime, uiState.elapsedTime)
+        assertEquals(ONE_MINUTE_ONE_SECOND_TEXT, uiState.timerText)
+        assertEquals(ONE_MINUTE_ONE_SECOND_MS, uiState.elapsedTime)
     }
 
     @Test
     fun `onError実行時にスナックバーメッセージが設定される`() {
-        // Given
-        val errorMessage = "タイマーエラーが発生しました"
-
         // When
-        viewModel.onError(errorMessage)
+        viewModel.onError(TEST_ERROR_MESSAGE)
 
         // Then
         val uiState = viewModel.uiState.value
-        assertEquals(errorMessage, uiState.snackbarMessage)
+        assertEquals(TEST_ERROR_MESSAGE, uiState.snackbarMessage)
     }
 
     @Test
     fun `clearSnackbarMessage実行時にスナックバーメッセージがクリアされる`() {
         // Given - まずエラーメッセージを設定
-        viewModel.onError("テストメッセージ")
+        viewModel.onError(TEST_SNACKBAR_MESSAGE)
 
         // When
         viewModel.clearSnackbarMessage()
@@ -324,17 +358,12 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `onNavigationHandled実行時にナビゲーションフラグがリセットされる`() {
+    fun `onNavigationHandled実行時にナビゲーションフラグがリセットされる`() = runTest {
         // Given - まず保存を実行してナビゲーションフラグを立てる
-        every { mockTimerManager.getElapsedTime() } returns 3600000L
-        every { mockTimerManager.stopTimer() } just Runs
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
-        coEvery { mockWorkRepository.insert(any()) } just Runs
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
+        setupSuccessfulWorkSave()
 
-        runTest {
-            viewModel.saveWork()
-        }
+        viewModel.saveWork()
 
         // When
         viewModel.onNavigationHandled()
@@ -347,8 +376,7 @@ class MainViewModelTest {
     @Test
     fun `updateUI実行時に状態が更新される`() {
         // Given
-        every { mockTimerManager.isTimerRunning() } returns true
-        every { mockTimerManager.getElapsedTime() } returns 1800000L // 30分
+        setupTimerManagerForRunning(THIRTY_MINUTES_MS)
 
         // When
         viewModel.updateUI()
@@ -356,16 +384,15 @@ class MainViewModelTest {
         // Then
         val uiState = viewModel.uiState.value
         assertTrue(uiState.isTimerRunning)
-        assertEquals("労働中", uiState.status)
-        assertEquals("30:00", uiState.timerText)
+        assertEquals(WORKING_STATUS, uiState.status)
+        assertEquals(THIRTY_MINUTES_TEXT, uiState.timerText)
         assertFalse(uiState.isPaused)
     }
 
     @Test
     fun `経過時間0でタイマー停止時は空のステータスになる`() {
         // Given
-        every { mockTimerManager.isTimerRunning() } returns false
-        every { mockTimerManager.getElapsedTime() } returns 0L
+        setupTimerManagerForStopped(0L)
 
         // When
         viewModel.updateUI()
@@ -373,15 +400,14 @@ class MainViewModelTest {
         // Then
         val uiState = viewModel.uiState.value
         assertFalse(uiState.isTimerRunning)
-        assertEquals("", uiState.status)
+        assertEquals(EMPTY_STATUS, uiState.status)
         assertFalse(uiState.isPaused)
     }
 
     @Test
     fun `経過時間ありでタイマー停止時は休憩中ステータスになる`() {
         // Given
-        every { mockTimerManager.isTimerRunning() } returns false
-        every { mockTimerManager.getElapsedTime() } returns 1800000L // 30分
+        setupTimerManagerForStopped(THIRTY_MINUTES_MS)
 
         // When
         viewModel.updateUI()
@@ -389,16 +415,15 @@ class MainViewModelTest {
         // Then
         val uiState = viewModel.uiState.value
         assertFalse(uiState.isTimerRunning)
-        assertEquals("休憩中", uiState.status)
+        assertEquals(RESTING_STATUS, uiState.status)
         assertTrue(uiState.isPaused)
     }
 
     @Test
     fun `stopTimer実行時に経過時間が1時間未満なら分単位でダイアログが表示される`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 1800000L // 30分
-        coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
-        coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
+        every { mockTimerManager.getElapsedTime() } returns THIRTY_MINUTES_MS
+        setupDataStoreManagerForSave()
         every { mockTimerManager.pauseTimer() } just Runs
 
         // When
@@ -407,24 +432,13 @@ class MainViewModelTest {
         // Then
         val uiState = viewModel.uiState.value
         assertTrue(uiState.showSaveDialog)
-
-        // 「1時間」や「12時間」のように、数字に「時間」が続くパターンを定義
-        val hoursPattern = Regex("""\d+\s*時間""")
-
-        // 上記のパターンがメッセージに含まれていないことを確認
-        assertFalse(
-            "「XX時間」という形式が含まれています",
-            hoursPattern.containsMatchIn(uiState.dialogMessage)
-        )
-
-        // "30分" が含まれることを確認
-        assertTrue(uiState.dialogMessage.contains("30分"))
+        assertTrue(uiState.dialogMessage.contains(" 30分"))
     }
 
     @Test
     fun `saveWork実行時にstartDateがnullなら何もせず終了する`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 3600000L
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
         coEvery { mockDataStoreManager.getStartDateSync() } returns null
         coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
 
@@ -438,7 +452,7 @@ class MainViewModelTest {
     @Test
     fun `saveWork実行時にstartTimeがnullなら何もせず終了する`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 3600000L
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
         coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
         coEvery { mockDataStoreManager.getStartTimeSync() } returns null
 
@@ -452,7 +466,7 @@ class MainViewModelTest {
     @Test
     fun `saveWorkでDB保存後にタイマー停止が失敗した場合`() = runTest {
         // Given
-        every { mockTimerManager.getElapsedTime() } returns 3600000L
+        every { mockTimerManager.getElapsedTime() } returns ONE_HOUR_MS
         coEvery { mockDataStoreManager.getStartDateSync() } returns "2025-01-03"
         coEvery { mockDataStoreManager.getStartTimeSync() } returns "09:00"
 

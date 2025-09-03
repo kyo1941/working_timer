@@ -154,7 +154,7 @@ class MainViewModel @Inject constructor(
 
                 今回の作業記録を保存しますか？
             """.trimIndent(),
-                isErrorDialog = false // 追加
+                isErrorDialog = false
             )
         }
     }
@@ -207,7 +207,6 @@ class MainViewModel @Inject constructor(
                 dismissSaveDialog()
                 _uiState.value = _uiState.value.copy(navigateToLog = true)
             } catch (e: Exception) {
-                Log.e("MainViewModel", "Error saving work", e)
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
                     dialogMessage = "保存に失敗しました。再度お試しください。\nエラー: ${e.message}",

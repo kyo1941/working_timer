@@ -74,4 +74,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-service:2.6.2")
 
     implementation("androidx.datastore:datastore-preferences:1.1.7")
+
+    testImplementation("io.mockk:mockk:1.14.5")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 }

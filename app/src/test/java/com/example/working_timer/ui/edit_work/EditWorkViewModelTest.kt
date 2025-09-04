@@ -31,9 +31,9 @@ class EditWorkViewModelTest {
         private const val TEST_END_DAY = "2025-01-03"
         private const val TEST_START_TIME = "09:00"
         private const val TEST_END_TIME = "17:00"
-        private const val TEST_ELAPSED_TIME = 28800 // 8時間
-        private const val TEST_ELAPSED_HOUR = 8
-        private const val TEST_ELAPSED_MINUTE = 0
+        private const val TEST_ELAPSED_TIME = 28800L // 8時間
+        private const val TEST_ELAPSED_HOUR = 8L
+        private const val TEST_ELAPSED_MINUTE = 0L
 
         private const val INVALID_DATE = "invalid-date"
         private const val INVALID_TIME = "invalid-time"
@@ -41,11 +41,11 @@ class EditWorkViewModelTest {
         private const val FUTURE_END_DAY = "2025-01-02"
         private const val FUTURE_END_TIME = "08:00"
 
-        private const val LONG_ELAPSED_HOUR = 10
-        private const val LONG_ELAPSED_MINUTE = 0
+        private const val LONG_ELAPSED_HOUR = 10L
+        private const val LONG_ELAPSED_MINUTE = 0L
 
-        private const val SHORT_ELAPSED_HOUR = 1
-        private const val SHORT_ELAPSED_MINUTE = 30
+        private const val SHORT_ELAPSED_HOUR = 1L
+        private const val SHORT_ELAPSED_MINUTE = 30L
     }
 
     private lateinit var viewModel: EditWorkViewModel
@@ -73,7 +73,7 @@ class EditWorkViewModelTest {
         endDay: String = TEST_END_DAY,
         startTime: String = TEST_START_TIME,
         endTime: String = TEST_END_TIME,
-        elapsedTime: Int = TEST_ELAPSED_TIME
+        elapsedTime: Long = TEST_ELAPSED_TIME
     ): Work {
         return Work(
             id = id,
@@ -204,8 +204,8 @@ class EditWorkViewModelTest {
     @Test
     fun `updateElapsedTime実行時に状態が更新される`() = runTest {
         // Given
-        val newHour = 5
-        val newMinute = 30
+        val newHour = 5L
+        val newMinute = 30L
 
         // When
         viewModel.updateElapsedTime(newHour, newMinute)
@@ -562,7 +562,7 @@ class EditWorkViewModelTest {
         viewModel.saveWork(id = 0, isNew = true)
 
         // Then
-        val expectedElapsedTime = SHORT_ELAPSED_HOUR * SECOND_IN_HOURS.toInt() + SHORT_ELAPSED_MINUTE * SECOND_IN_MINUTES.toInt()
+        val expectedElapsedTime = SHORT_ELAPSED_HOUR * SECOND_IN_HOURS + SHORT_ELAPSED_MINUTE * SECOND_IN_MINUTES
         coVerify {
             mockWorkRepository.insert(match { work ->
                 work.elapsed_time == expectedElapsedTime // 1.5時間
@@ -630,7 +630,7 @@ class EditWorkViewModelTest {
         val uiState = viewModel.uiState.value
         assertEquals("", uiState.startDay)
         assertEquals("", uiState.endTime)
-        assertEquals(0, uiState.elapsedHour)
+        assertEquals(0L, uiState.elapsedHour)
     }
 
     @Test

@@ -196,7 +196,7 @@ class MainViewModel @Inject constructor(
                 end_day = endDate,
                 start_time = startTime,
                 end_time = endTime,
-                elapsed_time = saveElapsedTime.toInt()
+                elapsed_time = saveElapsedTime
             )
 
             // 保存処理

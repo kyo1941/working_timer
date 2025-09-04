@@ -24,8 +24,8 @@ data class EditWorkUiState(
     val endDay: String = "",
     val startTime: String = "",
     val endTime: String = "",
-    val elapsedHour: Int = 0,
-    val elapsedMinute: Int = 0,
+    val elapsedHour: Long = 0L,
+    val elapsedMinute: Long = 0L,
     val showZeroMinutesError: Boolean = false,
     val showStartEndError: Boolean = false,
     val showElapsedTimeOver: Boolean = false
@@ -107,7 +107,7 @@ class EditWorkViewModel @Inject constructor(
                         start_time = currentState.startTime,
                         end_day = currentState.endDay,
                         end_time = currentState.endTime,
-                        elapsed_time = elapsedTime.toInt()
+                        elapsed_time = elapsedTime
                     )
                     workRepository.update(work)
                 } else {
@@ -116,7 +116,7 @@ class EditWorkViewModel @Inject constructor(
                         start_time = currentState.startTime,
                         end_day = currentState.endDay,
                         end_time = currentState.endTime,
-                        elapsed_time = elapsedTime.toInt()
+                        elapsed_time = elapsedTime
                     )
                     workRepository.insert(work)
                 }
@@ -138,8 +138,8 @@ class EditWorkViewModel @Inject constructor(
                     endDay = work.end_day,
                     startTime = work.start_time,
                     endTime = work.end_time,
-                    elapsedHour = work.elapsed_time / SECOND_IN_HOURS.toInt(),
-                    elapsedMinute = (work.elapsed_time % SECOND_IN_HOURS.toInt()) / SECOND_IN_MINUTES.toInt()
+                    elapsedHour = work.elapsed_time / SECOND_IN_HOURS,
+                    elapsedMinute = (work.elapsed_time % SECOND_IN_HOURS) / SECOND_IN_MINUTES
                 )
             }
         }
@@ -161,7 +161,7 @@ class EditWorkViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(endTime = value)
     }
 
-    fun updateElapsedTime(hour: Int, minute: Int) {
+    fun updateElapsedTime(hour: Long, minute: Long) {
         _uiState.value = _uiState.value.copy(elapsedHour = hour, elapsedMinute = minute)
     }
 

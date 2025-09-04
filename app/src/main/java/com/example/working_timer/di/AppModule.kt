@@ -1,6 +1,12 @@
 package com.example.working_timer.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.room.Room
 import com.example.working_timer.data.db.AppDatabase
 import com.example.working_timer.data.db.WorkDao
@@ -10,6 +16,7 @@ import com.example.working_timer.data.repository.WorkRepositoryImpl
 import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.domain.repository.WorkRepository
+import com.example.working_timer.util.SharedPrefKeys
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -17,7 +24,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
 @Module
@@ -53,16 +62,22 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideWorkDao(appDatabase: AppDatabase): WorkDao {
-        return appDatabase.workDao()
-    }
-}
+    fun provideWorkDao(appDatabase: AppDatabase): WorkDao = appDatabase.workDao()
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DispatchersModule {
-    @IoDispatcher
-    @Singleton
     @Provides
+    @Singleton
+    fun providePreferencesDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler(
+                produceNewData = { emptyPreferences() }
+            ),
+            migrations = listOf(),
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { context.preferencesDataStoreFile(SharedPrefKeys.PREFS_NAME) }
+        )
+    }
+
+    @Provides
+    @IoDispatcher
     fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }

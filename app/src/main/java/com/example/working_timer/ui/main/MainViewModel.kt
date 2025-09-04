@@ -1,6 +1,5 @@
 package com.example.working_timer.ui.main
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.working_timer.data.db.Work
@@ -8,6 +7,7 @@ import com.example.working_timer.domain.repository.DataStoreManager
 import com.example.working_timer.domain.repository.TimerListener
 import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.domain.repository.WorkRepository
+import com.example.working_timer.util.Constants.ONE_MINUTE_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,9 +89,9 @@ class MainViewModel @Inject constructor(
         val elapsedTime = timerManager.getElapsedTime()
 
         val status = when {
-            isRunning -> "労働中"
-            elapsedTime > 0 -> "休憩中"
-            else -> ""
+            isRunning -> WORKING_STATUS
+            elapsedTime > 0 -> RESTING_STATUS
+            else -> EMPTY_STATUS
         }
         _uiState.value = _uiState.value.copy(
             status = status,
@@ -131,7 +131,7 @@ class MainViewModel @Inject constructor(
             if (startDate == null || startTime == null) {
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
-                    dialogMessage = "開始日または開始時刻が正しく取得できませんでした。",
+                    dialogMessage = ERROR_MSG_DATA_NOT_FOUND,
                     isErrorDialog = true
                 )
                 return@launch
@@ -154,7 +154,7 @@ class MainViewModel @Inject constructor(
 
                 今回の作業記録を保存しますか？
             """.trimIndent(),
-                isErrorDialog = false // 追加
+                isErrorDialog = false
             )
         }
     }
@@ -174,10 +174,10 @@ class MainViewModel @Inject constructor(
             val startDate = dataStoreManager.getStartDateSync() ?: return@launch
             val startTime = dataStoreManager.getStartTimeSync() ?: return@launch
 
-            if (elapsedTime < 60000) {
+            if (elapsedTime < ONE_MINUTE_MS) {
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
-                    dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
+                    dialogMessage = ERROR_MSG_TIME_TOO_SHORT,
                     isErrorDialog = true
                 )
                 return@launch
@@ -196,7 +196,7 @@ class MainViewModel @Inject constructor(
                 end_day = endDate,
                 start_time = startTime,
                 end_time = endTime,
-                elapsed_time = saveElapsedTime.toInt()
+                elapsed_time = saveElapsedTime
             )
 
             // 保存処理
@@ -207,10 +207,9 @@ class MainViewModel @Inject constructor(
                 dismissSaveDialog()
                 _uiState.value = _uiState.value.copy(navigateToLog = true)
             } catch (e: Exception) {
-                Log.e("MainViewModel", "Error saving work", e)
                 _uiState.value = _uiState.value.copy(
                     showSaveDialog = true,
-                    dialogMessage = "保存に失敗しました。再度お試しください。\nエラー: ${e.message}",
+                    dialogMessage = "$ERROR_MSG_SAVE_FAILED ${e.message}",
                     isErrorDialog = true
                 )
             }
@@ -230,5 +229,14 @@ class MainViewModel @Inject constructor(
 
     fun onNavigationHandled() {
         _uiState.value = _uiState.value.copy(navigateToLog = false)
+    }
+
+    companion object {
+        const val WORKING_STATUS = "労働中"
+        const val RESTING_STATUS = "休憩中"
+        const val EMPTY_STATUS = ""
+        const val ERROR_MSG_SAVE_FAILED = "保存に失敗しました。再度お試しください。\nエラー:"
+        const val ERROR_MSG_TIME_TOO_SHORT = "1分未満の作業は保存できません。再開または破棄を選択してください。"
+        const val ERROR_MSG_DATA_NOT_FOUND = "開始日または開始時刻が正しく取得できませんでした。"
     }
 }

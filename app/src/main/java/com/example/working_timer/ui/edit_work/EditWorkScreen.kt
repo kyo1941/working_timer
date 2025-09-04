@@ -51,7 +51,7 @@ data class EditWorkScreenActions(
     val onUpdateEndTime: (String) -> Unit,
     val onUpdateStartDay: (String) -> Unit,
     val onUpdateEndDay: (String) -> Unit,
-    val onUpdateElapsedTime: (Int, Int) -> Unit,
+    val onUpdateElapsedTime: (Long, Long) -> Unit,
     val onSaveWork: (Boolean) -> Unit,
     val onClearZeroMinutesError: () -> Unit,
     val onClearStartEndError: () -> Unit,
@@ -346,10 +346,10 @@ fun EditWorkScreen(
 
         if (state.showElapsedPicker) {
             MaterialTimePickerDialog(
-                initialTime = Pair(state.uiState.elapsedHour, state.uiState.elapsedMinute),
+                initialTime = Pair(state.uiState.elapsedHour.toInt(), state.uiState.elapsedMinute.toInt()),
                 onDismiss = actions.onHideElapsedPicker,
                 onTimeSelected = { timeString ->
-                    val (h, m) = timeString.split(":").map { it.toIntOrNull() ?: 0 }
+                    val (h, m) = timeString.split(":").map { it.toLongOrNull() ?: 0L }
                     actions.onUpdateElapsedTime(h, m)
                     actions.onHideElapsedPicker()
                 },

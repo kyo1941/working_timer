@@ -94,7 +94,6 @@ class TimerManagerImpl @Inject constructor(
             val bound = context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
             if (!bound) {
                 pendingStart = false
-                Log.e("TimerManagerImpl", "Failed to bind to TimerService")
                 listener?.onError("タイマーの開始に失敗しました。")
             }
         }

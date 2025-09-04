@@ -7,3 +7,9 @@ object SharedPrefKeys {
     const val ELAPSED_TIME_KEY = "elapsedTime"
 }
 
+object Constants {
+    const val ONE_MINUTE_MS = 60000L
+    const val ONE_HOUR_MS = 3600000L
+    const val SECOND_IN_HOURS = 3600L
+    const val SECOND_IN_MINUTES = 60L
+}

@@ -87,3 +87,9 @@
 - カレンダー画面
 
 ![image](docs/screenshot/images/calendarView.png)
+
+---
+
+### テスト
+ユニットテスト カバレッジ
+https://github.com/kyo1941/working_timer/pull/111

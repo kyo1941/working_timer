@@ -33,11 +33,11 @@ class LogViewViewModelTest {
         private const val TEST_END_DAY = "2023-12-15"
         private const val TEST_START_TIME = "09:00"
         private const val TEST_END_TIME = "17:00"
-        private const val TEST_ELAPSED_TIME = 28800 // 8 hours in seconds
+        private const val TEST_ELAPSED_TIME = 28800L // 8 hours in seconds
         private const val TEST_WAGE = 1000L
         private const val TEST_START_TIMESTAMP = 1702569600000L // 2023-12-15 00:00:00
         private const val TEST_END_TIMESTAMP = 1702656000000L // 2023-12-16 00:00:00
-        private const val TWO_HALF_HOUR_SECONDS = 9000 // 2.5 hours
+        private const val TWO_HALF_HOUR_SECONDS = 9000L // 2.5 hours
     }
 
     private val testDispatcher = StandardTestDispatcher()
@@ -199,8 +199,8 @@ class LogViewViewModelTest {
     @Test
     fun `calculateSum実行時に合計時間が正しく計算される`() = runTest {
         val testWorks = listOf(
-            createTestWork(elapsedTime = SECOND_IN_HOURS.toInt()), // 1時間
-            createTestWork(id = 2, elapsedTime = SECOND_IN_HOURS.toInt() * 2) // 2時間
+            createTestWork(elapsedTime = SECOND_IN_HOURS), // 1時間
+            createTestWork(id = 2, elapsedTime = SECOND_IN_HOURS * 2) // 2時間
         )
         setupSumDialogWithWorks(testWorks)
         advanceUntilIdle()
@@ -277,7 +277,7 @@ class LogViewViewModelTest {
         endDay: String = TEST_END_DAY,
         startTime: String = TEST_START_TIME,
         endTime: String = TEST_END_TIME,
-        elapsedTime: Int = TEST_ELAPSED_TIME
+        elapsedTime: Long = TEST_ELAPSED_TIME
     ): Work {
         return Work(
             id = id,

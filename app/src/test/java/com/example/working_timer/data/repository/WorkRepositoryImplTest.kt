@@ -31,9 +31,9 @@ class WorkRepositoryImplTest {
         private const val TEST_END_DAY = "2025-01-04"
         private const val TEST_START_TIME = "09:00"
         private const val TEST_END_TIME = "17:00"
-        private const val TEST_ELAPSED_TIME = 480
+        private const val TEST_ELAPSED_TIME = 480L
         private const val TEST_DAY = "2025-01-04"
-        private const val UPDATED_ELAPSED_TIME = 500
+        private const val UPDATED_ELAPSED_TIME = 500L
     }
 
     private val testDispatcher = StandardTestDispatcher()
@@ -215,7 +215,7 @@ class WorkRepositoryImplTest {
         endDay: String = TEST_END_DAY,
         startTime: String = TEST_START_TIME,
         endTime: String = TEST_END_TIME,
-        elapsedTime: Int = TEST_ELAPSED_TIME
+        elapsedTime: Long = TEST_ELAPSED_TIME
     ): Work {
         return Work(
             id = id,

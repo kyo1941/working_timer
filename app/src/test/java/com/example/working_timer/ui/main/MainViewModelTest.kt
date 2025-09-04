@@ -250,7 +250,7 @@ class MainViewModelTest {
             mockWorkRepository.insert(match { work ->
                 work.start_day == TEST_DATE &&
                 work.start_time == TEST_START_TIME &&
-                work.elapsed_time == 3600 // 秒単位
+                work.elapsed_time == 3600L // 秒単位
             })
         }
         verifyStandardTimerActions("stop")

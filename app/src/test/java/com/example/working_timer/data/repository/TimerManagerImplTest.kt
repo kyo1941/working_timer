@@ -97,6 +97,14 @@ class TimerManagerImplTest {
         )
     }
 
+    private fun assertDoesNotThrow(block: () -> Unit) {
+        try {
+            block()
+        } catch (e: Throwable) {
+            fail("Expected no exception to be thrown, but got $e")
+        }
+    }
+
     @Test
     fun `startTimer実行時にサービスがバインド済みの場合は直接タイマーが開始される`() = runTest {
         // Given
@@ -320,5 +328,107 @@ class TimerManagerImplTest {
         timerManagerImpl.stopTimer()
         verify { mockTimerService.stopTimer() }
         verify { mockContext.unbindService(any<ServiceConnection>()) }
+    }
+
+    @Test
+    fun `pauseTimer実行時にサービス未バインドの場合は何も起こらない`() = runTest {
+        // When
+        timerManagerImpl.pauseTimer()
+
+        // Then
+        // 例外が発生しないことを確認
+        verify(exactly = 0) { mockTimerService.pauseTimer() }
+    }
+
+    @Test
+    fun `resumeTimer実行時にサービス未バインドの場合は何も起こらない`() = runTest {
+        // When
+        timerManagerImpl.resumeTimer()
+
+        // Then
+        // 例外が発生しないことを確認
+        verify(exactly = 0) { mockTimerService.resumeTimer() }
+    }
+
+    @Test
+    fun `stopTimer実行時にサービス未バインドの場合は何も起こらない`() = runTest {
+        // When
+        timerManagerImpl.stopTimer()
+
+        // Then
+        // 例外が発生しないことを確認
+        verify(exactly = 0) { mockTimerService.stopTimer() }
+        verify(exactly = 0) { mockContext.unbindService(any()) }
+    }
+
+    @Test
+    fun `onServiceDisconnected実行後にisTimerRunningがfalseを返す`() = runTest {
+        // Given
+        setupServiceBound()
+        setupTimerServiceMocks(isRunning = true)
+
+        // When
+        simulateServiceDisconnection()
+
+        // Then
+        val result = timerManagerImpl.isTimerRunning()
+        assertFalse(result)
+    }
+
+    @Test
+    fun `onServiceDisconnected実行後にgetElapsedTimeが0を返す`() = runTest {
+        // Given
+        setupServiceBound()
+        setupTimerServiceMocks(elapsedTime = TEST_ELAPSED_TIME)
+
+        // When
+        simulateServiceDisconnection()
+
+        // Then
+        val result = timerManagerImpl.getElapsedTime()
+        assertEquals(0L, result)
+    }
+
+    @Test
+    fun `リスナーがnullの時にonTimerTickが呼ばれてもクラッシュしない`() = runTest {
+        // Given
+        // リスナーは設定しない
+        setupServiceBound()
+
+        val serviceListener = slot<TimerService.TimerServiceListener>()
+        verify { mockTimerService.setListener(capture(serviceListener)) }
+
+        // When & Then - クラッシュしないことを確認
+        assertDoesNotThrow {
+            serviceListener.captured.onTimerTick(TEST_TIMER_TICK_TIME)
+        }
+    }
+
+    @Test
+    fun `リスナーがnullの時にupdateUIが呼ばれてもクラッシュしない`() = runTest {
+        // Given
+        // リスナーは設定しない
+        setupServiceBound()
+
+        val serviceListener = slot<TimerService.TimerServiceListener>()
+        verify { mockTimerService.setListener(capture(serviceListener)) }
+
+        // When & Then - クラッシュしないことを確認
+        assertDoesNotThrow {
+            serviceListener.captured.updateUI()
+        }
+    }
+
+    @Test
+    fun `リスナーがnullの時にサービスバインドが失敗してもクラッシュしない`() = runTest {
+        // Given
+        setupServiceBindingFailure()
+        // リスナーは設定しない
+
+        // When & Then - クラッシュしないことを確認
+        assertDoesNotThrow {
+            timerManagerImpl.startTimer()
+        }
+        verify(exactly = 0) { mockTimerListener.onError(any()) }
     }
 }

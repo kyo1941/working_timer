@@ -19,6 +19,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
 import android.database.sqlite.SQLiteException
+import kotlinx.coroutines.flow.emptyFlow
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EditWorkViewModelTest {
@@ -571,7 +572,7 @@ class EditWorkViewModelTest {
 
     @Test
     fun `無効な終了日付形式でエラーメッセージが表示される`() = runTest {
-        // Given: 開始日時は有効だが、終了日付が無効な状態
+        // Given
         viewModel.updateStartDay(TEST_START_DAY)
         viewModel.updateStartTime(TEST_START_TIME)
         viewModel.updateEndDay(INVALID_DATE) // 終了日付を無効にする
@@ -594,7 +595,7 @@ class EditWorkViewModelTest {
 
     @Test
     fun `無効な終了時刻形式でエラーメッセージが表示される`() = runTest {
-        // Given: 開始日時は有効だが、終了時刻が無効な状態
+        // Given
         viewModel.updateStartDay(TEST_START_DAY)
         viewModel.updateStartTime(TEST_START_TIME)
         viewModel.updateEndDay(TEST_END_DAY)
@@ -613,5 +614,44 @@ class EditWorkViewModelTest {
         // Then: 正しいエラーメッセージが表示されることを確認
         assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is EditWorkViewModel.UiEvent.ShowSnackbar)
         assertEquals(ERROR_MSG_DATE_TIME_PATTERN, (collectedEvent as EditWorkViewModel.UiEvent.ShowSnackbar).message)
+    }
+
+    @Test
+    fun `存在しないIDで編集しようとした場合、UIは初期状態のまま`() = runTest {
+        // Given
+        val nonExistentId = 999
+        coEvery { mockWorkRepository.getWork(nonExistentId) } returns emptyFlow()
+
+        // When
+        viewModel.init(id = nonExistentId, isNew = false, startDay = "")
+        testDispatcher.scheduler.runCurrent()
+
+        // Then
+        val uiState = viewModel.uiState.value
+        assertEquals("", uiState.startDay)
+        assertEquals("", uiState.endTime)
+        assertEquals(0, uiState.elapsedHour)
+    }
+
+    @Test
+    fun `メッセージがない予期しない例外発生時に汎用エラーメッセージが表示される`() = runTest {
+        // Given
+        val exceptionWithoutMessage = RuntimeException()
+        coEvery { mockWorkRepository.insert(any()) } throws exceptionWithoutMessage
+        setupValidWorkData()
+
+        var collectedEvent: EditWorkViewModel.UiEvent? = null
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            collectedEvent = viewModel.uiEvent.first()
+        }
+
+        // When
+        viewModel.saveWork(id = 0, isNew = true)
+        testDispatcher.scheduler.runCurrent()
+
+        // Then
+        assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is EditWorkViewModel.UiEvent.ShowSnackbar)
+        val message = (collectedEvent as EditWorkViewModel.UiEvent.ShowSnackbar).message
+        assertTrue("エラーメッセージに「詳細不明」が含まれること", message.contains("詳細不明"))
     }
 }

@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -255,28 +255,37 @@ fun MainScreen(
         if (state.uiState.showSaveDialog) {
             AlertDialog(
                 onDismissRequest = actions.onDismissSaveDialog,
-                title = { Text("確認") },
+                title = { Text(
+                    text = "確認",
+                    style = typography.headlineSmall,
+                ) },
                 text = { Text(
                     state.uiState.dialogMessage,
-                    fontWeight = FontWeight.Medium
+                    style = typography.bodyMedium,
                 ) },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
                     // ダイアログのメッセージによってボタンの挙動を変える
                     if (state.uiState.isErrorDialog) {
                         Row {
+                            Spacer(modifier = Modifier.weight(0.1f))
                             TextButton(onClick = {
                                 actions.onDiscardWork()
                                 actions.onDismissSaveDialog()
                             }) {
                                 Text("破棄")
                             }
+
+                            Spacer(modifier = Modifier.weight(1f))
+
                             TextButton(onClick = {
                                 actions.onResumeTimer()
                                 actions.onDismissSaveDialog()
                             }) {
                                 Text("再開")
                             }
+
+                            Spacer(modifier = Modifier.weight(0.1f))
                         }
                     } else {
                         Row {
@@ -287,7 +296,7 @@ fun MainScreen(
                                 Text("破棄")
                             }
 
-                            Spacer(modifier = Modifier.width(64.dp))
+                            Spacer(modifier = Modifier.weight(1f))
 
                             TextButton(onClick = {
                                 actions.onResumeTimer()
@@ -295,6 +304,9 @@ fun MainScreen(
                             }) {
                                 Text("再開")
                             }
+
+                            Spacer(modifier = Modifier.weight(1f))
+
                             TextButton(onClick = actions.onSaveWork) {
                                 Text("保存")
                             }

@@ -1,5 +1,6 @@
 package com.example.working_timer.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.working_timer.util.BackgroundColor
 
 /**
  * 3つのボタンを持つアラートダイアログ
@@ -59,7 +61,13 @@ fun MyAlertDialogWithThreeButton(
 
                 Text(
                     text = message,
+                    textAlign = TextAlign.Center,
                     style = typography.bodyLarge,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(color = BackgroundColor)
+                        .padding(vertical = 24.dp)
+                        .fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

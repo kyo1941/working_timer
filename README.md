@@ -14,6 +14,7 @@
 | **UI** | Jetpack Compose |
 | **アーキテクチャ** | MVVM |
 | **データベース** | ・Room<br>・DataStore<br> |
+| **テスト** | ・JUnit<br>・MockK<br> |
 | **その他** | ・Dagger Hilt<br>・Navigation Compose<br>・Kotlin Coroutines |
 
 ## 構成
@@ -93,3 +94,4 @@
 ### テスト
 ユニットテスト カバレッジ
 https://github.com/kyo1941/working_timer/pull/111
+

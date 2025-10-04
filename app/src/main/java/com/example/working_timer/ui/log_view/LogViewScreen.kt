@@ -228,11 +228,23 @@ fun LogViewScreen(
             title = { Text("確認") },
             text = { Text("本当にこの記録を削除しますか？") },
             confirmButton = {
-                TextButton(onClick = { actions.onDeleteWork(state.uiState.workToDelete) }) { Text("はい") }
+                Row {
+                    Spacer(modifier = Modifier.weight(0.1f))
+
+                    TextButton(
+                        onClick = actions.onHideDeleteDialog
+                    ) { Text("いいえ") }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    TextButton(
+                        onClick = { actions.onDeleteWork(state.uiState.workToDelete) }
+                    ) { Text("はい") }
+
+                    Spacer(modifier = Modifier.weight(0.1f))
+                }
+
             },
-            dismissButton = {
-                TextButton(onClick = actions.onHideDeleteDialog) { Text("いいえ") }
-            }
         )
     }
 

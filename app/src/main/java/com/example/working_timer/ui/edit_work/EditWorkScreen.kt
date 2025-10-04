@@ -391,18 +391,25 @@ fun EditWorkScreen(
                 title = { Text("注意") },
                 text = { Text("活動時間が時間差より大きいです。\nこのまま保存しますか？") },
                 confirmButton = {
-                    TextButton(onClick = {
-                        actions.onClearElapsedTimeOver()
-                        actions.onSaveWork(true)
-                    }) {
-                        Text("保存")
+                    Row {
+                        Spacer(modifier = Modifier.weight(0.1f))
+                        TextButton(onClick = actions.onClearElapsedTimeOver) {
+                            Text("キャンセル")
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        TextButton(onClick = {
+                            actions.onClearElapsedTimeOver()
+                            actions.onSaveWork(true)
+                        }) {
+                            Text("保存")
+                        }
+
+                        Spacer(modifier = Modifier.weight(0.1f))
                     }
+
                 },
-                dismissButton = {
-                    TextButton(onClick = actions.onClearElapsedTimeOver) {
-                        Text("キャンセル")
-                    }
-                }
             )
         }
     }

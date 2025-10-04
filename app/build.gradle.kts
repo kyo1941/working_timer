@@ -1,9 +1,28 @@
+import io.gitlab.arturbosch.detekt.Detekt
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp.gradle.plugin)
     id("com.google.dagger.hilt.android")
+    id("io.gitlab.arturbosch.detekt") version "1.23.3"
+}
+
+detekt {
+    toolVersion = "1.23.3"
+    config = files("${project.rootDir}/config/detekt/detekt.yml")
+    buildUponDefaultConfig = true
+
+    // TODO: ローカルでのみ自動修正を行い、CIでは行わないようにする
+    autoCorrect = true
+
+    // FIXME: 特定のファイルのみを解析対象にしているが、プロジェクト全体を解析するように変更する
+    source.setFrom(files("src/main/java/com/example/working_timer/ui/main/MainViewModel.kt"))
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
+    jvmTarget = "1.8"
 }
 
 android {
@@ -25,6 +44,9 @@ android {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+        debug {
+            enableUnitTestCoverage = true
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -38,6 +60,28 @@ android {
         compose = true
     }
 
+}
+
+tasks.register<JacocoReport>("testCoverage") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    sourceDirectories.setFrom(files("$projectDir/src/main/java"))
+    classDirectories.setFrom(
+        fileTree("$buildDir/tmp/kotlin-classes/debug") {
+            exclude(
+                "**/R.class",
+                "**/R$*.class",
+                "**/BuildConfig.*",
+                "**/Manifest*.*"
+            )
+        }
+    )
+    executionData.setFrom(file("$buildDir/jacoco/testDebugUnitTest.exec"))
 }
 
 dependencies {

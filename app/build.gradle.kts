@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp.gradle.plugin)
     id("com.google.dagger.hilt.android")
+    id("io.gitlab.arturbosch.detekt") version "1.23.3"
 }
 
 android {

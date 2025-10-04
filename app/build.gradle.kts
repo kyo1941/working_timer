@@ -1,3 +1,5 @@
+import io.gitlab.arturbosch.detekt.Detekt
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -5,6 +7,19 @@ plugins {
     alias(libs.plugins.ksp.gradle.plugin)
     id("com.google.dagger.hilt.android")
     id("io.gitlab.arturbosch.detekt") version "1.23.3"
+}
+
+detekt {
+    toolVersion = "1.23.3"
+    config = files("${project.rootDir}/config/detekt/detekt.yml")
+    buildUponDefaultConfig = true
+    autoCorrect = true
+
+    source.setFrom(files("src/main/java/com/example/working_timer/ui/main/MainViewModel.kt"))
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
+    jvmTarget = "1.8"
 }
 
 android {

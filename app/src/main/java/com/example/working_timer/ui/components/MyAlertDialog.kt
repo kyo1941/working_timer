@@ -1,4 +1,4 @@
-package com.example.working_timer.component
+package com.example.working_timer.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

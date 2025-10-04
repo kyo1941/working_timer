@@ -57,7 +57,7 @@ fun MyAlertDialogWithThreeButton(
                 )
 
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = message,
@@ -109,9 +109,83 @@ fun MyAlertDialogWithThreeButton(
     }
 }
 
+@Composable
+fun MyAlertDialogWithTwoButton(
+    title: String,
+    message: String,
+    positiveButtonText: String,
+    negativeButtonText: String,
+    onPositiveClick: () -> Unit,
+    onNegativeClick: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = { /* ダイアログ外のタップは無視する */ }
+    ) {
+        Surface(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 20.dp, bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = title,
+                    style = typography.headlineMedium
+                )
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = message,
+                    textAlign = TextAlign.Center,
+                    style = typography.bodyLarge,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(color = BackgroundColor)
+                        .padding(vertical = 24.dp)
+                        .fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row {
+                    Spacer(modifier = Modifier.weight(0.1f))
+
+                    TextButton(
+                        onClick = onNegativeClick,
+                    ) {
+                        Text(
+                            text = negativeButtonText,
+                            style = typography.bodySmall
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    TextButton(
+                        onClick = onPositiveClick,
+                    ) {
+                        Text(
+                            text = positiveButtonText,
+                            style = typography.bodySmall
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.weight(0.1f))
+                }
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
-fun MyAlertDialogPreview() {
+fun MyAlertDialogPreviewWithThreeButton() {
     MyAlertDialogWithThreeButton(
         title = "タイトル",
         message = "メッセージ",
@@ -120,6 +194,19 @@ fun MyAlertDialogPreview() {
         negativeButtonText = "いいえ",
         onPositiveClick = {},
         onNeutralClick = {},
+        onNegativeClick = {}
+    )
+}
+
+@Preview
+@Composable
+fun MyAlertDialogPreviewWithTwoButton() {
+    MyAlertDialogWithTwoButton(
+        title = "タイトル",
+        message = "メッセージ",
+        positiveButtonText = "はい",
+        negativeButtonText = "いいえ",
+        onPositiveClick = {},
         onNegativeClick = {}
     )
 }

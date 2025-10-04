@@ -13,8 +13,11 @@ detekt {
     toolVersion = "1.23.3"
     config = files("${project.rootDir}/config/detekt/detekt.yml")
     buildUponDefaultConfig = true
+
+    // TODO: ローカルでのみ自動修正を行い、CIでは行わないようにする
     autoCorrect = true
 
+    // FIXME: 特定のファイルのみを解析対象にしているが、プロジェクト全体を解析するように変更する
     source.setFrom(files("src/main/java/com/example/working_timer/ui/main/MainViewModel.kt"))
 }
 

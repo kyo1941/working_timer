@@ -177,8 +177,8 @@ fun EditWorkScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
                     .padding(start = 40.dp)
+                    .padding(vertical = 8.dp)
             )
 
             Spacer(modifier = Modifier.height(48.dp))
@@ -186,8 +186,10 @@ fun EditWorkScreen(
             Text(
                 text = "開始",
                 modifier = Modifier
-                    .padding(end = 280.dp)
-                    .padding(bottom = 8.dp)
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
             )
 
             Row(
@@ -229,8 +231,10 @@ fun EditWorkScreen(
             Text(
                 text = "終了",
                 modifier = Modifier
-                    .padding(end = 280.dp)
-                    .padding(bottom = 8.dp)
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
             )
 
             Row(
@@ -272,8 +276,10 @@ fun EditWorkScreen(
             Text(
                 text = "活動時間",
                 modifier = Modifier
-                    .padding(end = 280.dp)
-                    .padding(bottom = 8.dp)
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
             )
 
             Row(
@@ -314,16 +320,20 @@ fun EditWorkScreen(
             ) {
                 Button(
                     onClick = actions.onNavigateBack,
-                    modifier = Modifier.width(120.dp)
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
                 ) {
                     Text("キャンセル")
                 }
 
-                Spacer(modifier = Modifier.width(48.dp))
+                Spacer(modifier = Modifier.width(64.dp))
 
                 Button(
                     onClick = { actions.onSaveWork(false) },
-                    modifier = Modifier.width(120.dp)
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
                 ) {
                     Text("保存")
                 }

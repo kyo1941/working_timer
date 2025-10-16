@@ -34,7 +34,8 @@ fun AppNavHost(
             deepLinks = listOf(navDeepLink { uriPattern = Routes.TimerDeepLink.routes })
         ) {
             ScaffoldWithEdgeToEdge(
-                footer = footer
+                footer = footer,
+                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
             ) { paddingValues ->
                 MainScreenHolder(
                     onNavigateToLog = {
@@ -49,7 +50,8 @@ fun AppNavHost(
 
         composable(Routes.LogView.routes) {
             ScaffoldWithEdgeToEdge(
-                footer = footer
+                footer = footer,
+                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
             ) { paddingValues ->
                 LogViewScreenHolder(
                     onNavigateToTimer = {
@@ -86,7 +88,8 @@ fun AppNavHost(
             val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: true
 
             ScaffoldWithEdgeToEdge(
-                footer = { /* 編集画面ではフッターを表示しない */ }
+                footer = { /* 編集画面ではフッターを表示しない */ },
+                contentWindowInsets = WindowInsets.safeDrawing
             ) { paddingValues ->
                 EditWorkScreenHolder(
                     id = id,
@@ -105,11 +108,12 @@ fun AppNavHost(
 @Composable
 private fun ScaffoldWithEdgeToEdge(
     footer: @Composable () -> Unit,
+    contentWindowInsets: WindowInsets,
     content: @Composable (padding: PaddingValues) -> Unit
 ) {
     Scaffold(
         bottomBar = footer,
-        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+        contentWindowInsets = contentWindowInsets
     ) { paddingValues ->
         content(paddingValues)
     }

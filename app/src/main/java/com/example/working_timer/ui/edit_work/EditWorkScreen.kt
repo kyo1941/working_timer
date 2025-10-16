@@ -173,9 +173,14 @@ fun EditWorkScreen(
                     .padding(start = 40.dp)
             )
 
-            Spacer(modifier = Modifier.weight(0.3f))
+            Spacer(modifier = Modifier.height(48.dp))
 
-            SubTitleText("開始")
+            Text(
+                text = "開始",
+                modifier = Modifier
+                    .padding(end = 280.dp)
+                    .padding(bottom = 8.dp)
+            )
 
             Row(
                 modifier = Modifier
@@ -213,7 +218,12 @@ fun EditWorkScreen(
                 }
             }
 
-            SubTitleText("終了")
+            Text(
+                text = "終了",
+                modifier = Modifier
+                    .padding(end = 280.dp)
+                    .padding(bottom = 8.dp)
+            )
 
             Row(
                 modifier = Modifier
@@ -251,7 +261,12 @@ fun EditWorkScreen(
                 }
             }
 
-            SubTitleText("活動時間")
+            Text(
+                text = "活動時間",
+                modifier = Modifier
+                    .padding(end = 280.dp)
+                    .padding(bottom = 8.dp)
+            )
 
             Row(
                 modifier = Modifier
@@ -424,17 +439,6 @@ fun EditWorkScreen(
                 },
             )
         }
-    }
-}
-
-@Composable
-private fun SubTitleText(text: String) {
-    Row (
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Spacer(modifier = Modifier.weight(0.2f))
-        Text(text)
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 

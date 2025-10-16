@@ -76,7 +76,8 @@ fun AppNavHost (
                 isNew = isNew,
                 onNavigateBack = {
                     navController.popBackStack()
-                }
+                },
+                modifier = modifier
             )
         }
     }

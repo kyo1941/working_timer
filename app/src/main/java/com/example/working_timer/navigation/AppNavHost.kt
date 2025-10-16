@@ -1,5 +1,6 @@
 package com.example.working_timer.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
@@ -32,9 +33,8 @@ fun AppNavHost (
             Routes.Timer.routes,
             deepLinks = listOf(navDeepLink { uriPattern = Routes.TimerDeepLink.routes })
         ) {
-            Scaffold(
-                bottomBar = footer,
-                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+            ScaffoldWithEdgeToEdge(
+                footer = footer
             ) { paddingValues ->
                 MainScreenHolder(
                     onNavigateToLog = {
@@ -48,9 +48,8 @@ fun AppNavHost (
         }
 
         composable(Routes.LogView.routes) {
-            Scaffold(
-                bottomBar = footer,
-                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+            ScaffoldWithEdgeToEdge(
+                footer = footer
             ) { paddingValues ->
                 LogViewScreenHolder(
                     onNavigateToTimer = {
@@ -86,8 +85,8 @@ fun AppNavHost (
             val startDay = backStackEntry.arguments?.getString("startDay") ?: ""
             val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: true
 
-            Scaffold(
-                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+            ScaffoldWithEdgeToEdge(
+                footer = { /* 編集画面ではフッターを表示しない */ }
             ) { paddingValues ->
                 EditWorkScreenHolder(
                     id = id,
@@ -100,5 +99,18 @@ fun AppNavHost (
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ScaffoldWithEdgeToEdge(
+    footer: @Composable () -> Unit,
+    content: @Composable (padding: PaddingValues) -> Unit
+) {
+    Scaffold(
+        bottomBar = footer,
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+    ) { paddingValues ->
+        content(paddingValues)
     }
 }

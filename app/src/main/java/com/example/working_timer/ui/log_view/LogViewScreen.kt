@@ -56,6 +56,7 @@ data class LogViewScreenActions(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogViewScreenHolder(
+    modifier: Modifier = Modifier,
     viewModel: LogViewViewModel = hiltViewModel(),
     onNavigateToTimer: () -> Unit,
     onNavigateToEditWork: (Int, String, Boolean) -> Unit
@@ -113,7 +114,8 @@ fun LogViewScreenHolder(
             onSetTimeCalculationMode = { mode ->
                 viewModel.setTimeCalculationMode(mode)
             }
-        )
+        ),
+        modifier = modifier
     )
 }
 
@@ -121,12 +123,15 @@ fun LogViewScreenHolder(
 @Composable
 fun LogViewScreen(
     state: LogViewScreenState,
-    actions: LogViewScreenActions
+    actions: LogViewScreenActions,
+    modifier: Modifier = Modifier
 ) {
     // Date formatter for calendar updates
     val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
         AndroidView(
             factory = { context ->
                 val inflater = LayoutInflater.from(context)
@@ -139,7 +144,8 @@ fun LogViewScreen(
             },
             update = { view ->
                 val calendarView = view as CalendarView
-                val dateMillis = if (state.uiState.selectedDay.isNotEmpty()) sdf.parse(state.uiState.selectedDay)?.time else null
+                val dateMillis =
+                    if (state.uiState.selectedDay.isNotEmpty()) sdf.parse(state.uiState.selectedDay)?.time else null
                 if (dateMillis != null) {
                     calendarView.date = dateMillis
                 }
@@ -213,12 +219,6 @@ fun LogViewScreen(
                 )
             }
         }
-        // 下部ナビゲーションバー
-        FooterNavigationBar(
-            selectedIndex = 1,
-            onTimerClick = actions.onNavigateToTimer,
-            onLogClick = {}
-        )
     }
 
     // 削除ダイアログ

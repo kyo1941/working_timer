@@ -59,7 +59,7 @@ fun MaterialTimePickerDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if(showToggleIcon) {
+                    if (showToggleIcon) {
                         // 左端：モード切り替えアイコン
                         IconButton(onClick = { isInputMode = !isInputMode }) {
                             Icon(
@@ -70,18 +70,18 @@ fun MaterialTimePickerDialog(
                     } else {
                         Spacer(modifier = Modifier.width(16.dp))
                     }
-                        Row {
-                            // 右側：キャンセルボタン
-                            TextButton(onClick = onDismiss) {
-                                Text("キャンセル")
-                            }
-                            // OKボタン
-                            TextButton(onClick = {
-                                onTimeSelected(String.format("%02d:%02d", state.hour, state.minute))
-                            }) {
-                                Text("OK")
-                            }
+                    Row {
+                        // 右側：キャンセルボタン
+                        TextButton(onClick = onDismiss) {
+                            Text("キャンセル")
                         }
+                        // OKボタン
+                        TextButton(onClick = {
+                            onTimeSelected(String.format("%02d:%02d", state.hour, state.minute))
+                        }) {
+                            Text("OK")
+                        }
+                    }
 
                 }
             }

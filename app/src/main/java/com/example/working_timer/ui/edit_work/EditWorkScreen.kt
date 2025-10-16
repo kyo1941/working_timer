@@ -1,6 +1,5 @@
 package com.example.working_timer.ui.edit_work
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -71,12 +70,12 @@ data class EditWorkScreenActions(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditWorkScreenHolder(
+    modifier: Modifier = Modifier,
     editWorkViewModel: EditWorkViewModel = hiltViewModel(),
     id: Int,
     startDay: String,
     isNew: Boolean,
-    onNavigateBack: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onNavigateBack: () -> Unit = {}
 ) {
     val uiState by editWorkViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -101,7 +100,10 @@ fun EditWorkScreenHolder(
                         snackbarHostState.showSnackbar(event.message)
                     }
                 }
-                EditWorkViewModel.UiEvent.SaveSuccess -> { onNavigateBack() }
+
+                EditWorkViewModel.UiEvent.SaveSuccess -> {
+                    onNavigateBack()
+                }
             }
         }
     }
@@ -123,7 +125,12 @@ fun EditWorkScreenHolder(
             onUpdateEndTime = { editWorkViewModel.updateEndTime(it) },
             onUpdateStartDay = { editWorkViewModel.updateStartDay(it) },
             onUpdateEndDay = { editWorkViewModel.updateEndDay(it) },
-            onUpdateElapsedTime = { hour, minute -> editWorkViewModel.updateElapsedTime(hour, minute) },
+            onUpdateElapsedTime = { hour, minute ->
+                editWorkViewModel.updateElapsedTime(
+                    hour,
+                    minute
+                )
+            },
             onSaveWork = { editWorkViewModel.saveWork(id, isNew, it) },
             onClearZeroMinutesError = { editWorkViewModel.clearZeroMinutesError() },
             onClearStartEndError = { editWorkViewModel.clearStartEndError() },
@@ -151,14 +158,15 @@ fun EditWorkScreen(
     modifier: Modifier = Modifier
 ) {
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) },
-        modifier = modifier
-    ) { _ ->
+        modifier = modifier,
+        snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) }
+    ) { paddingValue ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(paddingValue),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val context = LocalContext.current
             Text(
@@ -167,15 +175,25 @@ fun EditWorkScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(start = 40.dp)
+                    .padding(vertical = 8.dp)
             )
 
-            Spacer(modifier = Modifier.weight(0.3f))
+            Spacer(modifier = Modifier.height(48.dp))
 
-            Text("開始")
+            Text(
+                text = "開始",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
+            )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 40.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -208,10 +226,19 @@ fun EditWorkScreen(
                 }
             }
 
-            Text("終了")
+            Text(
+                text = "終了",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
+            )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 40.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -244,10 +271,19 @@ fun EditWorkScreen(
                 }
             }
 
-            Text("活動時間")
+            Text(
+                text = "活動時間",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
+            )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 40.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -277,21 +313,25 @@ fun EditWorkScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
                     onClick = actions.onNavigateBack,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
                 ) {
                     Text("キャンセル")
                 }
 
-                Spacer(modifier = Modifier.width(24.dp))
+                Spacer(modifier = Modifier.width(64.dp))
 
                 Button(
                     onClick = { actions.onSaveWork(false) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
                 ) {
                     Text("保存")
                 }
@@ -346,7 +386,10 @@ fun EditWorkScreen(
 
         if (state.showElapsedPicker) {
             MaterialTimePickerDialog(
-                initialTime = Pair(state.uiState.elapsedHour.toInt(), state.uiState.elapsedMinute.toInt()),
+                initialTime = Pair(
+                    state.uiState.elapsedHour.toInt(),
+                    state.uiState.elapsedMinute.toInt()
+                ),
                 onDismiss = actions.onHideElapsedPicker,
                 onTimeSelected = { timeString ->
                     val (h, m) = timeString.split(":").map { it.toLongOrNull() ?: 0L }

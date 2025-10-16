@@ -1,6 +1,14 @@
 package com.example.working_timer.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -12,9 +20,10 @@ import com.example.working_timer.ui.log_view.LogViewScreenHolder
 import com.example.working_timer.ui.main.MainScreenHolder
 
 @Composable
-fun AppNavHost (
+fun AppNavHost(
     navController: NavHostController,
-    startDestination: String = Routes.Timer.routes
+    startDestination: String = Routes.Timer.routes,
+    footer: @Composable () -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -24,34 +33,46 @@ fun AppNavHost (
             Routes.Timer.routes,
             deepLinks = listOf(navDeepLink { uriPattern = Routes.TimerDeepLink.routes })
         ) {
-            MainScreenHolder (
-                onNavigateToLog = {
-                    navController.navigate(Routes.LogView.routes) {
-                        launchSingleTop = true
-                    }
-                }
-            )
+            ScaffoldWithEdgeToEdge(
+                footer = footer,
+                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+            ) { paddingValues ->
+                MainScreenHolder(
+                    onNavigateToLog = {
+                        navController.navigate(Routes.LogView.routes) {
+                            launchSingleTop = true
+                        }
+                    },
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
         }
 
         composable(Routes.LogView.routes) {
-            LogViewScreenHolder(
-                onNavigateToTimer = {
-                    navController.navigate(Routes.Timer.routes) {
-                        launchSingleTop = true
-                    }
-                },
-                onNavigateToEditWork = { id, startDay, isNew ->
-                    navController.navigate(
-                        Routes.EditWork().createRoute(
-                            id = id,
-                            startDay = startDay,
-                            isNew = isNew
-                        )
-                    ) {
-                        launchSingleTop = true
-                    }
-                }
-            )
+            ScaffoldWithEdgeToEdge(
+                footer = footer,
+                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+            ) { paddingValues ->
+                LogViewScreenHolder(
+                    onNavigateToTimer = {
+                        navController.navigate(Routes.Timer.routes) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToEditWork = { id, startDay, isNew ->
+                        navController.navigate(
+                            Routes.EditWork().createRoute(
+                                id = id,
+                                startDay = startDay,
+                                isNew = isNew
+                            )
+                        ) {
+                            launchSingleTop = true
+                        }
+                    },
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
         }
 
         composable(
@@ -66,14 +87,34 @@ fun AppNavHost (
             val startDay = backStackEntry.arguments?.getString("startDay") ?: ""
             val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: true
 
-            EditWorkScreenHolder(
-                id = id,
-                startDay = startDay,
-                isNew = isNew,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+            ScaffoldWithEdgeToEdge(
+                footer = { /* 編集画面ではフッターを表示しない */ },
+                contentWindowInsets = WindowInsets.safeDrawing
+            ) { paddingValues ->
+                EditWorkScreenHolder(
+                    id = id,
+                    startDay = startDay,
+                    isNew = isNew,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun ScaffoldWithEdgeToEdge(
+    footer: @Composable () -> Unit,
+    contentWindowInsets: WindowInsets,
+    content: @Composable (padding: PaddingValues) -> Unit
+) {
+    Scaffold(
+        bottomBar = footer,
+        contentWindowInsets = contentWindowInsets
+    ) { paddingValues ->
+        content(paddingValues)
     }
 }

@@ -42,7 +42,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.working_timer.ui.components.FooterNavigationBar
 import com.example.working_timer.util.PauseButtonColor
 import com.example.working_timer.util.ResumeButtonColor
 import com.example.working_timer.util.StartButtonColor
@@ -70,6 +69,7 @@ data class MainScreenActions(
 
 @Composable
 fun MainScreenHolder(
+    modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = hiltViewModel(),
     onNavigateToLog: () -> Unit
 ) {
@@ -141,24 +141,20 @@ fun MainScreenHolder(
             onDiscardWork = { mainViewModel.discardWork() },
             onSaveWork = { mainViewModel.saveWork() },
             onDismissSaveDialog = { mainViewModel.dismissSaveDialog() }
-        )
+        ),
+        modifier = modifier
     )
 }
 
 @Composable
 fun MainScreen(
     state: MainScreenState,
-    actions: MainScreenActions
+    actions: MainScreenActions,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(state.snackbarHostState) },
-        bottomBar = {
-            FooterNavigationBar(
-                selectedIndex = 0,
-                onTimerClick = {},
-                onLogClick = actions.onNavigateToLog
-            )
-        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -255,14 +251,18 @@ fun MainScreen(
         if (state.uiState.showSaveDialog) {
             AlertDialog(
                 onDismissRequest = actions.onDismissSaveDialog,
-                title = { Text(
-                    text = "確認",
-                    style = typography.headlineSmall,
-                ) },
-                text = { Text(
-                    state.uiState.dialogMessage,
-                    style = typography.bodyMedium,
-                ) },
+                title = {
+                    Text(
+                        text = "確認",
+                        style = typography.headlineSmall,
+                    )
+                },
+                text = {
+                    Text(
+                        state.uiState.dialogMessage,
+                        style = typography.bodyMedium,
+                    )
+                },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
                     // ダイアログのメッセージによってボタンの挙動を変える

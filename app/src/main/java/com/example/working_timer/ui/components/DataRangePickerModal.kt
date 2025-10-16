@@ -68,7 +68,8 @@ fun DateRangePickerModal(
                 )
             },
             headline = {
-                val startDate = formatMillisToDateString(dateRangePickerState.selectedStartDateMillis)
+                val startDate =
+                    formatMillisToDateString(dateRangePickerState.selectedStartDateMillis)
                 val endDate = formatMillisToDateString(dateRangePickerState.selectedEndDateMillis)
 
                 val displayText = when {
@@ -96,7 +97,7 @@ fun DateRangePickerModal(
 
 @Preview(showBackground = true, name = "DateRangePickerModal")
 @Composable
-fun DateRangePickerModalPreview () {
+fun DateRangePickerModalPreview() {
     DateRangePickerModal(
         onDateRangeSelected = { },
         onDismiss = { }

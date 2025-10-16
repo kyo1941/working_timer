@@ -53,7 +53,11 @@ class LogViewViewModel @Inject constructor(
     // 初回起動時に現在日時を取得する
     fun init() {
         val cal = Calendar.getInstance()
-        setSelectedDay(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+        setSelectedDay(
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH),
+            cal.get(Calendar.DAY_OF_MONTH)
+        )
         loadWorkList(_uiState.value.selectedDay)
     }
 
@@ -87,12 +91,14 @@ class LogViewViewModel @Inject constructor(
     }
 
     fun showSumDialog(start: Long, end: Long) {
-        _uiState.value = _uiState.value.copy(showSumDialog = true, sumStartDate = start, sumEndDate = end)
+        _uiState.value =
+            _uiState.value.copy(showSumDialog = true, sumStartDate = start, sumEndDate = end)
         calculateSum(start, end)
     }
 
     fun hideSumDialog() {
-        _uiState.value = _uiState.value.copy(showSumDialog = false, sumStartDate = null, sumEndDate = null)
+        _uiState.value =
+            _uiState.value.copy(showSumDialog = false, sumStartDate = null, sumEndDate = null)
     }
 
     fun setTimeCalculationMode(mode: TimeCalculationMode) {
@@ -125,7 +131,7 @@ class LogViewViewModel @Inject constructor(
     }
 
     fun updateTotalWage(wage: Long) {
-        val adjustTotalTime = when(_uiState.value.timeCalculationMode) {
+        val adjustTotalTime = when (_uiState.value.timeCalculationMode) {
             TimeCalculationMode.ROUND_UP -> ceil(initialTotalTime.toDouble() / SECOND_IN_HOURS).toLong() * SECOND_IN_HOURS
             TimeCalculationMode.ROUND_DOWN -> floor(initialTotalTime.toDouble() / SECOND_IN_HOURS).toLong() * SECOND_IN_HOURS
             else -> initialTotalTime

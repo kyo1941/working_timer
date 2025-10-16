@@ -4,15 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.working_timer.navigation.AppNavHost
@@ -33,35 +26,28 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry = navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry.value?.destination
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    Scaffold(
-                        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-                        bottomBar = {
-                            if (currentDestination?.route != Routes.EditWork().routes) {
-                                FooterNavigationBar(
-                                    selectedIndex = when (currentDestination?.route) {
-                                        Routes.Timer.routes -> 0
-                                        Routes.LogView.routes -> 1
-                                        else -> -1
-                                    },
-                                    onTimerClick = {
-                                        navController.navigate(Routes.Timer.routes) {
-                                            launchSingleTop = true
-                                        }
-                                    },
-                                    onLogClick = {
-                                        navController.navigate(Routes.LogView.routes) {
-                                            launchSingleTop = true
-                                        }
+                    AppNavHost(
+                        navController = navController,
+                        footer = {
+                            FooterNavigationBar(
+                                selectedIndex = when (currentDestination?.route) {
+                                    Routes.Timer.routes -> 0
+                                    Routes.LogView.routes -> 1
+                                    else -> -1
+                                },
+                                onTimerClick = {
+                                    navController.navigate(Routes.Timer.routes) {
+                                        launchSingleTop = true
                                     }
-                                )
-                            }
+                                },
+                                onLogClick = {
+                                    navController.navigate(Routes.LogView.routes) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
                         }
-                    ) { paddingValues ->
-                        AppNavHost(
-                            navController = navController,
-                            modifier = Modifier.padding(paddingValues)
-                        )
-                    }
+                    )
                 }
             }
         }

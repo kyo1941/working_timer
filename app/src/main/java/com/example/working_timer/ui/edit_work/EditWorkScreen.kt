@@ -152,10 +152,11 @@ fun EditWorkScreen(
     modifier: Modifier = Modifier
 ) {
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(hostState = state.snackbarHostState) }
     ) { paddingValue ->
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValue),
             verticalArrangement = Arrangement.spacedBy(16.dp),

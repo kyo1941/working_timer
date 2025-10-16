@@ -42,7 +42,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.working_timer.ui.components.FooterNavigationBar
 import com.example.working_timer.util.PauseButtonColor
 import com.example.working_timer.util.ResumeButtonColor
 import com.example.working_timer.util.StartButtonColor
@@ -154,10 +153,11 @@ fun MainScreen(
     modifier: Modifier = Modifier
 ) {
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(state.snackbarHostState) },
     ) { paddingValues ->
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
             verticalArrangement = Arrangement.Center,

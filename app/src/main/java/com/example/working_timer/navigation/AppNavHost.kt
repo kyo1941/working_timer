@@ -1,6 +1,7 @@
 package com.example.working_timer.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +14,7 @@ import com.example.working_timer.ui.main.MainScreenHolder
 
 @Composable
 fun AppNavHost (
+    modifier: Modifier = Modifier,
     navController: NavHostController,
     startDestination: String = Routes.Timer.routes
 ) {
@@ -29,7 +31,8 @@ fun AppNavHost (
                     navController.navigate(Routes.LogView.routes) {
                         launchSingleTop = true
                     }
-                }
+                },
+                modifier = modifier
             )
         }
 

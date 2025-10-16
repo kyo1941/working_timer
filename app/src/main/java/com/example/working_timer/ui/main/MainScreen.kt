@@ -70,6 +70,7 @@ data class MainScreenActions(
 
 @Composable
 fun MainScreenHolder(
+    modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = hiltViewModel(),
     onNavigateToLog: () -> Unit
 ) {
@@ -141,27 +142,22 @@ fun MainScreenHolder(
             onDiscardWork = { mainViewModel.discardWork() },
             onSaveWork = { mainViewModel.saveWork() },
             onDismissSaveDialog = { mainViewModel.dismissSaveDialog() }
-        )
+        ),
+        modifier = modifier
     )
 }
 
 @Composable
 fun MainScreen(
     state: MainScreenState,
-    actions: MainScreenActions
+    actions: MainScreenActions,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(state.snackbarHostState) },
-        bottomBar = {
-            FooterNavigationBar(
-                selectedIndex = 0,
-                onTimerClick = {},
-                onLogClick = actions.onNavigateToLog
-            )
-        }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues),
             verticalArrangement = Arrangement.Center,

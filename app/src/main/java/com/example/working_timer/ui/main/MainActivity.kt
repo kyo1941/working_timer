@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.working_timer.navigation.AppNavHost
 import com.example.working_timer.navigation.Routes
@@ -29,27 +30,31 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 val navController = rememberNavController()
+                val navBackStackEntry = navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry.value?.destination
                 Surface(color = MaterialTheme.colorScheme.background) {
                     Scaffold(
                         contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                         bottomBar = {
-                            FooterNavigationBar(
-                                selectedIndex = when (navController.currentDestination?.route) {
-                                    Routes.Timer.routes -> 0
-                                    Routes.LogView.routes -> 1
-                                    else -> -1
-                                },
-                                onTimerClick = {
-                                    navController.navigate(Routes.Timer.routes) {
-                                        launchSingleTop = true
+                            if (currentDestination?.route != Routes.EditWork().routes) {
+                                FooterNavigationBar(
+                                    selectedIndex = when (currentDestination?.route) {
+                                        Routes.Timer.routes -> 0
+                                        Routes.LogView.routes -> 1
+                                        else -> -1
+                                    },
+                                    onTimerClick = {
+                                        navController.navigate(Routes.Timer.routes) {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onLogClick = {
+                                        navController.navigate(Routes.LogView.routes) {
+                                            launchSingleTop = true
+                                        }
                                     }
-                                },
-                                onLogClick = {
-                                    navController.navigate(Routes.LogView.routes) {
-                                        launchSingleTop = true
-                                    }
-                                }
-                            )
+                                )
+                            }
                         }
                     ) { paddingValues ->
                         AppNavHost(

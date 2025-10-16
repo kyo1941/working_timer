@@ -209,10 +209,11 @@ class TimerService : LifecycleService() {
         }
 
         val channelId = "timer_channel"
-        val notificationIntent = Intent(Intent.ACTION_VIEW, Uri.parse(Routes.TimerDeepLink.routes)).apply {
-            setPackage(packageName)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
+        val notificationIntent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(Routes.TimerDeepLink.routes)).apply {
+                setPackage(packageName)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
@@ -267,10 +268,11 @@ class TimerService : LifecycleService() {
 
     private fun startForegroundService() {
         val channelId = "timer_channel"
-        val notificationIntent = Intent(Intent.ACTION_VIEW, Uri.parse(Routes.TimerDeepLink.routes)).apply {
-            setPackage(packageName)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
+        val notificationIntent =
+            Intent(Intent.ACTION_VIEW, Uri.parse(Routes.TimerDeepLink.routes)).apply {
+                setPackage(packageName)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,

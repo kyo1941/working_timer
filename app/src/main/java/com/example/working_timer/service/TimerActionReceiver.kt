@@ -13,6 +13,7 @@ class TimerActionReceiver : BroadcastReceiver() {
             "ACTION_PAUSE_TIMER" -> {
                 serviceIntent.putExtra("action", "pause")
             }
+
             "ACTION_RESUME_TIMER" -> {
                 serviceIntent.putExtra("action", "resume")
             }

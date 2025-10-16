@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "works")
-data class Work (
+data class Work(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,    // 値そのものが意味を持つものを主キーにしない
     val start_day: String,

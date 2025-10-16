@@ -236,7 +236,8 @@ class MainViewModel @Inject constructor(
         const val RESTING_STATUS = "休憩中"
         const val EMPTY_STATUS = ""
         const val ERROR_MSG_SAVE_FAILED = "保存に失敗しました。再度お試しください。\nエラー:"
-        const val ERROR_MSG_TIME_TOO_SHORT = "1分未満の作業は保存できません。再開または破棄を選択してください。"
+        const val ERROR_MSG_TIME_TOO_SHORT =
+            "1分未満の作業は保存できません。再開または破棄を選択してください。"
         const val ERROR_MSG_DATA_NOT_FOUND = "開始日または開始時刻が正しく取得できませんでした。"
     }
 }

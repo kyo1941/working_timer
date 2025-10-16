@@ -20,7 +20,7 @@ import com.example.working_timer.ui.log_view.LogViewScreenHolder
 import com.example.working_timer.ui.main.MainScreenHolder
 
 @Composable
-fun AppNavHost (
+fun AppNavHost(
     navController: NavHostController,
     startDestination: String = Routes.Timer.routes,
     footer: @Composable () -> Unit,

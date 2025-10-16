@@ -144,7 +144,8 @@ fun LogViewScreen(
             },
             update = { view ->
                 val calendarView = view as CalendarView
-                val dateMillis = if (state.uiState.selectedDay.isNotEmpty()) sdf.parse(state.uiState.selectedDay)?.time else null
+                val dateMillis =
+                    if (state.uiState.selectedDay.isNotEmpty()) sdf.parse(state.uiState.selectedDay)?.time else null
                 if (dateMillis != null) {
                     calendarView.date = dateMillis
                 }

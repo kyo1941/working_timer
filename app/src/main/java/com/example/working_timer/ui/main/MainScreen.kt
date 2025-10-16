@@ -251,14 +251,18 @@ fun MainScreen(
         if (state.uiState.showSaveDialog) {
             AlertDialog(
                 onDismissRequest = actions.onDismissSaveDialog,
-                title = { Text(
-                    text = "確認",
-                    style = typography.headlineSmall,
-                ) },
-                text = { Text(
-                    state.uiState.dialogMessage,
-                    style = typography.bodyMedium,
-                ) },
+                title = {
+                    Text(
+                        text = "確認",
+                        style = typography.headlineSmall,
+                    )
+                },
+                text = {
+                    Text(
+                        state.uiState.dialogMessage,
+                        style = typography.bodyMedium,
+                    )
+                },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
                     // ダイアログのメッセージによってボタンの挙動を変える

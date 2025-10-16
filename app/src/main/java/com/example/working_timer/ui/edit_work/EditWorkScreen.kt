@@ -102,7 +102,10 @@ fun EditWorkScreenHolder(
                         snackbarHostState.showSnackbar(event.message)
                     }
                 }
-                EditWorkViewModel.UiEvent.SaveSuccess -> { onNavigateBack() }
+
+                EditWorkViewModel.UiEvent.SaveSuccess -> {
+                    onNavigateBack()
+                }
             }
         }
     }
@@ -124,7 +127,12 @@ fun EditWorkScreenHolder(
             onUpdateEndTime = { editWorkViewModel.updateEndTime(it) },
             onUpdateStartDay = { editWorkViewModel.updateStartDay(it) },
             onUpdateEndDay = { editWorkViewModel.updateEndDay(it) },
-            onUpdateElapsedTime = { hour, minute -> editWorkViewModel.updateElapsedTime(hour, minute) },
+            onUpdateElapsedTime = { hour, minute ->
+                editWorkViewModel.updateElapsedTime(
+                    hour,
+                    minute
+                )
+            },
             onSaveWork = { editWorkViewModel.saveWork(id, isNew, it) },
             onClearZeroMinutesError = { editWorkViewModel.clearZeroMinutesError() },
             onClearStartEndError = { editWorkViewModel.clearStartEndError() },

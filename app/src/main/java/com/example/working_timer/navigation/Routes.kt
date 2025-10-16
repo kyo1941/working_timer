@@ -1,8 +1,8 @@
 package com.example.working_timer.navigation
 
 sealed class Routes(val routes: String) {
-    object Timer: Routes("timer")
-    object LogView: Routes("log_view")
+    object Timer : Routes("timer")
+    object LogView : Routes("log_view")
     data class EditWork(
         val id: Int = 0,
         val startDay: String = "",
@@ -12,10 +12,10 @@ sealed class Routes(val routes: String) {
             id: Int = 0,
             startDay: String = "",
             isNew: Boolean = true
-        ) : String {
+        ): String {
             return "edit_work/$id/$startDay/$isNew"
         }
     }
 
-    object TimerDeepLink: Routes("app://working_timer/timer")
+    object TimerDeepLink : Routes("app://working_timer/timer")
 }

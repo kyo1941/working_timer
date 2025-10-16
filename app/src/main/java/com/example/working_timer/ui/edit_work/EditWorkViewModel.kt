@@ -72,11 +72,20 @@ class EditWorkViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentState = _uiState.value
-                val elapsedTime = currentState.elapsedHour * SECOND_IN_HOURS + currentState.elapsedMinute * SECOND_IN_MINUTES
+                val elapsedTime =
+                    currentState.elapsedHour * SECOND_IN_HOURS + currentState.elapsedMinute * SECOND_IN_MINUTES
 
                 val dateTimeFormat = SimpleDateFormat(DATE_TIME_PATTERN, Locale.getDefault())
-                val startDateTimeMillis = try { dateTimeFormat.parse("${currentState.startDay} ${currentState.startTime}")?.time } catch (e: ParseException) { null }
-                val endDateTimeMillis = try { dateTimeFormat.parse("${currentState.endDay} ${currentState.endTime}")?.time } catch (e: ParseException) { null }
+                val startDateTimeMillis = try {
+                    dateTimeFormat.parse("${currentState.startDay} ${currentState.startTime}")?.time
+                } catch (e: ParseException) {
+                    null
+                }
+                val endDateTimeMillis = try {
+                    dateTimeFormat.parse("${currentState.endDay} ${currentState.endTime}")?.time
+                } catch (e: ParseException) {
+                    null
+                }
 
                 if (startDateTimeMillis == null || endDateTimeMillis == null) {
                     _uiEvent.emit(UiEvent.ShowSnackbar(ERROR_MSG_DATE_TIME_PATTERN))

@@ -53,7 +53,8 @@ fun AppNavHost (
                     ) {
                         launchSingleTop = true
                     }
-                }
+                },
+                modifier = modifier
             )
         }
 

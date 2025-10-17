@@ -74,16 +74,15 @@ fun MainScreenHolder(
     onNavigateToLog: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
+    val snackbarEvent = mainViewModel.snackbarEvent
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // ViewModelからのsnackbarMessage監視
-    LaunchedEffect(uiState.snackbarMessage) {
-        uiState.snackbarMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            mainViewModel.clearSnackbarMessage()
+    LaunchedEffect(Unit) {
+        snackbarEvent.collect { message ->
+            snackbarHostState.showSnackbar(context.getString(R.string.error_save_prefix) + message)
         }
     }
 
@@ -95,15 +94,14 @@ fun MainScreenHolder(
         }
     }
 
-    // 通知権限ランチャー
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         scope.launch {
             val message = if (isGranted) {
-                "通知が許可されました。"
+                context.getString(R.string.permission_is_granted)
             } else {
-                "通知が拒否されました。"
+                context.getString(R.string.permission_is_denied)
             }
             snackbarHostState.showSnackbar(message)
         }

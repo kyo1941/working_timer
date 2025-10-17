@@ -9,6 +9,7 @@ import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.domain.repository.WorkRepository
 import com.example.working_timer.util.Constants.ONE_MINUTE_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +30,6 @@ data class MainUiState(
     val showSaveDialog: Boolean = false,
     val dialogMessage: String = "",
     val isErrorDialog: Boolean = false,
-    val snackbarMessage: String? = null,
     val navigateToLog: Boolean = false,
 )
 
@@ -41,6 +41,9 @@ class MainViewModel @Inject constructor(
 ) : ViewModel(), TimerListener {
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState
+
+    private val _snackbarEvent = MutableSharedFlow<String>()
+    val snackbarEvent: MutableSharedFlow<String> = _snackbarEvent
 
     init {
         timerManager.setListener(this)
@@ -64,11 +67,9 @@ class MainViewModel @Inject constructor(
     }
 
     override fun onError(error: String) {
-        _uiState.value = _uiState.value.copy(snackbarMessage = error)
-    }
-
-    fun clearSnackbarMessage() {
-        _uiState.value = _uiState.value.copy(snackbarMessage = null)
+        viewModelScope.launch {
+            _snackbarEvent.emit(error)
+        }
     }
 
     private fun updateUiState() {
@@ -182,20 +183,15 @@ class MainViewModel @Inject constructor(
                 elapsed_time = saveElapsedTime
             )
 
-            // 保存処理
             try {
                 workRepository.insert(work)
-                timerManager.stopTimer()
-                updateUiState()
-                dismissSaveDialog()
                 _uiState.value = _uiState.value.copy(navigateToLog = true)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    showSaveDialog = true,
-                    dialogMessage = "$ERROR_MSG_SAVE_FAILED ${e.message}",
-                    isErrorDialog = true
-                )
+                snackbarEvent.emit(e.message ?: "不明なエラー")
             }
+            timerManager.stopTimer()
+            updateUiState()
+            dismissSaveDialog()
         }
     }
 
@@ -214,7 +210,6 @@ class MainViewModel @Inject constructor(
     }
 
     companion object {
-        const val ERROR_MSG_SAVE_FAILED = "保存に失敗しました。再度お試しください。\nエラー:"
         const val ERROR_MSG_TIME_TOO_SHORT =
             "1分未満の作業は保存できません。再開または破棄を選択してください。"
         const val ERROR_MSG_DATA_NOT_FOUND = "開始日または開始時刻が正しく取得できませんでした。"

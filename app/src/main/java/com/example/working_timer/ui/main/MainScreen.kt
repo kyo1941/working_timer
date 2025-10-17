@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -50,6 +51,7 @@ import com.example.working_timer.util.StartButtonColor
 import com.example.working_timer.util.StatusPauseColor
 import com.example.working_timer.util.StatusWorkingColor
 import com.example.working_timer.util.StopButtonColor
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
 data class MainScreenState(
@@ -200,46 +202,34 @@ fun MainScreen(
                 ) {
                     Spacer(Modifier.weight(1f))
 
-                    Button(
-                        onClick = actions.onStopTimer,
-                        modifier = Modifier.size(100.dp),
-                        shape = RoundedCornerShape(40.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = StopButtonColor)
-                    ) {
-                        Text(stringResource(R.string.stop_timer_button_text), fontSize = 20.sp, color = Color.White)
-                    }
+                    TimerButton(
+                        text = stringResource(R.string.stop_timer_button_text),
+                        color = StopButtonColor,
+                        onClick = actions.onStopTimer
+                    )
 
                     Spacer(Modifier.weight(1f))
 
-                    Button(
-                        onClick = actions.onPauseTimer,
-                        modifier = Modifier.size(100.dp),
-                        shape = RoundedCornerShape(40.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = PauseButtonColor)
-                    ) {
-                        Text(stringResource(R.string.pause_timer_button_text), fontSize = 20.sp, color = Color.White)
-                    }
+                    TimerButton(
+                        text = stringResource(R.string.pause_timer_button_text),
+                        color = PauseButtonColor,
+                        onClick = actions.onPauseTimer
+                    )
 
                     Spacer(Modifier.weight(1f))
                 }
 
-                TimerStatus.RESTING -> Button(
-                    onClick = actions.onResumeTimer,
-                    modifier = Modifier.size(100.dp),
-                    shape = RoundedCornerShape(40.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = ResumeButtonColor)
-                ) {
-                    Text(stringResource(R.string.resume_timer_button_text), fontSize = 20.sp, color = Color.White)
-                }
+                TimerStatus.RESTING -> TimerButton(
+                    text = stringResource(R.string.resume_timer_button_text),
+                    color = ResumeButtonColor,
+                    onClick = actions.onResumeTimer
+                )
 
-                null -> Button(
-                    onClick = actions.onStartTimer,
-                    modifier = Modifier.size(100.dp),
-                    shape = RoundedCornerShape(40.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = StartButtonColor)
-                ) {
-                    Text(stringResource(R.string.start_timer_button_text), fontSize = 20.sp, color = Color.White)
-                }
+                null -> TimerButton(
+                    text = stringResource(R.string.start_timer_button_text),
+                    color = StartButtonColor,
+                    onClick = actions.onStartTimer
+                )
             }
 
             Spacer(Modifier.weight(1f))
@@ -327,6 +317,18 @@ private fun formatElapsedTime(elapsedTime: Long): String {
         stringResource(R.string.elapsed_time_hms, hours, minutes, seconds)
     } else {
         stringResource(R.string.elapsed_time_ms, minutes, seconds)
+    }
+}
+
+@Composable
+fun TimerButton(text: String, color: Color, onClick: () -> Unit) {
+    FloatingActionButton(
+        onClick = onClick,
+        containerColor = color,
+        shape = RoundedCornerShape(40.dp),
+        modifier = Modifier.size(100.dp)
+    ) {
+        Text(text, fontSize = 20.sp, color = Color.White)
     }
 }
 

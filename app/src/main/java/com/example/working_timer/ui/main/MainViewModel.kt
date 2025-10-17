@@ -19,8 +19,8 @@ import java.util.Locale
 import javax.inject.Inject
 
 sealed interface TimerStatus {
-    object WORKING : TimerStatus
-    object RESTING : TimerStatus
+    object Working : TimerStatus
+    object Resting : TimerStatus
 }
 
 data class MainUiState(
@@ -76,8 +76,8 @@ class MainViewModel @Inject constructor(
         val elapsedTime = timerManager.getElapsedTime()
 
         val timerStatus = when {
-            isRunning -> TimerStatus.WORKING
-            elapsedTime > 0 -> TimerStatus.RESTING
+            isRunning -> TimerStatus.Working
+            elapsedTime > 0 -> TimerStatus.Resting
             else -> null
         }
 

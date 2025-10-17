@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
@@ -51,7 +49,6 @@ import com.example.working_timer.util.StartButtonColor
 import com.example.working_timer.util.StatusPauseColor
 import com.example.working_timer.util.StatusWorkingColor
 import com.example.working_timer.util.StopButtonColor
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
 data class MainScreenState(
@@ -171,15 +168,15 @@ fun MainScreen(
             state.uiState.timerStatus?.let {
                 Text(
                     text = when(state.uiState.timerStatus) {
-                        TimerStatus.WORKING -> stringResource(R.string.working_status)
-                        TimerStatus.RESTING -> stringResource(R.string.resting_status)
+                        TimerStatus.Working -> stringResource(R.string.working_status)
+                        TimerStatus.Resting -> stringResource(R.string.resting_status)
                     },
                     textAlign = TextAlign.Center,
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
                     color = when (state.uiState.timerStatus) {
-                        TimerStatus.WORKING -> StatusWorkingColor
-                        TimerStatus.RESTING -> StatusPauseColor
+                        TimerStatus.Working -> StatusWorkingColor
+                        TimerStatus.Resting -> StatusPauseColor
                     }
                 )
             }
@@ -196,7 +193,7 @@ fun MainScreen(
             Spacer(Modifier.weight(1f))
 
             when (state.uiState.timerStatus) {
-                TimerStatus.WORKING -> Row(
+                TimerStatus.Working -> Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -219,7 +216,7 @@ fun MainScreen(
                     Spacer(Modifier.weight(1f))
                 }
 
-                TimerStatus.RESTING -> TimerButton(
+                TimerStatus.Resting -> TimerButton(
                     text = stringResource(R.string.resume_timer_button_text),
                     color = ResumeButtonColor,
                     onClick = actions.onResumeTimer
@@ -355,7 +352,7 @@ fun MainScreenPreviewBeforeStart() {
 @Composable
 fun MainScreenPreviewWorking() {
     val state = MainUiState(
-        timerStatus = TimerStatus.WORKING,
+        timerStatus = TimerStatus.Working,
         elapsedTime = 5025000L,
     )
     MainScreen(
@@ -374,7 +371,7 @@ fun MainScreenPreviewWorking() {
 @Composable
 fun MainScreenPreviewPaused() {
     val state = MainUiState(
-        timerStatus = TimerStatus.RESTING,
+        timerStatus = TimerStatus.Resting,
         elapsedTime = 754000L,
     )
     MainScreen(
@@ -393,7 +390,7 @@ fun MainScreenPreviewPaused() {
 @Composable
 fun MainScreenPreviewSaveDialog() {
     val sampleState = MainUiState(
-        timerStatus = TimerStatus.WORKING,
+        timerStatus = TimerStatus.Working,
         elapsedTime = 5025000L,
         showSaveDialog = true,
         dialogMessage = """
@@ -421,7 +418,7 @@ fun MainScreenPreviewSaveDialog() {
 @Composable
 fun MainScreenPreviewSaveDialogError() {
     val state = MainUiState(
-        timerStatus = TimerStatus.WORKING,
+        timerStatus = TimerStatus.Working,
         showSaveDialog = true,
         dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
         isErrorDialog = true

@@ -7,6 +7,10 @@
     <string name="error_save_dialog">保存に失敗しました。再度お試しください。</string>
     <string name="error_time_too_short">1分未満の作業は保存できません。再会または破棄を選択してください。</string>
     <string name="error_data_not_found">開始日または開始時刻が正しく取得できませんでした。</string>
+    <string name="start_timer_button_text">開始</string>
+    <string name="stop_timer_button_text">終了</string>
+    <string name="resume_timer_button_text">再開</string>
+    <string name="pause_timer_button_text">休憩</string>
 
     <string name="elapsed_time_hms">%02d:%02d:%02d</string>
     <string name="elapsed_time_ms">%02d:%02d</string>

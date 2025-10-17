@@ -25,8 +25,6 @@ sealed interface TimerStatus {
 
 data class MainUiState(
     val timerStatus: TimerStatus? = null,
-    val isTimerRunning: Boolean = false,
-    val isPaused: Boolean = false,
     val elapsedTime: Long = 0L,
     val showSaveDialog: Boolean = false,
     val dialogMessage: String = "",
@@ -85,8 +83,6 @@ class MainViewModel @Inject constructor(
 
         _uiState.value = _uiState.value.copy(
             timerStatus = timerStatus,
-            isTimerRunning = isRunning,
-            isPaused = !isRunning && elapsedTime > 0,
             elapsedTime = elapsedTime
         )
     }

@@ -193,21 +193,8 @@ fun MainScreen(
 
             Spacer(Modifier.weight(1f))
 
-            // 開始ボタン
-            if (!state.uiState.isTimerRunning && !state.uiState.isPaused) {
-                Button(
-                    onClick = actions.onStartTimer,
-                    modifier = Modifier.size(100.dp),
-                    shape = RoundedCornerShape(40.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = StartButtonColor)
-                ) {
-                    Text("開始", fontSize = 20.sp, color = Color.White)
-                }
-            }
-
-            // 終了、休憩ボタン
-            if (state.uiState.isTimerRunning) {
-                Row(
+            when (state.uiState.timerStatus) {
+                TimerStatus.WORKING -> Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -235,17 +222,23 @@ fun MainScreen(
 
                     Spacer(Modifier.weight(1f))
                 }
-            }
 
-            // 再開ボタン
-            if (state.uiState.isPaused) {
-                Button(
+                TimerStatus.RESTING -> Button(
                     onClick = actions.onResumeTimer,
                     modifier = Modifier.size(100.dp),
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = ResumeButtonColor)
                 ) {
                     Text("再開", fontSize = 20.sp, color = Color.White)
+                }
+
+                null -> Button(
+                    onClick = actions.onStartTimer,
+                    modifier = Modifier.size(100.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = StartButtonColor)
+                ) {
+                    Text("開始", fontSize = 20.sp, color = Color.White)
                 }
             }
 
@@ -342,8 +335,6 @@ private fun formatElapsedTime(elapsedTime: Long): String {
 fun MainScreenPreviewBeforeStart() {
     val state = MainUiState(
         timerStatus = null,
-        isTimerRunning = false,
-        isPaused = false,
         showSaveDialog = false
     )
     MainScreen(
@@ -363,8 +354,6 @@ fun MainScreenPreviewBeforeStart() {
 fun MainScreenPreviewWorking() {
     val state = MainUiState(
         timerStatus = TimerStatus.WORKING,
-        isTimerRunning = true,
-        isPaused = false,
         elapsedTime = 5025000L,
     )
     MainScreen(
@@ -384,8 +373,6 @@ fun MainScreenPreviewWorking() {
 fun MainScreenPreviewPaused() {
     val state = MainUiState(
         timerStatus = TimerStatus.RESTING,
-        isTimerRunning = false,
-        isPaused = true,
         elapsedTime = 754000L,
     )
     MainScreen(
@@ -405,8 +392,6 @@ fun MainScreenPreviewPaused() {
 fun MainScreenPreviewSaveDialog() {
     val sampleState = MainUiState(
         timerStatus = TimerStatus.WORKING,
-        isTimerRunning = true,
-        isPaused = false,
         elapsedTime = 5025000L,
         showSaveDialog = true,
         dialogMessage = """
@@ -435,8 +420,6 @@ fun MainScreenPreviewSaveDialog() {
 fun MainScreenPreviewSaveDialogError() {
     val state = MainUiState(
         timerStatus = TimerStatus.WORKING,
-        isTimerRunning = true,
-        isPaused = false,
         showSaveDialog = true,
         dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
         isErrorDialog = true

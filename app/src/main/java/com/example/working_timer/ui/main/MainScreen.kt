@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,17 +43,17 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.working_timer.R
 import com.example.working_timer.util.PauseButtonColor
 import com.example.working_timer.util.ResumeButtonColor
 import com.example.working_timer.util.StartButtonColor
-import com.example.working_timer.util.StatusDefaultColor
 import com.example.working_timer.util.StatusPauseColor
 import com.example.working_timer.util.StatusWorkingColor
 import com.example.working_timer.util.StopButtonColor
 import kotlinx.coroutines.launch
 
 data class MainScreenState(
-    val uiState: TimerUiState,
+    val uiState: MainUiState,
     val snackbarHostState: SnackbarHostState
 )
 
@@ -165,17 +166,21 @@ fun MainScreen(
         ) {
             Spacer(Modifier.weight(1f))
 
-            Text(
-                text = state.uiState.status,
-                textAlign = TextAlign.Center,
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Bold,
-                color = when (state.uiState.status) {
-                    "労働中" -> StatusWorkingColor
-                    "休憩中" -> StatusPauseColor
-                    else -> StatusDefaultColor
-                }
-            )
+            state.uiState.timerStatus?.let {
+                Text(
+                    text = when(state.uiState.timerStatus) {
+                        TimerStatus.WORKING -> stringResource(R.string.working_status)
+                        TimerStatus.RESTING -> stringResource(R.string.resting_status)
+                    },
+                    textAlign = TextAlign.Center,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = when (state.uiState.timerStatus) {
+                        TimerStatus.WORKING -> StatusWorkingColor
+                        TimerStatus.RESTING -> StatusPauseColor
+                    }
+                )
+            }
 
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -321,8 +326,8 @@ fun MainScreen(
 @Preview(showBackground = true, name = "BeforeStart")
 @Composable
 fun MainScreenPreviewBeforeStart() {
-    val state = TimerUiState(
-        status = "",
+    val state = MainUiState(
+        timerStatus = null,
         timerText = "00:00",
         isTimerRunning = false,
         isPaused = false,
@@ -343,8 +348,8 @@ fun MainScreenPreviewBeforeStart() {
 @Preview(showBackground = true, name = "Working")
 @Composable
 fun MainScreenPreviewWorking() {
-    val state = TimerUiState(
-        status = "労働中",
+    val state = MainUiState(
+        timerStatus = TimerStatus.WORKING,
         timerText = "00:12:34",
         isTimerRunning = true,
         isPaused = false
@@ -364,8 +369,8 @@ fun MainScreenPreviewWorking() {
 @Preview(showBackground = true, name = "Paused")
 @Composable
 fun MainScreenPreviewPaused() {
-    val state = TimerUiState(
-        status = "休憩中",
+    val state = MainUiState(
+        timerStatus = TimerStatus.RESTING,
         timerText = "05:00",
         isTimerRunning = false,
         isPaused = true
@@ -385,8 +390,8 @@ fun MainScreenPreviewPaused() {
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreviewSaveDialog() {
-    val sampleState = TimerUiState(
-        status = "労働中",
+    val sampleState = MainUiState(
+        timerStatus = TimerStatus.WORKING,
         timerText = "01:23:45",
         isTimerRunning = true,
         isPaused = false,
@@ -416,8 +421,8 @@ fun MainScreenPreviewSaveDialog() {
 @Preview(showBackground = true, name = "SaveDialog_Error")
 @Composable
 fun MainScreenPreviewSaveDialogError() {
-    val state = TimerUiState(
-        status = "労働中",
+    val state = MainUiState(
+        timerStatus = TimerStatus.WORKING,
         timerText = "00:00",
         isTimerRunning = true,
         isPaused = false,

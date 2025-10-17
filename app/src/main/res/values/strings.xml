@@ -2,4 +2,9 @@
     <string name="app_name">労働記録</string>
     <string name="new_record">新規作成</string>
     <string name="edit_record">記録を編集</string>
+    <string name="working_status">労働中</string>
+    <string name="resting_status">休憩中</string>
+    <string name="error_save_dialog">保存に失敗しました。再度お試しください。</string>
+    <string name="error_time_too_short">1分未満の作業は保存できません。再会または破棄を選択してください。</string>
+    <string name="error_data_not_found">開始日または開始時刻が正しく取得できませんでした。</string>
 </resources>

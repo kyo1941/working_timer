@@ -18,9 +18,13 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
-// UIの状態を保持するためのデータクラス
-data class TimerUiState(
-    val status: String = "",
+sealed interface TimerStatus {
+    object WORKING : TimerStatus
+    object RESTING : TimerStatus
+}
+
+data class MainUiState(
+    val timerStatus: TimerStatus? = null,
     val timerText: String = "00:00",
     val isTimerRunning: Boolean = false,
     val isPaused: Boolean = false,
@@ -38,8 +42,8 @@ class MainViewModel @Inject constructor(
     private val timerManager: TimerManager,
     private val dataStoreManager: DataStoreManager
 ) : ViewModel(), TimerListener {
-    private val _uiState = MutableStateFlow(TimerUiState())
-    val uiState: StateFlow<TimerUiState> = _uiState
+    private val _uiState = MutableStateFlow(MainUiState())
+    val uiState: StateFlow<MainUiState> = _uiState
 
     init {
         timerManager.setListener(this)
@@ -88,13 +92,13 @@ class MainViewModel @Inject constructor(
         val isRunning = timerManager.isTimerRunning()
         val elapsedTime = timerManager.getElapsedTime()
 
-        val status = when {
-            isRunning -> WORKING_STATUS
-            elapsedTime > 0 -> RESTING_STATUS
-            else -> EMPTY_STATUS
+        val timerStatus = when {
+            isRunning -> TimerStatus.WORKING
+            elapsedTime > 0 -> TimerStatus.RESTING
+            else -> null
         }
         _uiState.value = _uiState.value.copy(
-            status = status,
+            timerStatus = timerStatus,
             isTimerRunning = isRunning,
             isPaused = !isRunning && elapsedTime > 0,
             elapsedTime = elapsedTime
@@ -232,8 +236,6 @@ class MainViewModel @Inject constructor(
     }
 
     companion object {
-        const val WORKING_STATUS = "労働中"
-        const val RESTING_STATUS = "休憩中"
         const val EMPTY_STATUS = ""
         const val ERROR_MSG_SAVE_FAILED = "保存に失敗しました。再度お試しください。\nエラー:"
         const val ERROR_MSG_TIME_TOO_SHORT =

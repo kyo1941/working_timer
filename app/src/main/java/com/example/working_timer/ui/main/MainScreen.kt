@@ -206,7 +206,7 @@ fun MainScreen(
                         shape = RoundedCornerShape(40.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = StopButtonColor)
                     ) {
-                        Text("終了", fontSize = 20.sp, color = Color.White)
+                        Text(stringResource(R.string.stop_timer_button_text), fontSize = 20.sp, color = Color.White)
                     }
 
                     Spacer(Modifier.weight(1f))
@@ -217,7 +217,7 @@ fun MainScreen(
                         shape = RoundedCornerShape(40.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = PauseButtonColor)
                     ) {
-                        Text("休憩", fontSize = 20.sp, color = Color.White)
+                        Text(stringResource(R.string.pause_timer_button_text), fontSize = 20.sp, color = Color.White)
                     }
 
                     Spacer(Modifier.weight(1f))
@@ -229,7 +229,7 @@ fun MainScreen(
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = ResumeButtonColor)
                 ) {
-                    Text("再開", fontSize = 20.sp, color = Color.White)
+                    Text(stringResource(R.string.resume_timer_button_text), fontSize = 20.sp, color = Color.White)
                 }
 
                 null -> Button(
@@ -238,7 +238,7 @@ fun MainScreen(
                     shape = RoundedCornerShape(40.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = StartButtonColor)
                 ) {
-                    Text("開始", fontSize = 20.sp, color = Color.White)
+                    Text(stringResource(R.string.start_timer_button_text), fontSize = 20.sp, color = Color.White)
                 }
             }
 

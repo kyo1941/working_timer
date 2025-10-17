@@ -185,7 +185,7 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = state.uiState.timerText,
+                text = formatElapsedTime(state.uiState.elapsedTime),
                 textAlign = TextAlign.Center,
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold
@@ -323,12 +323,25 @@ fun MainScreen(
     }
 }
 
+@Composable
+private fun formatElapsedTime(elapsedTime: Long): String {
+    val totalSeconds = elapsedTime / 1000
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+
+    return if (hours > 0) {
+        stringResource(R.string.elapsed_time_hms, hours, minutes, seconds)
+    } else {
+        stringResource(R.string.elapsed_time_ms, minutes, seconds)
+    }
+}
+
 @Preview(showBackground = true, name = "BeforeStart")
 @Composable
 fun MainScreenPreviewBeforeStart() {
     val state = MainUiState(
         timerStatus = null,
-        timerText = "00:00",
         isTimerRunning = false,
         isPaused = false,
         showSaveDialog = false
@@ -350,9 +363,9 @@ fun MainScreenPreviewBeforeStart() {
 fun MainScreenPreviewWorking() {
     val state = MainUiState(
         timerStatus = TimerStatus.WORKING,
-        timerText = "00:12:34",
         isTimerRunning = true,
-        isPaused = false
+        isPaused = false,
+        elapsedTime = 5025000L,
     )
     MainScreen(
         state = MainScreenState(
@@ -371,9 +384,9 @@ fun MainScreenPreviewWorking() {
 fun MainScreenPreviewPaused() {
     val state = MainUiState(
         timerStatus = TimerStatus.RESTING,
-        timerText = "05:00",
         isTimerRunning = false,
-        isPaused = true
+        isPaused = true,
+        elapsedTime = 754000L,
     )
     MainScreen(
         state = MainScreenState(
@@ -392,7 +405,6 @@ fun MainScreenPreviewPaused() {
 fun MainScreenPreviewSaveDialog() {
     val sampleState = MainUiState(
         timerStatus = TimerStatus.WORKING,
-        timerText = "01:23:45",
         isTimerRunning = true,
         isPaused = false,
         elapsedTime = 5025000L,
@@ -423,7 +435,6 @@ fun MainScreenPreviewSaveDialog() {
 fun MainScreenPreviewSaveDialogError() {
     val state = MainUiState(
         timerStatus = TimerStatus.WORKING,
-        timerText = "00:00",
         isTimerRunning = true,
         isPaused = false,
         showSaveDialog = true,

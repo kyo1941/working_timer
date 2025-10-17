@@ -25,7 +25,6 @@ sealed interface TimerStatus {
 
 data class MainUiState(
     val timerStatus: TimerStatus? = null,
-    val timerText: String = "00:00",
     val isTimerRunning: Boolean = false,
     val isPaused: Boolean = false,
     val elapsedTime: Long = 0L,
@@ -52,14 +51,14 @@ class MainViewModel @Inject constructor(
 
     private fun loadElapsedTime() {
         viewModelScope.launch {
-            val savedElapsedTime = dataStoreManager.getElapsedTimeSync() ?: 0L
-            updateTimerText(savedElapsedTime)
+            val savedElapsedTime = dataStoreManager.getElapsedTimeSync()
+            _uiState.value = _uiState.value.copy(elapsedTime = savedElapsedTime)
             updateUiState()
         }
     }
 
     override fun onTimerTick(elapsedTime: Long) {
-        updateTimerText(elapsedTime)
+        _uiState.value = _uiState.value.copy(elapsedTime = elapsedTime)
     }
 
     override fun updateUI() {
@@ -74,20 +73,6 @@ class MainViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(snackbarMessage = null)
     }
 
-    private fun updateTimerText(elapsedTime: Long) {
-        val rep_sec_time = elapsedTime / 1000
-        val hours = (rep_sec_time / 3600).toInt()
-        val minutes = ((rep_sec_time / 60) % 60).toInt()
-        val seconds = (rep_sec_time % 60).toInt()
-        val formattedTime = if (hours > 0) {
-            String.format("%02d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            String.format("%02d:%02d", minutes, seconds)
-        }
-        _uiState.value = _uiState.value.copy(timerText = formattedTime, elapsedTime = elapsedTime)
-    }
-
-    // UIの状態を更新するヘルパー関数
     private fun updateUiState() {
         val isRunning = timerManager.isTimerRunning()
         val elapsedTime = timerManager.getElapsedTime()
@@ -97,13 +82,13 @@ class MainViewModel @Inject constructor(
             elapsedTime > 0 -> TimerStatus.RESTING
             else -> null
         }
+
         _uiState.value = _uiState.value.copy(
             timerStatus = timerStatus,
             isTimerRunning = isRunning,
             isPaused = !isRunning && elapsedTime > 0,
             elapsedTime = elapsedTime
         )
-        updateTimerText(elapsedTime)
     }
 
     fun startTimer() {
@@ -163,7 +148,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    // ダイアログを閉じる
     fun dismissSaveDialog() {
         _uiState.value = _uiState.value.copy(
             showSaveDialog = false,
@@ -171,7 +155,6 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    // 作業を保存
     fun saveWork() {
         viewModelScope.launch {
             val elapsedTime = timerManager.getElapsedTime()
@@ -220,7 +203,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    // 作業を破棄
     fun discardWork() {
         timerManager.stopTimer()
         updateUiState()

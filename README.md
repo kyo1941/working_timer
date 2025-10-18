@@ -18,6 +18,13 @@
 | **CI** | GitHub Actions |
 | **その他** | Dagger Hilt<br> Navigation Compose<br> Kotlin Coroutines |
 
+### その他
+- minSdk = 26
+- targetSdk = 36
+- compileSdk = 36
+
+※ Edge-To-Edge対応済み
+
 ## 構成
 ```
 ├── data
@@ -95,5 +102,6 @@
 ### テスト
 ユニットテスト カバレッジ
 https://github.com/kyo1941/working_timer/pull/111
+
 
 

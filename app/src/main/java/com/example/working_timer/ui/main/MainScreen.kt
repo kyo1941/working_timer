@@ -75,22 +75,20 @@ fun MainScreenHolder(
     onNavigateToLog: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
-    val snackbarEvent = mainViewModel.snackbarEvent
     val snackbarHostState = remember { SnackbarHostState() }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        snackbarEvent.collect { message ->
+        mainViewModel.snackbarEvent.collect { message ->
             snackbarHostState.showSnackbar(context.getString(R.string.error_save_prefix) + message)
         }
     }
 
-    LaunchedEffect(uiState.navigateToLog) {
-        if (uiState.navigateToLog) {
+    LaunchedEffect(Unit) {
+        mainViewModel.navigateToLog.collect {
             onNavigateToLog()
-            mainViewModel.onNavigationHandled()
         }
     }
 

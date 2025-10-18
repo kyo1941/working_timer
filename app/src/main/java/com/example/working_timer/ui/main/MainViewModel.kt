@@ -34,7 +34,6 @@ data class MainUiState(
     val timerStatus: TimerStatus? = null,
     val elapsedTime: Long = 0L,
     val dialogStatus: DialogStatus? = null,
-    val navigateToLog: Boolean = false,
 )
 
 @HiltViewModel
@@ -48,6 +47,9 @@ class MainViewModel @Inject constructor(
 
     private val _snackbarEvent = MutableSharedFlow<String>()
     val snackbarEvent: MutableSharedFlow<String> = _snackbarEvent
+
+    private val _navigateToLog = MutableSharedFlow<Unit>()
+    val navigateToLog: MutableSharedFlow<Unit> = _navigateToLog
 
     init {
         timerManager.setListener(this)
@@ -165,7 +167,7 @@ class MainViewModel @Inject constructor(
 
             try {
                 workRepository.insert(work)
-                _uiState.value = _uiState.value.copy(navigateToLog = true)
+                _navigateToLog.emit(Unit)
             } catch (e: Exception) {
                 snackbarEvent.emit(e.message ?: "不明なエラー")
             }
@@ -183,9 +185,5 @@ class MainViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         timerManager.removeListener()
-    }
-
-    fun onNavigationHandled() {
-        _uiState.value = _uiState.value.copy(navigateToLog = false)
     }
 }

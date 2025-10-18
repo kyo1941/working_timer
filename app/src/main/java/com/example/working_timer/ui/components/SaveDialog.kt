@@ -99,7 +99,7 @@ fun SaveDialog(
                 }
 
                 Row(
-
+                    modifier = Modifier.padding(top = 8.dp)
                 ) {
                     TextButton(
                         onClick = onNeutral

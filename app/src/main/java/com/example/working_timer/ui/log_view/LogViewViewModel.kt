@@ -17,14 +17,12 @@ import javax.inject.Inject
 import kotlin.math.ceil
 import kotlin.math.floor
 
-// 時間計算のモードを定義する列挙型
 enum class TimeCalculationMode {
     NORMAL,    // 通常計算
     ROUND_UP,  // 繰り上げ
     ROUND_DOWN // 繰り下げ
 }
 
-// UI状態を保持するデータクラス
 data class LogViewUiState(
     val selectedDay: String = "",
     val workList: List<Work> = emptyList(),

@@ -131,12 +131,12 @@ fun MainScreenHolder(
                     }
                 }
             },
-            onStopTimer = { mainViewModel.stopTimer() },
-            onPauseTimer = { mainViewModel.pauseTimer() },
-            onResumeTimer = { mainViewModel.resumeTimer() },
-            onDiscardWork = { mainViewModel.discardWork() },
-            onSaveWork = { mainViewModel.saveWork() },
-            onDismissSaveDialog = { mainViewModel.dismissSaveDialog() }
+            onStopTimer = mainViewModel::stopTimer,
+            onPauseTimer = mainViewModel::pauseTimer,
+            onResumeTimer = mainViewModel::resumeTimer,
+            onDiscardWork = mainViewModel::discardWork,
+            onSaveWork = mainViewModel::saveWork,
+            onDismissSaveDialog = mainViewModel::dismissSaveDialog
         ),
         modifier = modifier
     )

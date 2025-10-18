@@ -14,24 +14,26 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.example.working_timer.R
 import com.example.working_timer.util.BackgroundColor
 
 
 @Composable
 fun SaveDialog(
-    stateDate: String,
+    startDate: String,
     elapsedTime: Long,
     onConfirm: () -> Unit,
     onNeutral: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     Dialog(
-        onDismissRequest = { /* なにもしない */ },
+        onDismissRequest = {},
         properties = DialogProperties(dismissOnClickOutside = false),
     ) {
         Surface(
@@ -42,13 +44,13 @@ fun SaveDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "確認",
+                    text = stringResource(R.string.title_save_dialog),
                     style = typography.headlineSmall,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 Text(
-                    text = "作業内容を保存しますか？",
+                    text = stringResource(R.string.check_save_work),
                     style = typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -61,7 +63,7 @@ fun SaveDialog(
                 ) {
                     val (labelStartDate, valueStartDate, labelElapsedTime, valueElapsedTime) = createRefs()
                     Text(
-                        text = "開始日",
+                        text = stringResource(R.string.start_date_label),
                         style = typography.bodyMedium,
                         modifier = Modifier.constrainAs(labelStartDate) {
                             start.linkTo(parent.start)
@@ -70,7 +72,7 @@ fun SaveDialog(
                     )
 
                     Text(
-                        text = stateDate,
+                        text = startDate,
                         style = typography.bodyMedium,
                         modifier = Modifier.constrainAs(valueStartDate) {
                             end.linkTo(parent.end)
@@ -78,7 +80,7 @@ fun SaveDialog(
                     )
 
                     Text(
-                        text = "経過時間",
+                        text = stringResource(R.string.elapsed_time_label),
                         style = typography.bodyMedium,
                         modifier = Modifier.constrainAs(labelElapsedTime) {
                             start.linkTo(parent.start)
@@ -102,7 +104,7 @@ fun SaveDialog(
                     TextButton(
                         onClick = onNeutral
                     ) {
-                        Text(text = "再開")
+                        Text(text = stringResource(R.string.resume_timer_button_text))
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
@@ -110,13 +112,13 @@ fun SaveDialog(
                     TextButton(
                         onClick = onDismiss
                     ) {
-                        Text(text = "破棄")
+                        Text(text = stringResource(R.string.discard_dialog_button_text))
                     }
 
                     TextButton(
                         onClick = onConfirm
                     ) {
-                        Text(text = "保存")
+                        Text(text = stringResource(R.string.save_dialog_button_text))
                     }
                 }
             }
@@ -132,14 +134,18 @@ private fun formatElapsedTime(elapsedTime: Long) : String {
     val minutes = (totalSeconds % 3600) / 60
     val seconds = totalSeconds % 60
 
-    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    return if (hours > 0) {
+        stringResource(R.string.elapsed_time_hms_ja, hours, minutes, seconds)
+    } else {
+        stringResource(R.string.elapsed_time_ms_ja, minutes, seconds)
+    }
 }
 
 @Composable
 @Preview
 private fun SaveDialogPreview() {
     SaveDialog(
-        stateDate = "2024-06-01",
+        startDate = "2024-06-01",
         elapsedTime = 3661000L,
         onConfirm = {},
         onNeutral = {},

@@ -24,12 +24,16 @@ sealed interface TimerStatus {
     object Resting : TimerStatus
 }
 
+sealed interface DialogStatus {
+    data class SaveDialog(val startDate: String, val elapsedTime: Long) : DialogStatus
+    object TooShortTimeErrorDialog : DialogStatus
+    object DataNotFoundErrorDialog : DialogStatus
+}
+
 data class MainUiState(
     val timerStatus: TimerStatus? = null,
     val elapsedTime: Long = 0L,
-    val showSaveDialog: Boolean = false,
-    val dialogMessage: String = "",
-    val isErrorDialog: Boolean = false,
+    val dialogStatus: DialogStatus? = null,
     val navigateToLog: Boolean = false,
 )
 
@@ -115,41 +119,21 @@ class MainViewModel @Inject constructor(
             val startTime = dataStoreManager.getStartTimeSync()
 
             if (startDate == null || startTime == null) {
-                _uiState.value = _uiState.value.copy(
-                    showSaveDialog = true,
-                    dialogMessage = ERROR_MSG_DATA_NOT_FOUND,
-                    isErrorDialog = true
-                )
+                _uiState.value = _uiState.value.copy(dialogStatus = DialogStatus.DataNotFoundErrorDialog)
                 return@launch
             }
 
-            val rep_sec_time = elapsedTime / 1000
-            val hours = (rep_sec_time / 3600).toInt()
-            val minutes = ((rep_sec_time / 60) % 60).toInt()
-            val formattedTime = if (hours > 0) {
-                String.format("%2d時間 %2d分", hours, minutes)
-            } else {
-                String.format("%2d分", minutes)
-            }
-
             _uiState.value = _uiState.value.copy(
-                showSaveDialog = true,
-                dialogMessage = """
-                開始日 ： $startDate
-                経過時間 ： $formattedTime
-
-                今回の作業記録を保存しますか？
-            """.trimIndent(),
-                isErrorDialog = false
+                dialogStatus = DialogStatus.SaveDialog(
+                    startDate = startDate,
+                    elapsedTime = elapsedTime
+                )
             )
         }
     }
 
     fun dismissSaveDialog() {
-        _uiState.value = _uiState.value.copy(
-            showSaveDialog = false,
-            isErrorDialog = false
-        )
+        _uiState.value = _uiState.value.copy(dialogStatus = null)
     }
 
     fun saveWork() {
@@ -159,11 +143,7 @@ class MainViewModel @Inject constructor(
             val startTime = dataStoreManager.getStartTimeSync() ?: return@launch
 
             if (elapsedTime < ONE_MINUTE_MS) {
-                _uiState.value = _uiState.value.copy(
-                    showSaveDialog = true,
-                    dialogMessage = ERROR_MSG_TIME_TOO_SHORT,
-                    isErrorDialog = true
-                )
+                _uiState.value = _uiState.value.copy(dialogStatus = DialogStatus.TooShortTimeErrorDialog)
                 return@launch
             }
 
@@ -207,11 +187,5 @@ class MainViewModel @Inject constructor(
 
     fun onNavigationHandled() {
         _uiState.value = _uiState.value.copy(navigateToLog = false)
-    }
-
-    companion object {
-        const val ERROR_MSG_TIME_TOO_SHORT =
-            "1分未満の作業は保存できません。再開または破棄を選択してください。"
-        const val ERROR_MSG_DATA_NOT_FOUND = "開始日または開始時刻が正しく取得できませんでした。"
     }
 }

@@ -43,6 +43,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.working_timer.R
+import com.example.working_timer.ui.components.SaveDialog
 import com.example.working_timer.util.PauseButtonColor
 import com.example.working_timer.util.ResumeButtonColor
 import com.example.working_timer.util.StartButtonColor
@@ -86,7 +87,6 @@ fun MainScreenHolder(
         }
     }
 
-    // ナビゲーション処理はステートフルで管理
     LaunchedEffect(uiState.navigateToLog) {
         if (uiState.navigateToLog) {
             onNavigateToLog()
@@ -126,7 +126,7 @@ fun MainScreenHolder(
                 }
                 if (!hasPermission) {
                     scope.launch {
-                        snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
+                        snackbarHostState.showSnackbar(context.getString(R.string.explain_notification_permission))
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -230,73 +230,43 @@ fun MainScreen(
             Spacer(Modifier.weight(1f))
         }
 
-        // 保存確認ダイアログ
-        if (state.uiState.showSaveDialog) {
-            AlertDialog(
-                onDismissRequest = actions.onDismissSaveDialog,
-                title = {
-                    Text(
-                        text = "確認",
-                        style = typography.headlineSmall,
-                    )
+        when(state.uiState.dialogStatus) {
+            is DialogStatus.SaveDialog -> SaveDialog(
+                startDate = state.uiState.dialogStatus.startDate,
+                elapsedTime = state.uiState.dialogStatus.elapsedTime,
+                onConfirm = actions.onSaveWork,
+                onNeutral = {
+                    actions.onResumeTimer()
+                    actions.onDismissSaveDialog()
                 },
-                text = {
-                    Text(
-                        state.uiState.dialogMessage,
-                        style = typography.bodyMedium,
-                    )
-                },
-                properties = DialogProperties(dismissOnClickOutside = false),
-                confirmButton = {
-                    // ダイアログのメッセージによってボタンの挙動を変える
-                    if (state.uiState.isErrorDialog) {
-                        Row {
-                            Spacer(modifier = Modifier.weight(0.1f))
-                            TextButton(onClick = {
-                                actions.onDiscardWork()
-                                actions.onDismissSaveDialog()
-                            }) {
-                                Text("破棄")
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            TextButton(onClick = {
-                                actions.onResumeTimer()
-                                actions.onDismissSaveDialog()
-                            }) {
-                                Text("再開")
-                            }
-
-                            Spacer(modifier = Modifier.weight(0.1f))
-                        }
-                    } else {
-                        Row {
-                            TextButton(onClick = {
-                                actions.onDiscardWork()
-                                actions.onDismissSaveDialog()
-                            }) {
-                                Text("破棄")
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            TextButton(onClick = {
-                                actions.onResumeTimer()
-                                actions.onDismissSaveDialog()
-                            }) {
-                                Text("再開")
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            TextButton(onClick = actions.onSaveWork) {
-                                Text("保存")
-                            }
-                        }
-                    }
+                onDismiss = {
+                    actions.onDiscardWork()
+                    actions.onDismissSaveDialog()
                 }
             )
+            is DialogStatus.TooShortTimeErrorDialog -> ErrorAlertDialog(
+                message = stringResource(R.string.error_time_too_short),
+                onClick = {
+                    actions.onResumeTimer()
+                    actions.onDismissSaveDialog()
+                },
+                onDismiss = {
+                    actions.onDiscardWork()
+                    actions.onDismissSaveDialog()
+                }
+            )
+            is DialogStatus.DataNotFoundErrorDialog -> ErrorAlertDialog(
+                message = stringResource(R.string.error_data_not_found),
+                onClick = {
+                    actions.onResumeTimer()
+                    actions.onDismissSaveDialog()
+                },
+                onDismiss = {
+                    actions.onDiscardWork()
+                    actions.onDismissSaveDialog()
+                }
+            )
+            null -> {}
         }
     }
 }
@@ -316,7 +286,7 @@ private fun formatElapsedTime(elapsedTime: Long): String {
 }
 
 @Composable
-fun TimerButton(text: String, color: Color, onClick: () -> Unit) {
+private fun TimerButton(text: String, color: Color, onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
         containerColor = color,
@@ -327,13 +297,44 @@ fun TimerButton(text: String, color: Color, onClick: () -> Unit) {
     }
 }
 
+@Composable
+private fun ErrorAlertDialog(
+    message: String,
+    onClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = {},
+        title = {
+            Text(
+                text = stringResource(R.string.title_save_dialog),
+                style = typography.headlineSmall
+            )
+        },
+        text = {
+            Text(
+                text = message,
+                style = typography.bodyMedium
+            )
+        },
+        properties = DialogProperties(dismissOnClickOutside = false),
+        confirmButton = {
+            TextButton(onClick = onClick) {
+                Text(stringResource(R.string.resume_timer_button_text))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.discard_dialog_button_text))
+            }
+        }
+    )
+}
+
 @Preview(showBackground = true, name = "BeforeStart")
 @Composable
 fun MainScreenPreviewBeforeStart() {
-    val state = MainUiState(
-        timerStatus = null,
-        showSaveDialog = false
-    )
+    val state = MainUiState(timerStatus = null)
     MainScreen(
         state = MainScreenState(
             uiState = state,
@@ -390,14 +391,10 @@ fun MainScreenPreviewSaveDialog() {
     val sampleState = MainUiState(
         timerStatus = TimerStatus.Working,
         elapsedTime = 5025000L,
-        showSaveDialog = true,
-        dialogMessage = """
-            開始日 ： 2025-09-02
-            経過時間 ： 1時間 23分
-
-            今回の作業記録を保存しますか？
-        """.trimIndent(),
-        isErrorDialog = false
+        dialogStatus = DialogStatus.SaveDialog(
+            startDate = "2025-09-02",
+            elapsedTime = 5025000L
+        )
     )
 
     MainScreen(
@@ -417,9 +414,7 @@ fun MainScreenPreviewSaveDialog() {
 fun MainScreenPreviewSaveDialogError() {
     val state = MainUiState(
         timerStatus = TimerStatus.Working,
-        showSaveDialog = true,
-        dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
-        isErrorDialog = true
+        dialogStatus = DialogStatus.TooShortTimeErrorDialog
     )
     MainScreen(
         state = MainScreenState(

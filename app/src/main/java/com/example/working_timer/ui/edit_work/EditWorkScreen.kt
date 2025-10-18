@@ -95,13 +95,13 @@ fun EditWorkScreenHolder(
         // イベントを監視する
         editWorkViewModel.uiEvent.collectLatest { event ->
             when (event) {
-                is EditWorkViewModel.UiEvent.ShowSnackbar -> {
+                is UiEvent.ShowSnackbar -> {
                     scope.launch {
                         snackbarHostState.showSnackbar(event.message)
                     }
                 }
 
-                EditWorkViewModel.UiEvent.SaveSuccess -> {
+                UiEvent.SaveSuccess -> {
                     onNavigateBack()
                 }
             }

@@ -19,6 +19,11 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
+sealed interface UiEvent {
+    data class ShowSnackbar(val message: String) : UiEvent
+    object SaveSuccess : UiEvent
+}
+
 data class EditWorkUiState(
     val startDay: String = "",
     val endDay: String = "",
@@ -38,11 +43,6 @@ class EditWorkViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(EditWorkUiState())
     val uiState = _uiState.asStateFlow()
-
-    sealed class UiEvent {
-        data class ShowSnackbar(val message: String) : UiEvent()
-        object SaveSuccess : UiEvent()
-    }
 
     private val _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
@@ -108,7 +108,6 @@ class EditWorkViewModel @Inject constructor(
                     return@launch
                 }
 
-                // データベースへの保存処理
                 if (!isNew) {
                     val work = Work(
                         id = id,

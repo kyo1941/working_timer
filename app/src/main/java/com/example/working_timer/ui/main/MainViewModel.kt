@@ -34,7 +34,18 @@ data class MainUiState(
     val timerStatus: TimerStatus? = null,
     val elapsedTime: Long = 0L,
     val dialogStatus: DialogStatus? = null,
-)
+) {
+    private val totalSeconds = elapsedTime / 1000
+    private val hours = totalSeconds / 3600
+    private val minutes = (totalSeconds % 3600) / 60
+    private val seconds = totalSeconds % 60
+
+    val displayText =  if (hours > 0) {
+        String.format(Locale.ROOT, "%02d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
+    }
+}
 
 @HiltViewModel
 class MainViewModel @Inject constructor(

@@ -163,7 +163,7 @@ fun MainScreen(
 
             state.uiState.timerStatus?.let {
                 Text(
-                    text = when(state.uiState.timerStatus) {
+                    text = when (state.uiState.timerStatus) {
                         TimerStatus.Working -> stringResource(R.string.working_status)
                         TimerStatus.Resting -> stringResource(R.string.resting_status)
                     },
@@ -180,7 +180,7 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = formatElapsedTime(state.uiState.elapsedTime),
+                text = state.uiState.displayText,
                 textAlign = TextAlign.Center,
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold
@@ -266,20 +266,6 @@ fun MainScreen(
             )
             null -> {}
         }
-    }
-}
-
-@Composable
-private fun formatElapsedTime(elapsedTime: Long): String {
-    val totalSeconds = elapsedTime / 1000
-    val hours = totalSeconds / 3600
-    val minutes = (totalSeconds % 3600) / 60
-    val seconds = totalSeconds % 60
-
-    return if (hours > 0) {
-        stringResource(R.string.elapsed_time_hms, hours, minutes, seconds)
-    } else {
-        stringResource(R.string.elapsed_time_ms, minutes, seconds)
     }
 }
 

@@ -26,8 +26,6 @@
     <string name="permission_is_denied">通知が拒否されました。</string>
     <string name="explain_notification_permission">通知をONにすると、タイマーの進行状況が確認できます。</string>
 
-    <string name="elapsed_time_hms">%02d:%02d:%02d</string>
-    <string name="elapsed_time_ms">%02d:%02d</string>
     <string name="elapsed_time_hms_ja">%02d時間 %02d分 %02d秒</string>
     <string name="elapsed_time_ms_ja">%02d分 %02d秒</string>
 </resources>

@@ -10,9 +10,10 @@ import com.example.working_timer.domain.repository.WorkRepository
 import com.example.working_timer.util.Constants.ONE_MINUTE_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -70,13 +71,13 @@ class MainViewModel @Inject constructor(
     private fun loadElapsedTime() {
         viewModelScope.launch {
             val savedElapsedTime = dataStoreManager.getElapsedTimeSync()
-            _uiState.value = _uiState.value.copy(elapsedTime = savedElapsedTime)
+            _uiState.update { it.copy(elapsedTime = savedElapsedTime) }
             updateUiState()
         }
     }
 
     override fun onTimerTick(elapsedTime: Long) {
-        _uiState.value = _uiState.value.copy(elapsedTime = elapsedTime)
+        _uiState.update { it.copy(elapsedTime = elapsedTime) }
     }
 
     override fun updateUI() {
@@ -99,10 +100,12 @@ class MainViewModel @Inject constructor(
             else -> null
         }
 
-        _uiState.value = _uiState.value.copy(
-            timerStatus = timerStatus,
-            elapsedTime = elapsedTime
-        )
+        _uiState.update {
+            it.copy(
+                timerStatus = timerStatus,
+                elapsedTime = elapsedTime
+            )
+        }
     }
 
     fun startTimer() {
@@ -132,21 +135,23 @@ class MainViewModel @Inject constructor(
             val startTime = dataStoreManager.getStartTimeSync()
 
             if (startDate == null || startTime == null) {
-                _uiState.value = _uiState.value.copy(dialogStatus = DialogStatus.DataNotFoundErrorDialog)
+                _uiState.update { it.copy(dialogStatus = DialogStatus.DataNotFoundErrorDialog) }
                 return@launch
             }
 
-            _uiState.value = _uiState.value.copy(
-                dialogStatus = DialogStatus.SaveDialog(
-                    startDate = startDate,
-                    elapsedTime = elapsedTime
+            _uiState.update {
+                it.copy(
+                    dialogStatus = DialogStatus.SaveDialog(
+                        startDate = startDate,
+                        elapsedTime = elapsedTime
+                    )
                 )
-            )
+            }
         }
     }
 
     fun dismissSaveDialog() {
-        _uiState.value = _uiState.value.copy(dialogStatus = null)
+        _uiState.update { it.copy(dialogStatus = null) }
     }
 
     fun saveWork() {
@@ -156,7 +161,7 @@ class MainViewModel @Inject constructor(
             val startTime = dataStoreManager.getStartTimeSync() ?: return@launch
 
             if (elapsedTime < ONE_MINUTE_MS) {
-                _uiState.value = _uiState.value.copy(dialogStatus = DialogStatus.TooShortTimeErrorDialog)
+                _uiState.update { it.copy(dialogStatus = DialogStatus.TooShortTimeErrorDialog) }
                 return@launch
             }
 

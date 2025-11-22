@@ -9,6 +9,7 @@ import com.example.working_timer.util.Constants.SECOND_IN_MINUTES
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -65,19 +66,19 @@ class LogViewViewModel @Inject constructor(
     }
 
     fun loadWorkList(day: String) {
-        _uiState.value = _uiState.value.copy(isLoading = true, selectedDay = day)
+        _uiState.update { it.copy(isLoading = true, selectedDay = day) }
         viewModelScope.launch {
             val works = workRepository.getWorksByDay(day)
-            _uiState.value = _uiState.value.copy(workList = works, isLoading = false)
+            _uiState.update { it.copy(workList = works, isLoading = false) }
         }
     }
 
     fun showDeleteDialog(work: Work) {
-        _uiState.value = _uiState.value.copy(showDeleteDialog = true, workToDelete = work)
+        _uiState.update { it.copy(showDeleteDialog = true, workToDelete = work) }
     }
 
     fun hideDeleteDialog() {
-        _uiState.value = _uiState.value.copy(showDeleteDialog = false, workToDelete = null)
+        _uiState.update { it.copy(showDeleteDialog = false, workToDelete = null) }
     }
 
     fun deleteWork(work: Work) {
@@ -89,18 +90,20 @@ class LogViewViewModel @Inject constructor(
     }
 
     fun showSumDialog(start: Long, end: Long) {
-        _uiState.value =
-            _uiState.value.copy(showSumDialog = true, sumStartDate = start, sumEndDate = end)
+        _uiState.update {
+            it.copy(showSumDialog = true, sumStartDate = start, sumEndDate = end)
+        }
         calculateSum(start, end)
     }
 
     fun hideSumDialog() {
-        _uiState.value =
-            _uiState.value.copy(showSumDialog = false, sumStartDate = null, sumEndDate = null)
+        _uiState.update {
+            it.copy(showSumDialog = false, sumStartDate = null, sumEndDate = null)
+        }
     }
 
     fun setTimeCalculationMode(mode: TimeCalculationMode) {
-        _uiState.value = _uiState.value.copy(timeCalculationMode = mode)
+        _uiState.update { it.copy(timeCalculationMode = mode) }
     }
 
     private fun calculateSum(start: Long, end: Long) {
@@ -121,10 +124,12 @@ class LogViewViewModel @Inject constructor(
 
             initialTotalTime = totalTime
 
-            _uiState.value = _uiState.value.copy(
-                totalHours = totalHours,
-                totalMinutes = totalMinutes
-            )
+            _uiState.update {
+                it.copy(
+                    totalHours = totalHours,
+                    totalMinutes = totalMinutes
+                )
+            }
         }
     }
 
@@ -139,10 +144,12 @@ class LogViewViewModel @Inject constructor(
         val adjustTotalMinutes = (adjustTotalTime % SECOND_IN_HOURS) / SECOND_IN_MINUTES
         val totalWage = (adjustTotalTime * wage) / SECOND_IN_HOURS
 
-        _uiState.value = _uiState.value.copy(
-            totalHours = adjustTotalHours,
-            totalMinutes = adjustTotalMinutes,
-            totalWage = totalWage
-        )
+        _uiState.update {
+            it.copy(
+                totalHours = adjustTotalHours,
+                totalMinutes = adjustTotalMinutes,
+                totalWage = totalWage
+            )
+        }
     }
 }

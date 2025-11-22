@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -50,14 +51,16 @@ class EditWorkViewModel @Inject constructor(
     fun init(id: Int, isNew: Boolean, startDay: String) {
         if (isNew) {
             // 新規作成時は初期値を設定する
-            _uiState.value = _uiState.value.copy(
-                startDay = startDay,
-                endDay = startDay,
-                startTime = "00:00",
-                endTime = "00:00",
-                elapsedHour = 0,
-                elapsedMinute = 0
-            )
+            _uiState.update {
+                it.copy(
+                    startDay = startDay,
+                    endDay = startDay,
+                    startTime = "00:00",
+                    endTime = "00:00",
+                    elapsedHour = 0,
+                    elapsedMinute = 0
+                )
+            }
         } else {
             // DBから記録を読み込む
             getWork(id)
@@ -93,18 +96,18 @@ class EditWorkViewModel @Inject constructor(
                 }
 
                 if (elapsedTime <= 0) {
-                    _uiState.value = _uiState.value.copy(showZeroMinutesError = true)
+                    _uiState.update { it.copy(showZeroMinutesError = true) }
                     return@launch
                 }
 
                 if (startDateTimeMillis > endDateTimeMillis) {
-                    _uiState.value = _uiState.value.copy(showStartEndError = true)
+                    _uiState.update { it.copy(showStartEndError = true) }
                     return@launch
                 }
 
                 val diffSeconds = (endDateTimeMillis - startDateTimeMillis) / 1000
                 if (!forceSave && diffSeconds < elapsedTime) {
-                    _uiState.value = _uiState.value.copy(showElapsedTimeOver = true)
+                    _uiState.update { it.copy(showElapsedTimeOver = true) }
                     return@launch
                 }
 
@@ -141,48 +144,50 @@ class EditWorkViewModel @Inject constructor(
     private fun getWork(id: Int) {
         viewModelScope.launch {
             workRepository.getWork(id).firstOrNull()?.let { work ->
-                _uiState.value = _uiState.value.copy(
-                    startDay = work.start_day,
-                    endDay = work.end_day,
-                    startTime = work.start_time,
-                    endTime = work.end_time,
-                    elapsedHour = work.elapsed_time / SECOND_IN_HOURS,
-                    elapsedMinute = (work.elapsed_time % SECOND_IN_HOURS) / SECOND_IN_MINUTES
-                )
+                _uiState.update {
+                    it.copy(
+                        startDay = work.start_day,
+                        endDay = work.end_day,
+                        startTime = work.start_time,
+                        endTime = work.end_time,
+                        elapsedHour = work.elapsed_time / SECOND_IN_HOURS,
+                        elapsedMinute = (work.elapsed_time % SECOND_IN_HOURS) / SECOND_IN_MINUTES
+                    )
+                }
             }
         }
     }
 
     fun updateStartDay(value: String) {
-        _uiState.value = _uiState.value.copy(startDay = value)
+        _uiState.update { it.copy(startDay = value) }
     }
 
     fun updateEndDay(value: String) {
-        _uiState.value = _uiState.value.copy(endDay = value)
+        _uiState.update { it.copy(endDay = value) }
     }
 
     fun updateStartTime(value: String) {
-        _uiState.value = _uiState.value.copy(startTime = value)
+        _uiState.update { it.copy(startTime = value) }
     }
 
     fun updateEndTime(value: String) {
-        _uiState.value = _uiState.value.copy(endTime = value)
+        _uiState.update { it.copy(endTime = value) }
     }
 
     fun updateElapsedTime(hour: Long, minute: Long) {
-        _uiState.value = _uiState.value.copy(elapsedHour = hour, elapsedMinute = minute)
+        _uiState.update { it.copy(elapsedHour = hour, elapsedMinute = minute) }
     }
 
     fun clearZeroMinutesError() {
-        _uiState.value = _uiState.value.copy(showZeroMinutesError = false)
+        _uiState.update { it.copy(showZeroMinutesError = false) }
     }
 
     fun clearStartEndError() {
-        _uiState.value = _uiState.value.copy(showStartEndError = false)
+        _uiState.update { it.copy(showStartEndError = false) }
     }
 
     fun clearElapsedTimeOver() {
-        _uiState.value = _uiState.value.copy(showElapsedTimeOver = false)
+        _uiState.update { it.copy(showElapsedTimeOver = false) }
     }
 
     companion object {

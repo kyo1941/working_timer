@@ -28,4 +28,90 @@
 
     <string name="elapsed_time_hms_ja">%02d時間 %02d分 %02d秒</string>
     <string name="elapsed_time_ms_ja">%02d分 %02d秒</string>
+
+    <!-- MaterialTimePickerDialog -->
+    <string name="time_picker_dialog_title">時刻を選択</string>
+    <string name="time_picker_dialog_cancel_button">キャンセル</string>
+    <string name="time_picker_dialog_ok_button">OK</string>
+    <string name="time_picker_dialog_mode_switch_description">モード切替</string>
+
+    <!-- EditWorkScreen -->
+    <string name="edit_work_screen_start_label">開始</string>
+    <string name="edit_work_screen_end_label">終了</string>
+    <string name="edit_work_screen_elapsed_time_label">活動時間</string>
+    <string name="edit_work_screen_hour_unit"> 時間 </string>
+    <string name="edit_work_screen_minute_unit"> 分</string>
+    <string name="edit_work_screen_cancel_button">キャンセル</string>
+    <string name="edit_work_screen_save_button">保存</string>
+    <string name="edit_work_screen_error_dialog_title">エラー</string>
+    <string name="edit_work_screen_warning_dialog_title">注意</string>
+    <string name="edit_work_screen_zero_minutes_error_message">1分以上からのみ記録が可能です。</string>
+    <string name="edit_work_screen_start_end_error_message">開始時刻が終了時刻を超えています。</string>
+    <string name="edit_work_screen_elapsed_time_over_warning_message">活動時間が時間差より大きいです。
+このまま保存しますか？</string>
+    <string name="edit_work_screen_dialog_ok_button">OK</string>
+    <string name="edit_work_screen_warning_dialog_cancel_button">キャンセル</string>
+    <string name="edit_work_screen_warning_dialog_save_button">保存</string>
+
+    <!-- TimerService -->
+    <string name="timer_notification_channel_name">Timer Service Channel</string>
+    <string name="timer_notification_channel_description">Channel for Timer Service</string>
+    <string name="timer_notification_title">%1$s   %2$s</string>
+    <string name="timer_notification_working_status">労働中</string>
+    <string name="timer_notification_resting_status">休憩中</string>
+    <string name="timer_notification_pause_action">一時停止</string>
+    <string name="timer_notification_resume_action">再開</string>
+
+    <!-- LogViewScreen -->
+    <string name="log_view_add_button_description">追加</string>
+    <string name="log_view_calculate_salary_button_description">給料計算</string>
+    <string name="log_view_delete_dialog_title">確認</string>
+    <string name="log_view_delete_dialog_message">本当にこの記録を削除しますか？</string>
+    <string name="log_view_delete_dialog_yes_button">はい</string>
+    <string name="log_view_delete_dialog_no_button">いいえ</string>
+    <string name="log_view_sum_dialog_title">計算結果</string>
+    <string name="log_view_sum_dialog_period">期間: %1$s ~ %2$s</string>
+    <string name="log_view_sum_dialog_total_work_time">合計勤務時間: %1$d時間 %2$d分</string>
+    <string name="log_view_sum_dialog_salary">給料: %s 円</string>
+    <string name="log_view_sum_dialog_hourly_wage_label">時給</string>
+    <string name="log_view_sum_dialog_share_button">共有</string>
+    <string name="log_view_sum_dialog_close_button">閉じる</string>
+    <string name="log_view_time_calculation_mode_normal">通常</string>
+    <string name="log_view_time_calculation_mode_round_up">繰り上げ</string>
+    <string name="log_view_time_calculation_mode_round_down">繰り下げ</string>
+    <string name="log_view_share_subject">共有</string>
+    <string name="log_view_share_period">期間 %1$s ~ %2$s</string>
+    <string name="log_view_share_hourly_wage">時給 %s 円</string>
+    <string name="log_view_share_total_work_time">合計 %d時間 %d分</string>
+    <string name="log_view_share_salary">給料 %s 円</string>
+
+    <!-- FooterNavigationBar -->
+    <string name="footer_navigation_bar_record_label">記録</string>
+    <string name="footer_navigation_bar_record_content_description">記録</string>
+    <string name="footer_navigation_bar_history_label">履歴</string>
+    <string name="footer_navigation_bar_history_content_description">履歴</string>
+
+    <!-- WorkItemComposable -->
+    <string name="work_item_activity_time_label">活動時間    </string>
+    <string name="work_item_hour_unit">時間 </string>
+    <string name="work_item_minute_unit">分</string>
+    <string name="work_item_start_time_label">開始  %s</string>
+    <string name="work_item_end_time_label">終了  %s</string>
+    <string name="work_item_edit_button_description">編集</string>
+    <string name="work_item_delete_button_description">削除</string>
+
+    <!-- EditWorkViewModel -->
+    <string name="edit_work_view_model_error_invalid_date_time_format">日付または時刻の形式が無効です。</string>
+    <string name="edit_work_view_model_error_database">データベースエラーが発生しました。</string>
+    <string name="edit_work_view_model_error_unknown">予期しないエラーが発生しました: %1$s</string>
+    <string name="edit_work_view_model_error_unknown_detail">詳細不明</string>
+
+    <!-- DateRangePickerModal -->
+    <string name="date_range_picker_title">期間を選択</string>
+    <string name="date_range_picker_start_date_label">開始日</string>
+    <string name="date_range_picker_end_date_label">終了日</string>
+    <string name="date_range_picker_ok_button">OK</string>
+    <string name="date_range_picker_close_button">閉じる</string>
+    <string name="date_range_picker_headline">%1$s - %2$s</string>
+
 </resources>

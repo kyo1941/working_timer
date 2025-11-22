@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
@@ -15,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.working_timer.R
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -47,12 +49,12 @@ fun DateRangePickerModal(
                     onDismiss()
                 }
             ) {
-                Text("OK")
+                Text(stringResource(id = R.string.date_range_picker_ok_button))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("閉じる")
+                Text(stringResource(id = R.string.date_range_picker_close_button))
             }
         }
     ) {
@@ -60,7 +62,7 @@ fun DateRangePickerModal(
             state = dateRangePickerState,
             title = {
                 Text(
-                    text = "期間を選択",
+                    text = stringResource(id = R.string.date_range_picker_title),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp),
@@ -72,10 +74,13 @@ fun DateRangePickerModal(
                     formatMillisToDateString(dateRangePickerState.selectedStartDateMillis)
                 val endDate = formatMillisToDateString(dateRangePickerState.selectedEndDateMillis)
 
+                val startLabel = stringResource(id = R.string.date_range_picker_start_date_label)
+                val endLabel = stringResource(id = R.string.date_range_picker_end_date_label)
+
                 val displayText = when {
-                    startDate.isNotEmpty() && endDate.isNotEmpty() -> "$startDate - $endDate"
-                    startDate.isNotEmpty() -> "$startDate - 終了日"
-                    else -> "開始日 - 終了日"
+                    startDate.isNotEmpty() && endDate.isNotEmpty() -> stringResource(id = R.string.date_range_picker_headline, startDate, endDate)
+                    startDate.isNotEmpty() -> stringResource(id = R.string.date_range_picker_headline, startDate, endLabel)
+                    else -> stringResource(id = R.string.date_range_picker_headline, startLabel, endLabel)
                 }
 
                 Text(

@@ -14,6 +14,7 @@ import java.util.Locale
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.LocalContext
@@ -80,6 +81,7 @@ fun EditWorkScreenHolder(
     val uiState by editWorkViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // Pickerの表示状態を管理
     var showStartTimePicker by remember { mutableStateOf(false) }
@@ -96,8 +98,16 @@ fun EditWorkScreenHolder(
         editWorkViewModel.uiEvent.collectLatest { event ->
             when (event) {
                 is UiEvent.ShowSnackbar -> {
+                    val message = when (event.error) {
+                        is EditWorkError.InvalidDateTimeFormat -> context.getString(R.string.edit_work_view_model_error_invalid_date_time_format)
+                        is EditWorkError.DatabaseError -> context.getString(R.string.edit_work_view_model_error_database)
+                        is EditWorkError.UnknownError -> {
+                            val detail = event.error.message ?:  context.getString(R.string.edit_work_view_model_error_unknown_detail)
+                             context.getString(R.string.edit_work_view_model_error_unknown, detail)
+                        }
+                    }
                     scope.launch {
-                        snackbarHostState.showSnackbar(event.message)
+                        snackbarHostState.showSnackbar(message)
                     }
                 }
 
@@ -182,7 +192,7 @@ fun EditWorkScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = "開始",
+                text = stringResource(id = R.string.edit_work_screen_start_label),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 40.dp)
@@ -227,7 +237,7 @@ fun EditWorkScreen(
             }
 
             Text(
-                text = "終了",
+                text = stringResource(id = R.string.edit_work_screen_end_label),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 40.dp)
@@ -272,7 +282,7 @@ fun EditWorkScreen(
             }
 
             Text(
-                text = "活動時間",
+                text = stringResource(id = R.string.edit_work_screen_elapsed_time_label),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 40.dp)
@@ -294,12 +304,12 @@ fun EditWorkScreen(
                                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                     append(String.format("%2d", state.uiState.elapsedHour))
                                 }
-                                append(" 時間 ")
+                                append(stringResource(id = R.string.edit_work_screen_hour_unit))
                             }
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append(String.format("%2d", state.uiState.elapsedMinute))
                             }
-                            append(" 分")
+                            append(stringResource(id = R.string.edit_work_screen_minute_unit))
                         },
                         style = MaterialTheme.typography.headlineSmall.copy(
                             textDecoration = TextDecoration.Underline,
@@ -322,7 +332,7 @@ fun EditWorkScreen(
                         .width(120.dp)
                         .height(56.dp)
                 ) {
-                    Text("キャンセル")
+                    Text(stringResource(id = R.string.edit_work_screen_cancel_button))
                 }
 
                 Spacer(modifier = Modifier.width(64.dp))
@@ -333,7 +343,7 @@ fun EditWorkScreen(
                         .width(120.dp)
                         .height(56.dp)
                 ) {
-                    Text("保存")
+                    Text(stringResource(id = R.string.edit_work_screen_save_button))
                 }
             }
 
@@ -403,12 +413,12 @@ fun EditWorkScreen(
         if (state.uiState.showZeroMinutesError) {
             AlertDialog(
                 onDismissRequest = actions.onClearZeroMinutesError,
-                title = { Text("エラー") },
-                text = { Text("1分以上からのみ記録が可能です。") },
+                title = { Text(stringResource(id = R.string.edit_work_screen_error_dialog_title)) },
+                text = { Text(stringResource(id = R.string.edit_work_screen_zero_minutes_error_message)) },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
                     TextButton(onClick = actions.onClearZeroMinutesError) {
-                        Text("OK")
+                        Text(stringResource(id = R.string.edit_work_screen_dialog_ok_button))
                     }
                 }
             )
@@ -417,12 +427,12 @@ fun EditWorkScreen(
         if (state.uiState.showStartEndError) {
             AlertDialog(
                 onDismissRequest = actions.onClearStartEndError,
-                title = { Text("エラー") },
-                text = { Text("開始時刻が終了時刻を超えています。") },
+                title = { Text(stringResource(id = R.string.edit_work_screen_error_dialog_title)) },
+                text = { Text(stringResource(id = R.string.edit_work_screen_start_end_error_message)) },
                 properties = DialogProperties(dismissOnClickOutside = false),
                 confirmButton = {
                     TextButton(onClick = actions.onClearStartEndError) {
-                        Text("OK")
+                        Text(stringResource(id = R.string.edit_work_screen_dialog_ok_button))
                     }
                 }
             )
@@ -431,13 +441,13 @@ fun EditWorkScreen(
         if (state.uiState.showElapsedTimeOver) {
             AlertDialog(
                 onDismissRequest = actions.onClearElapsedTimeOver,
-                title = { Text("注意") },
-                text = { Text("活動時間が時間差より大きいです。\nこのまま保存しますか？") },
+                title = { Text(stringResource(id = R.string.edit_work_screen_warning_dialog_title)) },
+                text = { Text(stringResource(id = R.string.edit_work_screen_elapsed_time_over_warning_message)) },
                 confirmButton = {
                     Row {
                         Spacer(modifier = Modifier.weight(0.1f))
                         TextButton(onClick = actions.onClearElapsedTimeOver) {
-                            Text("キャンセル")
+                            Text(stringResource(id = R.string.edit_work_screen_warning_dialog_cancel_button))
                         }
 
                         Spacer(modifier = Modifier.weight(1f))
@@ -446,7 +456,7 @@ fun EditWorkScreen(
                             actions.onClearElapsedTimeOver()
                             actions.onSaveWork(true)
                         }) {
-                            Text("保存")
+                            Text(stringResource(id = R.string.edit_work_screen_warning_dialog_save_button))
                         }
 
                         Spacer(modifier = Modifier.weight(0.1f))
@@ -458,12 +468,12 @@ fun EditWorkScreen(
     }
 }
 
-fun parseTime(time: String): Pair<Int, Int> {
+private fun parseTime(time: String): Pair<Int, Int> {
     val parts = time.split(":").mapNotNull { it.toIntOrNull() }
     return if (parts.size == 2) Pair(parts[0], parts[1]) else Pair(0, 0)
 }
 
-fun formatMonthDay(fullDate: String): String {
+private fun formatMonthDay(fullDate: String): String {
     return try {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val outputFormat = SimpleDateFormat("M/d", Locale.getDefault())

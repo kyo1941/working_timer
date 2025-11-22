@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -201,7 +202,7 @@ fun LogViewScreen(
                     modifier = Modifier
                         .height(24.dp)
                         .width(24.dp),
-                    contentDescription = "追加"
+                    contentDescription = stringResource(id = R.string.log_view_add_button_description)
                 )
             }
             FloatingActionButton(
@@ -213,7 +214,7 @@ fun LogViewScreen(
             ) {
                 Icon(
                     imageVector = androidx.compose.material.icons.Icons.Filled.CurrencyYen,
-                    contentDescription = "給料計算"
+                    contentDescription = stringResource(id = R.string.log_view_calculate_salary_button_description)
                 )
             }
         }
@@ -223,21 +224,21 @@ fun LogViewScreen(
     if (state.uiState.showDeleteDialog && state.uiState.workToDelete != null) {
         AlertDialog(
             onDismissRequest = actions.onHideDeleteDialog,
-            title = { Text("確認") },
-            text = { Text("本当にこの記録を削除しますか？") },
+            title = { Text(stringResource(id = R.string.log_view_delete_dialog_title)) },
+            text = { Text(stringResource(id = R.string.log_view_delete_dialog_message)) },
             confirmButton = {
                 Row {
                     Spacer(modifier = Modifier.weight(0.1f))
 
                     TextButton(
                         onClick = actions.onHideDeleteDialog
-                    ) { Text("いいえ") }
+                    ) { Text(stringResource(id = R.string.log_view_delete_dialog_no_button)) }
 
                     Spacer(modifier = Modifier.weight(1f))
 
                     TextButton(
                         onClick = { actions.onDeleteWork(state.uiState.workToDelete) }
-                    ) { Text("はい") }
+                    ) { Text(stringResource(id = R.string.log_view_delete_dialog_yes_button)) }
 
                     Spacer(modifier = Modifier.weight(0.1f))
                 }
@@ -301,9 +302,9 @@ fun SumDialog(
     val calculationModes = remember {
         TimeCalculationMode.entries.map {
             when (it) {
-                TimeCalculationMode.NORMAL -> "通常"
-                TimeCalculationMode.ROUND_UP -> "繰り上げ"
-                TimeCalculationMode.ROUND_DOWN -> "繰り下げ"
+                TimeCalculationMode.NORMAL -> context.getString(R.string.log_view_time_calculation_mode_normal)
+                TimeCalculationMode.ROUND_UP -> context.getString(R.string.log_view_time_calculation_mode_round_up)
+                TimeCalculationMode.ROUND_DOWN -> context.getString(R.string.log_view_time_calculation_mode_round_down)
             }
         }
     }
@@ -311,24 +312,22 @@ fun SumDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("計算結果") },
+        title = { Text(stringResource(id = R.string.log_view_sum_dialog_title)) },
         text = {
             Column {
                 Text(
-                    "期間: ${formattedStartDate} ~ ${formattedEndDate}",
+                    stringResource(id = R.string.log_view_sum_dialog_period, formattedStartDate, formattedEndDate),
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "合計勤務時間: ${totalHours}時間 ${totalMinutes}分",
+                    stringResource(id = R.string.log_view_sum_dialog_total_work_time, totalHours, totalMinutes),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "給料: ${
-                        NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)
-                    } 円",
+                    stringResource(id = R.string.log_view_sum_dialog_salary, NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
@@ -343,7 +342,7 @@ fun SumDialog(
                         wage = it.toLongOrNull() ?: 0L
                         onWageChange(wage)
                     },
-                    label = { Text("時給") },
+                    label = { Text(stringResource(id = R.string.log_view_sum_dialog_hourly_wage_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -366,19 +365,19 @@ fun SumDialog(
             Row {
                 TextButton(onClick = {
                     val lines = listOf(
-                        "期間 ${formattedStartDate} ~ ${formattedEndDate}",
-                        "時給 ${wage} 円",
-                        "合計 ${totalHours}時間 ${totalMinutes}分",
-                        "給料 ${NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)} 円"
+                        context.getString(R.string.log_view_share_period, formattedStartDate, formattedEndDate),
+                        context.getString(R.string.log_view_share_hourly_wage, wage.toString()),
+                        context.getString(R.string.log_view_share_total_work_time, totalHours, totalMinutes),
+                        context.getString(R.string.log_view_share_salary, NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage))
                     )
                     val shareText = lines.joinToString("\n")
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, shareText)
                     }
-                    context.startActivity(Intent.createChooser(intent, "共有"))
-                }) { Text("共有") }
-                TextButton(onClick = onDismiss) { Text("閉じる") }
+                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.log_view_share_subject)))
+                }) { Text(stringResource(id = R.string.log_view_sum_dialog_share_button)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(id = R.string.log_view_sum_dialog_close_button)) }
             }
 
         }

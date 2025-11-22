@@ -20,8 +20,14 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
+sealed interface EditWorkError {
+    object InvalidDateTimeFormat : EditWorkError
+    object DatabaseError : EditWorkError
+    data class UnknownError(val message: String?) : EditWorkError
+}
+
 sealed interface UiEvent {
-    data class ShowSnackbar(val message: String) : UiEvent
+    data class ShowSnackbar(val error: EditWorkError) : UiEvent
     object SaveSuccess : UiEvent
 }
 
@@ -91,7 +97,7 @@ class EditWorkViewModel @Inject constructor(
                 }
 
                 if (startDateTimeMillis == null || endDateTimeMillis == null) {
-                    _uiEvent.emit(UiEvent.ShowSnackbar(ERROR_MSG_DATE_TIME_PATTERN))
+                    _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.InvalidDateTimeFormat))
                     return@launch
                 }
 
@@ -134,9 +140,9 @@ class EditWorkViewModel @Inject constructor(
                 _uiEvent.emit(UiEvent.SaveSuccess)
 
             } catch (e: SQLiteException) {
-                _uiEvent.emit(UiEvent.ShowSnackbar(ERROR_MSG_DB_FAILED))
+                _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.DatabaseError))
             } catch (e: Exception) {
-                _uiEvent.emit(UiEvent.ShowSnackbar("$ERROR_MSG_UNKNOWN ${e.localizedMessage ?: "詳細不明"}"))
+                _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.UnknownError(e.localizedMessage)))
             }
         }
     }
@@ -192,8 +198,5 @@ class EditWorkViewModel @Inject constructor(
 
     companion object {
         const val DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm"
-        const val ERROR_MSG_DATE_TIME_PATTERN = "日付または時刻の形式が無効です。"
-        const val ERROR_MSG_DB_FAILED = "データベースエラーが発生しました。"
-        const val ERROR_MSG_UNKNOWN = "予期しないエラーが発生しました:"
     }
 }

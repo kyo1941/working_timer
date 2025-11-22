@@ -185,8 +185,8 @@ class TimerService : LifecycleService() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelId = "timer_channel"
-            val channelName = "Timer Service Channel"
-            val channelDescription = "Channel for Timer Service"
+            val channelName = getString(R.string.timer_notification_channel_name)
+            val channelDescription = getString(R.string.timer_notification_channel_description)
             val importance = NotificationManager.IMPORTANCE_LOW
             val channel = NotificationChannel(channelId, channelName, importance).apply {
                 description = channelDescription
@@ -231,9 +231,11 @@ class TimerService : LifecycleService() {
             String.format("%02d:%02d", minutes, seconds)
         }
 
+        val status = if (isRunning) getString(R.string.timer_notification_working_status) else getString(R.string.timer_notification_resting_status)
+        val title = getString(R.string.timer_notification_title, formattedTime, status)
 
         val builder = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("$formattedTime   ${if (isRunning) "労働中" else "休憩中"}")
+            .setContentTitle(title)
             .setSmallIcon(R.drawable.ic_launcher_playstore)
             .setContentIntent(pendingIntent)
 
@@ -246,7 +248,7 @@ class TimerService : LifecycleService() {
                 this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
             )
             builder.addAction(
-                R.drawable.ic_launcher_playstore, "一時停止", pausePendingIntent
+                R.drawable.ic_launcher_playstore, getString(R.string.timer_notification_pause_action), pausePendingIntent
             )
         } else {
             // 再開ボタンを追加
@@ -257,7 +259,7 @@ class TimerService : LifecycleService() {
                 this, 0, resumeIntent, PendingIntent.FLAG_IMMUTABLE
             )
             builder.addAction(
-                R.drawable.ic_launcher_playstore, "再開", resumePendingIntent
+                R.drawable.ic_launcher_playstore, getString(R.string.timer_notification_resume_action), resumePendingIntent
             )
         }
 
@@ -280,8 +282,11 @@ class TimerService : LifecycleService() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
+        val status = if (isRunning) getString(R.string.timer_notification_working_status) else getString(R.string.timer_notification_resting_status)
+        val title = getString(R.string.timer_notification_title, "00:00", status)
+
         val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("00:00   ${if (isRunning) "労働中" else "休憩中"}")
+            .setContentTitle(title)
             .setSmallIcon(R.drawable.ic_launcher_playstore)
             .setContentIntent(pendingIntent)
             .build()

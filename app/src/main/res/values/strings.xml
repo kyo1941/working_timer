@@ -92,7 +92,7 @@
     <string name="footer_navigation_bar_history_content_description">履歴</string>
 
     <!-- WorkItemComposable -->
-    <string name="work_item_activity_time_label">活動時間    </string>
+    <string name="work_item_activity_time_label">活動時間</string>
     <string name="work_item_hour_unit">時間 </string>
     <string name="work_item_minute_unit">分</string>
     <string name="work_item_start_time_label">開始  %s</string>

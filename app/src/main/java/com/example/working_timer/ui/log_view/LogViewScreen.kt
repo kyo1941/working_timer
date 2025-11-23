@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CurrencyYen
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -157,24 +158,37 @@ fun LogViewScreen(
             thickness = 1.dp
         )
 
-        LazyColumn(modifier = Modifier.weight(0.8f)) {
-            itemsIndexed(state.uiState.workList) { index, work ->
-                WorkItemComposable(
-                    work = work,
-                    onDelete = { actions.onShowDeleteDialog(work) },
-                    onEdit = {
-                        actions.onNavigateToEditWork(
-                            work.id,
-                            work.start_day,
-                            false
+        if (state.uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.8f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = ButtonBackgroundColor
+                )
+            }
+        } else {
+            LazyColumn(modifier = Modifier.weight(0.8f)) {
+                itemsIndexed(state.uiState.workList) { index, work ->
+                    WorkItemComposable(
+                        work = work,
+                        onDelete = { actions.onShowDeleteDialog(work) },
+                        onEdit = {
+                            actions.onNavigateToEditWork(
+                                work.id,
+                                work.start_day,
+                                false
+                            )
+                        }
+                    )
+                    if (index < state.uiState.workList.lastIndex) {
+                        HorizontalDivider(
+                            color = BorderColor,
+                            thickness = 1.dp
                         )
                     }
-                )
-                if (index < state.uiState.workList.lastIndex) {
-                    HorizontalDivider(
-                        color = BorderColor,
-                        thickness = 1.dp
-                    )
                 }
             }
         }
@@ -316,18 +330,29 @@ fun SumDialog(
         text = {
             Column {
                 Text(
-                    stringResource(id = R.string.log_view_sum_dialog_period, formattedStartDate, formattedEndDate),
+                    stringResource(
+                        id = R.string.log_view_sum_dialog_period,
+                        formattedStartDate,
+                        formattedEndDate
+                    ),
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    stringResource(id = R.string.log_view_sum_dialog_total_work_time, totalHours, totalMinutes),
+                    stringResource(
+                        id = R.string.log_view_sum_dialog_total_work_time,
+                        totalHours,
+                        totalMinutes
+                    ),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    stringResource(id = R.string.log_view_sum_dialog_salary, NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)),
+                    stringResource(
+                        id = R.string.log_view_sum_dialog_salary,
+                        NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)
+                    ),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
@@ -365,17 +390,33 @@ fun SumDialog(
             Row {
                 TextButton(onClick = {
                     val lines = listOf(
-                        context.getString(R.string.log_view_share_period, formattedStartDate, formattedEndDate),
+                        context.getString(
+                            R.string.log_view_share_period,
+                            formattedStartDate,
+                            formattedEndDate
+                        ),
                         context.getString(R.string.log_view_share_hourly_wage, wage.toString()),
-                        context.getString(R.string.log_view_share_total_work_time, totalHours, totalMinutes),
-                        context.getString(R.string.log_view_share_salary, NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage))
+                        context.getString(
+                            R.string.log_view_share_total_work_time,
+                            totalHours,
+                            totalMinutes
+                        ),
+                        context.getString(
+                            R.string.log_view_share_salary,
+                            NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)
+                        )
                     )
                     val shareText = lines.joinToString("\n")
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, shareText)
                     }
-                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.log_view_share_subject)))
+                    context.startActivity(
+                        Intent.createChooser(
+                            intent,
+                            context.getString(R.string.log_view_share_subject)
+                        )
+                    )
                 }) { Text(stringResource(id = R.string.log_view_sum_dialog_share_button)) }
                 TextButton(onClick = onDismiss) { Text(stringResource(id = R.string.log_view_sum_dialog_close_button)) }
             }
@@ -440,6 +481,7 @@ fun LogViewScreenPreviewEmpty() {
         showSumDialog = false,
         sumStartDate = null,
         sumEndDate = null,
+        isLoading = true,
         totalHours = 0L,
         totalMinutes = 0L,
         totalWage = 0L,

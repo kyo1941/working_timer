@@ -12,9 +12,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CurrencyYen
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -23,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.working_timer.ui.components.DateRangePickerModal
-import com.example.working_timer.ui.components.FooterNavigationBar
 import com.example.working_timer.R
 import com.example.working_timer.ui.components.WorkItemComposable
 import java.text.NumberFormat
@@ -63,7 +64,6 @@ fun LogViewScreenHolder(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Date Range Pickerの表示を制御するState
     var showDateRangePicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -158,24 +158,37 @@ fun LogViewScreen(
             thickness = 1.dp
         )
 
-        LazyColumn(modifier = Modifier.weight(0.8f)) {
-            itemsIndexed(state.uiState.workList) { index, work ->
-                WorkItemComposable(
-                    work = work,
-                    onDelete = { actions.onShowDeleteDialog(work) },
-                    onEdit = {
-                        actions.onNavigateToEditWork(
-                            work.id,
-                            work.start_day,
-                            false
+        if (state.uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.8f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = ButtonBackgroundColor
+                )
+            }
+        } else {
+            LazyColumn(modifier = Modifier.weight(0.8f)) {
+                itemsIndexed(state.uiState.workList) { index, work ->
+                    WorkItemComposable(
+                        work = work,
+                        onDelete = { actions.onShowDeleteDialog(work) },
+                        onEdit = {
+                            actions.onNavigateToEditWork(
+                                work.id,
+                                work.start_day,
+                                false
+                            )
+                        }
+                    )
+                    if (index < state.uiState.workList.lastIndex) {
+                        HorizontalDivider(
+                            color = BorderColor,
+                            thickness = 1.dp
                         )
                     }
-                )
-                if (index < state.uiState.workList.lastIndex) {
-                    HorizontalDivider(
-                        color = BorderColor,
-                        thickness = 1.dp
-                    )
                 }
             }
         }
@@ -203,7 +216,7 @@ fun LogViewScreen(
                     modifier = Modifier
                         .height(24.dp)
                         .width(24.dp),
-                    contentDescription = "追加"
+                    contentDescription = stringResource(id = R.string.log_view_add_button_description)
                 )
             }
             FloatingActionButton(
@@ -215,7 +228,7 @@ fun LogViewScreen(
             ) {
                 Icon(
                     imageVector = androidx.compose.material.icons.Icons.Filled.CurrencyYen,
-                    contentDescription = "給料計算"
+                    contentDescription = stringResource(id = R.string.log_view_calculate_salary_button_description)
                 )
             }
         }
@@ -225,21 +238,21 @@ fun LogViewScreen(
     if (state.uiState.showDeleteDialog && state.uiState.workToDelete != null) {
         AlertDialog(
             onDismissRequest = actions.onHideDeleteDialog,
-            title = { Text("確認") },
-            text = { Text("本当にこの記録を削除しますか？") },
+            title = { Text(stringResource(id = R.string.log_view_delete_dialog_title)) },
+            text = { Text(stringResource(id = R.string.log_view_delete_dialog_message)) },
             confirmButton = {
                 Row {
                     Spacer(modifier = Modifier.weight(0.1f))
 
                     TextButton(
                         onClick = actions.onHideDeleteDialog
-                    ) { Text("いいえ") }
+                    ) { Text(stringResource(id = R.string.log_view_delete_dialog_no_button)) }
 
                     Spacer(modifier = Modifier.weight(1f))
 
                     TextButton(
                         onClick = { actions.onDeleteWork(state.uiState.workToDelete) }
-                    ) { Text("はい") }
+                    ) { Text(stringResource(id = R.string.log_view_delete_dialog_yes_button)) }
 
                     Spacer(modifier = Modifier.weight(0.1f))
                 }
@@ -303,9 +316,9 @@ fun SumDialog(
     val calculationModes = remember {
         TimeCalculationMode.entries.map {
             when (it) {
-                TimeCalculationMode.NORMAL -> "通常"
-                TimeCalculationMode.ROUND_UP -> "繰り上げ"
-                TimeCalculationMode.ROUND_DOWN -> "繰り下げ"
+                TimeCalculationMode.NORMAL -> context.getString(R.string.log_view_time_calculation_mode_normal)
+                TimeCalculationMode.ROUND_UP -> context.getString(R.string.log_view_time_calculation_mode_round_up)
+                TimeCalculationMode.ROUND_DOWN -> context.getString(R.string.log_view_time_calculation_mode_round_down)
             }
         }
     }
@@ -313,24 +326,33 @@ fun SumDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("計算結果") },
+        title = { Text(stringResource(id = R.string.log_view_sum_dialog_title)) },
         text = {
             Column {
                 Text(
-                    "期間: ${formattedStartDate} ~ ${formattedEndDate}",
+                    stringResource(
+                        id = R.string.log_view_sum_dialog_period,
+                        formattedStartDate,
+                        formattedEndDate
+                    ),
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "合計勤務時間: ${totalHours}時間 ${totalMinutes}分",
+                    stringResource(
+                        id = R.string.log_view_sum_dialog_total_work_time,
+                        totalHours,
+                        totalMinutes
+                    ),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "給料: ${
+                    stringResource(
+                        id = R.string.log_view_sum_dialog_salary,
                         NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)
-                    } 円",
+                    ),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
@@ -345,7 +367,7 @@ fun SumDialog(
                         wage = it.toLongOrNull() ?: 0L
                         onWageChange(wage)
                     },
-                    label = { Text("時給") },
+                    label = { Text(stringResource(id = R.string.log_view_sum_dialog_hourly_wage_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -368,19 +390,35 @@ fun SumDialog(
             Row {
                 TextButton(onClick = {
                     val lines = listOf(
-                        "期間 ${formattedStartDate} ~ ${formattedEndDate}",
-                        "時給 ${wage} 円",
-                        "合計 ${totalHours}時間 ${totalMinutes}分",
-                        "給料 ${NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)} 円"
+                        context.getString(
+                            R.string.log_view_share_period,
+                            formattedStartDate,
+                            formattedEndDate
+                        ),
+                        context.getString(R.string.log_view_share_hourly_wage, wage.toString()),
+                        context.getString(
+                            R.string.log_view_share_total_work_time,
+                            totalHours,
+                            totalMinutes
+                        ),
+                        context.getString(
+                            R.string.log_view_share_salary,
+                            NumberFormat.getNumberInstance(Locale.JAPAN).format(totalWage)
+                        )
                     )
                     val shareText = lines.joinToString("\n")
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, shareText)
                     }
-                    context.startActivity(Intent.createChooser(intent, "共有"))
-                }) { Text("共有") }
-                TextButton(onClick = onDismiss) { Text("閉じる") }
+                    context.startActivity(
+                        Intent.createChooser(
+                            intent,
+                            context.getString(R.string.log_view_share_subject)
+                        )
+                    )
+                }) { Text(stringResource(id = R.string.log_view_sum_dialog_share_button)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(id = R.string.log_view_sum_dialog_close_button)) }
             }
 
         }
@@ -443,6 +481,7 @@ fun LogViewScreenPreviewEmpty() {
         showSumDialog = false,
         sumStartDate = null,
         sumEndDate = null,
+        isLoading = true,
         totalHours = 0L,
         totalMinutes = 0L,
         totalWage = 0L,

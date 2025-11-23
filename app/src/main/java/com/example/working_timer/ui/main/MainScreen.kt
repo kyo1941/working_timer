@@ -16,8 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,17 +42,18 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.working_timer.R
+import com.example.working_timer.ui.components.SaveDialog
 import com.example.working_timer.util.PauseButtonColor
 import com.example.working_timer.util.ResumeButtonColor
 import com.example.working_timer.util.StartButtonColor
-import com.example.working_timer.util.StatusDefaultColor
 import com.example.working_timer.util.StatusPauseColor
 import com.example.working_timer.util.StatusWorkingColor
 import com.example.working_timer.util.StopButtonColor
 import kotlinx.coroutines.launch
 
 data class MainScreenState(
-    val uiState: TimerUiState,
+    val uiState: MainUiState,
     val snackbarHostState: SnackbarHostState
 )
 
@@ -74,36 +75,31 @@ fun MainScreenHolder(
     onNavigateToLog: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // ViewModelからのsnackbarMessage監視
-    LaunchedEffect(uiState.snackbarMessage) {
-        uiState.snackbarMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-            mainViewModel.clearSnackbarMessage()
+    LaunchedEffect(Unit) {
+        mainViewModel.snackbarEvent.collect { message ->
+            snackbarHostState.showSnackbar(context.getString(R.string.error_save_prefix) + message)
         }
     }
 
-    // ナビゲーション処理はステートフルで管理
-    LaunchedEffect(uiState.navigateToLog) {
-        if (uiState.navigateToLog) {
+    LaunchedEffect(Unit) {
+        mainViewModel.navigateToLog.collect {
             onNavigateToLog()
-            mainViewModel.onNavigationHandled()
         }
     }
 
-    // 通知権限ランチャー
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         scope.launch {
             val message = if (isGranted) {
-                "通知が許可されました。"
+                context.getString(R.string.permission_is_granted)
             } else {
-                "通知が拒否されました。"
+                context.getString(R.string.permission_is_denied)
             }
             snackbarHostState.showSnackbar(message)
         }
@@ -128,19 +124,19 @@ fun MainScreenHolder(
                 }
                 if (!hasPermission) {
                     scope.launch {
-                        snackbarHostState.showSnackbar("通知をONにすると、タイマーの進行状況が確認できます。")
+                        snackbarHostState.showSnackbar(context.getString(R.string.explain_notification_permission))
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }
             },
-            onStopTimer = { mainViewModel.stopTimer() },
-            onPauseTimer = { mainViewModel.pauseTimer() },
-            onResumeTimer = { mainViewModel.resumeTimer() },
-            onDiscardWork = { mainViewModel.discardWork() },
-            onSaveWork = { mainViewModel.saveWork() },
-            onDismissSaveDialog = { mainViewModel.dismissSaveDialog() }
+            onStopTimer = mainViewModel::stopTimer,
+            onPauseTimer = mainViewModel::pauseTimer,
+            onResumeTimer = mainViewModel::resumeTimer,
+            onDiscardWork = mainViewModel::discardWork,
+            onSaveWork = mainViewModel::saveWork,
+            onDismissSaveDialog = mainViewModel::dismissSaveDialog
         ),
         modifier = modifier
     )
@@ -165,22 +161,26 @@ fun MainScreen(
         ) {
             Spacer(Modifier.weight(1f))
 
-            Text(
-                text = state.uiState.status,
-                textAlign = TextAlign.Center,
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Bold,
-                color = when (state.uiState.status) {
-                    "労働中" -> StatusWorkingColor
-                    "休憩中" -> StatusPauseColor
-                    else -> StatusDefaultColor
-                }
-            )
+            state.uiState.timerStatus?.let {
+                Text(
+                    text = when (state.uiState.timerStatus) {
+                        TimerStatus.Working -> stringResource(R.string.working_status)
+                        TimerStatus.Resting -> stringResource(R.string.resting_status)
+                    },
+                    textAlign = TextAlign.Center,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = when (state.uiState.timerStatus) {
+                        TimerStatus.Working -> StatusWorkingColor
+                        TimerStatus.Resting -> StatusPauseColor
+                    }
+                )
+            }
 
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = state.uiState.timerText,
+                text = state.uiState.displayText,
                 textAlign = TextAlign.Center,
                 fontSize = 56.sp,
                 fontWeight = FontWeight.Bold
@@ -188,146 +188,137 @@ fun MainScreen(
 
             Spacer(Modifier.weight(1f))
 
-            // 開始ボタン
-            if (!state.uiState.isTimerRunning && !state.uiState.isPaused) {
-                Button(
-                    onClick = actions.onStartTimer,
-                    modifier = Modifier.size(100.dp),
-                    shape = RoundedCornerShape(40.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = StartButtonColor)
-                ) {
-                    Text("開始", fontSize = 20.sp, color = Color.White)
-                }
-            }
-
-            // 終了、休憩ボタン
-            if (state.uiState.isTimerRunning) {
-                Row(
+            when (state.uiState.timerStatus) {
+                TimerStatus.Working -> Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Spacer(Modifier.weight(1f))
 
-                    Button(
-                        onClick = actions.onStopTimer,
-                        modifier = Modifier.size(100.dp),
-                        shape = RoundedCornerShape(40.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = StopButtonColor)
-                    ) {
-                        Text("終了", fontSize = 20.sp, color = Color.White)
-                    }
+                    TimerButton(
+                        text = stringResource(R.string.stop_timer_button_text),
+                        color = StopButtonColor,
+                        onClick = actions.onStopTimer
+                    )
 
                     Spacer(Modifier.weight(1f))
 
-                    Button(
-                        onClick = actions.onPauseTimer,
-                        modifier = Modifier.size(100.dp),
-                        shape = RoundedCornerShape(40.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = PauseButtonColor)
-                    ) {
-                        Text("休憩", fontSize = 20.sp, color = Color.White)
-                    }
+                    TimerButton(
+                        text = stringResource(R.string.pause_timer_button_text),
+                        color = PauseButtonColor,
+                        onClick = actions.onPauseTimer
+                    )
 
                     Spacer(Modifier.weight(1f))
                 }
-            }
 
-            // 再開ボタン
-            if (state.uiState.isPaused) {
-                Button(
-                    onClick = actions.onResumeTimer,
-                    modifier = Modifier.size(100.dp),
-                    shape = RoundedCornerShape(40.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = ResumeButtonColor)
-                ) {
-                    Text("再開", fontSize = 20.sp, color = Color.White)
-                }
+                TimerStatus.Resting -> TimerButton(
+                    text = stringResource(R.string.resume_timer_button_text),
+                    color = ResumeButtonColor,
+                    onClick = actions.onResumeTimer
+                )
+
+                null -> TimerButton(
+                    text = stringResource(R.string.start_timer_button_text),
+                    color = StartButtonColor,
+                    onClick = actions.onStartTimer
+                )
             }
 
             Spacer(Modifier.weight(1f))
         }
 
-        // 保存確認ダイアログ
-        if (state.uiState.showSaveDialog) {
-            AlertDialog(
-                onDismissRequest = actions.onDismissSaveDialog,
-                title = {
-                    Text(
-                        text = "確認",
-                        style = typography.headlineSmall,
-                    )
+        when(state.uiState.dialogStatus) {
+            is DialogStatus.SaveDialog -> SaveDialog(
+                startDate = state.uiState.dialogStatus.startDate,
+                elapsedTime = state.uiState.dialogStatus.elapsedTime,
+                onConfirm = actions.onSaveWork,
+                onNeutral = {
+                    actions.onResumeTimer()
+                    actions.onDismissSaveDialog()
                 },
-                text = {
-                    Text(
-                        state.uiState.dialogMessage,
-                        style = typography.bodyMedium,
-                    )
-                },
-                properties = DialogProperties(dismissOnClickOutside = false),
-                confirmButton = {
-                    // ダイアログのメッセージによってボタンの挙動を変える
-                    if (state.uiState.isErrorDialog) {
-                        Row {
-                            Spacer(modifier = Modifier.weight(0.1f))
-                            TextButton(onClick = {
-                                actions.onDiscardWork()
-                                actions.onDismissSaveDialog()
-                            }) {
-                                Text("破棄")
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            TextButton(onClick = {
-                                actions.onResumeTimer()
-                                actions.onDismissSaveDialog()
-                            }) {
-                                Text("再開")
-                            }
-
-                            Spacer(modifier = Modifier.weight(0.1f))
-                        }
-                    } else {
-                        Row {
-                            TextButton(onClick = {
-                                actions.onDiscardWork()
-                                actions.onDismissSaveDialog()
-                            }) {
-                                Text("破棄")
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            TextButton(onClick = {
-                                actions.onResumeTimer()
-                                actions.onDismissSaveDialog()
-                            }) {
-                                Text("再開")
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            TextButton(onClick = actions.onSaveWork) {
-                                Text("保存")
-                            }
-                        }
-                    }
+                onDismiss = {
+                    actions.onDiscardWork()
+                    actions.onDismissSaveDialog()
                 }
             )
+            is DialogStatus.TooShortTimeErrorDialog -> ErrorAlertDialog(
+                message = stringResource(R.string.error_time_too_short),
+                onClick = {
+                    actions.onResumeTimer()
+                    actions.onDismissSaveDialog()
+                },
+                onDismiss = {
+                    actions.onDiscardWork()
+                    actions.onDismissSaveDialog()
+                }
+            )
+            is DialogStatus.DataNotFoundErrorDialog -> ErrorAlertDialog(
+                message = stringResource(R.string.error_data_not_found),
+                onClick = {
+                    actions.onResumeTimer()
+                    actions.onDismissSaveDialog()
+                },
+                onDismiss = {
+                    actions.onDiscardWork()
+                    actions.onDismissSaveDialog()
+                }
+            )
+            null -> {}
         }
     }
+}
+
+@Composable
+private fun TimerButton(text: String, color: Color, onClick: () -> Unit) {
+    FloatingActionButton(
+        onClick = onClick,
+        containerColor = color,
+        shape = RoundedCornerShape(40.dp),
+        modifier = Modifier.size(100.dp)
+    ) {
+        Text(text, fontSize = 20.sp, color = Color.White)
+    }
+}
+
+@Composable
+private fun ErrorAlertDialog(
+    message: String,
+    onClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = {},
+        title = {
+            Text(
+                text = stringResource(R.string.title_save_dialog),
+                style = typography.headlineSmall
+            )
+        },
+        text = {
+            Text(
+                text = message,
+                style = typography.bodyMedium
+            )
+        },
+        properties = DialogProperties(dismissOnClickOutside = false),
+        confirmButton = {
+            TextButton(onClick = onClick) {
+                Text(stringResource(R.string.resume_timer_button_text))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.discard_dialog_button_text))
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true, name = "BeforeStart")
 @Composable
 fun MainScreenPreviewBeforeStart() {
-    val state = TimerUiState(
-        status = "",
-        timerText = "00:00",
-        isTimerRunning = false,
-        isPaused = false,
-        showSaveDialog = false
-    )
+    val state = MainUiState(timerStatus = null)
     MainScreen(
         state = MainScreenState(
             uiState = state,
@@ -343,11 +334,9 @@ fun MainScreenPreviewBeforeStart() {
 @Preview(showBackground = true, name = "Working")
 @Composable
 fun MainScreenPreviewWorking() {
-    val state = TimerUiState(
-        status = "労働中",
-        timerText = "00:12:34",
-        isTimerRunning = true,
-        isPaused = false
+    val state = MainUiState(
+        timerStatus = TimerStatus.Working,
+        elapsedTime = 5025000L,
     )
     MainScreen(
         state = MainScreenState(
@@ -364,11 +353,9 @@ fun MainScreenPreviewWorking() {
 @Preview(showBackground = true, name = "Paused")
 @Composable
 fun MainScreenPreviewPaused() {
-    val state = TimerUiState(
-        status = "休憩中",
-        timerText = "05:00",
-        isTimerRunning = false,
-        isPaused = true
+    val state = MainUiState(
+        timerStatus = TimerStatus.Resting,
+        elapsedTime = 754000L,
     )
     MainScreen(
         state = MainScreenState(
@@ -385,20 +372,13 @@ fun MainScreenPreviewPaused() {
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreviewSaveDialog() {
-    val sampleState = TimerUiState(
-        status = "労働中",
-        timerText = "01:23:45",
-        isTimerRunning = true,
-        isPaused = false,
+    val sampleState = MainUiState(
+        timerStatus = TimerStatus.Working,
         elapsedTime = 5025000L,
-        showSaveDialog = true,
-        dialogMessage = """
-            開始日 ： 2025-09-02
-            経過時間 ： 1時間 23分
-
-            今回の作業記録を保存しますか？
-        """.trimIndent(),
-        isErrorDialog = false
+        dialogStatus = DialogStatus.SaveDialog(
+            startDate = "2025-09-02",
+            elapsedTime = 5025000L
+        )
     )
 
     MainScreen(
@@ -416,14 +396,9 @@ fun MainScreenPreviewSaveDialog() {
 @Preview(showBackground = true, name = "SaveDialog_Error")
 @Composable
 fun MainScreenPreviewSaveDialogError() {
-    val state = TimerUiState(
-        status = "労働中",
-        timerText = "00:00",
-        isTimerRunning = true,
-        isPaused = false,
-        showSaveDialog = true,
-        dialogMessage = "1分未満の作業は保存できません。再開または破棄を選択してください。",
-        isErrorDialog = true
+    val state = MainUiState(
+        timerStatus = TimerStatus.Working,
+        dialogStatus = DialogStatus.TooShortTimeErrorDialog
     )
     MainScreen(
         state = MainScreenState(

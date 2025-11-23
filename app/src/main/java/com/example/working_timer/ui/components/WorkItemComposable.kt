@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
+import com.example.working_timer.R
 import com.example.working_timer.data.db.Work
 
 @Composable
@@ -29,7 +31,8 @@ fun WorkItemComposable(
             val minutes = (work.elapsed_time % 3600) / 60
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    "活動時間    ",
+                    stringResource(id = R.string.work_item_activity_time_label),
+                    modifier = Modifier.padding(end = 16.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 )
@@ -40,7 +43,7 @@ fun WorkItemComposable(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize
                     )
                     Text(
-                        "時間 ",
+                        stringResource(id = R.string.work_item_hour_unit),
                         fontWeight = FontWeight.Bold,
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize
                     )
@@ -51,7 +54,7 @@ fun WorkItemComposable(
                     fontSize = MaterialTheme.typography.titleLarge.fontSize
                 )
                 Text(
-                    "分",
+                    stringResource(id = R.string.work_item_minute_unit),
                     fontWeight = FontWeight.Bold,
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize
                 )
@@ -59,13 +62,13 @@ fun WorkItemComposable(
             Spacer(modifier = Modifier.weight(1f))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "開始  ${work.start_time}",
+                    text = stringResource(id = R.string.work_item_start_time_label, work.start_time),
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "終了  ${work.end_time}",
+                    text = stringResource(id = R.string.work_item_end_time_label, work.end_time),
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.weight(1f)
@@ -75,13 +78,13 @@ fun WorkItemComposable(
         IconButton(onClick = onEdit, modifier = Modifier.padding(horizontal = 8.dp)) {
             Icon(
                 imageVector = androidx.compose.material.icons.Icons.Filled.Edit,
-                contentDescription = "編集",
+                contentDescription = stringResource(id = R.string.work_item_edit_button_description),
             )
         }
         IconButton(onClick = onDelete) {
             Icon(
                 imageVector = androidx.compose.material.icons.Icons.Filled.Delete,
-                contentDescription = "削除"
+                contentDescription = stringResource(id = R.string.work_item_delete_button_description)
             )
         }
     }

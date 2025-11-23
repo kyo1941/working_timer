@@ -8,9 +8,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Box
+import com.example.working_timer.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,7 +36,7 @@ fun MaterialTimePickerDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "時刻を選択",
+                text = stringResource(id = R.string.time_picker_dialog_title),
                 fontSize = 16.sp
             )
         },
@@ -64,7 +66,7 @@ fun MaterialTimePickerDialog(
                         IconButton(onClick = { isInputMode = !isInputMode }) {
                             Icon(
                                 imageVector = if (isInputMode) Icons.Filled.AccessTime else Icons.Filled.Keyboard,
-                                contentDescription = "モード切替"
+                                contentDescription = stringResource(id = R.string.time_picker_dialog_mode_switch_description)
                             )
                         }
                     } else {
@@ -73,13 +75,13 @@ fun MaterialTimePickerDialog(
                     Row {
                         // 右側：キャンセルボタン
                         TextButton(onClick = onDismiss) {
-                            Text("キャンセル")
+                            Text(stringResource(id = R.string.time_picker_dialog_cancel_button))
                         }
                         // OKボタン
                         TextButton(onClick = {
                             onTimeSelected(String.format("%02d:%02d", state.hour, state.minute))
                         }) {
-                            Text("OK")
+                            Text(stringResource(id = R.string.time_picker_dialog_ok_button))
                         }
                     }
 

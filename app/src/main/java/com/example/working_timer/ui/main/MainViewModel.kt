@@ -184,12 +184,12 @@ class MainViewModel @Inject constructor(
             try {
                 workRepository.insert(work)
                 _navigateToLog.emit(Unit)
+                timerManager.stopTimer()
+                updateUiState()
+                dismissSaveDialog()
             } catch (e: Exception) {
                 snackbarEvent.emit(e.message ?: "不明なエラー")
             }
-            timerManager.stopTimer()
-            updateUiState()
-            dismissSaveDialog()
         }
     }
 

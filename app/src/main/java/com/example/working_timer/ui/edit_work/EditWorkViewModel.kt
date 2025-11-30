@@ -1,6 +1,7 @@
 package com.example.working_timer.ui.edit_work
 
 import android.database.sqlite.SQLiteException
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.working_timer.data.db.Work
@@ -11,6 +12,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
@@ -49,10 +52,9 @@ class EditWorkViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditWorkUiState())
-    val uiState = _uiState.asStateFlow()
-
+    val uiState: StateFlow<EditWorkUiState> = _uiState.asStateFlow()
     private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent = _uiEvent.asSharedFlow()
+    val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
     fun init(id: Int, isNew: Boolean, startDay: String) {
         if (isNew) {
@@ -88,11 +90,13 @@ class EditWorkViewModel @Inject constructor(
                 val startDateTimeMillis = try {
                     dateTimeFormat.parse("${currentState.startDay} ${currentState.startTime}")?.time
                 } catch (e: ParseException) {
+                    Log.e("EditWorkViewModel", "Invalid date format: ${e.message}")
                     null
                 }
                 val endDateTimeMillis = try {
                     dateTimeFormat.parse("${currentState.endDay} ${currentState.endTime}")?.time
                 } catch (e: ParseException) {
+                    Log.e("EditWorkViewModel", "Invalid date format: ${e.message}")
                     null
                 }
 
@@ -141,6 +145,7 @@ class EditWorkViewModel @Inject constructor(
 
             } catch (e: SQLiteException) {
                 _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.DatabaseError))
+                Log.e("EditWorkViewModel", "Invalid date format: ${e.message}")
             } catch (e: Exception) {
                 _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.UnknownError(e.localizedMessage)))
             }

@@ -145,7 +145,6 @@ class EditWorkViewModel @Inject constructor(
 
             } catch (e: SQLiteException) {
                 _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.DatabaseError))
-                Log.e("EditWorkViewModel", "Database error: ${e.message}")
             } catch (e: Exception) {
                 _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.UnknownError(e.localizedMessage)))
             }

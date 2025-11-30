@@ -9,6 +9,7 @@ import com.example.working_timer.util.Constants.SECOND_IN_MINUTES
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -44,7 +45,7 @@ class LogViewViewModel @Inject constructor(
     private val workRepository: WorkRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LogViewUiState())
-    val uiState: StateFlow<LogViewUiState> = _uiState
+    val uiState: StateFlow<LogViewUiState> = _uiState.asStateFlow()
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     private var initialTotalTime: Long = 0L
@@ -61,7 +62,7 @@ class LogViewViewModel @Inject constructor(
     }
 
     fun setSelectedDay(year: Int, month: Int, day: Int) {
-        val selected = String.format("%04d-%02d-%02d", year, month + 1, day)
+        val selected = String.format(Locale.ROOT, "%04d-%02d-%02d", year, month + 1, day)
         loadWorkList(selected)
     }
 

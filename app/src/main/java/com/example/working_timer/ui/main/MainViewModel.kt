@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -55,7 +56,7 @@ class MainViewModel @Inject constructor(
     private val dataStoreManager: DataStoreManager
 ) : ViewModel(), TimerListener {
     private val _uiState = MutableStateFlow(MainUiState())
-    val uiState: StateFlow<MainUiState> = _uiState
+    val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
     private val _snackbarEvent = MutableSharedFlow<String>()
     val snackbarEvent: MutableSharedFlow<String> = _snackbarEvent

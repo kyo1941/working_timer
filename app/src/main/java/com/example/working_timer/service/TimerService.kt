@@ -137,6 +137,8 @@ class TimerService : LifecycleService() {
         isRunning = false
 
         elapsedTime = 0
+        startDate = null
+        startTimeString = null
         listener?.onTimerTick(elapsedTime) // 停止時に0を通知
 
         lifecycleScope.launch(ioDispatcher) {
@@ -226,9 +228,9 @@ class TimerService : LifecycleService() {
         val minutes = ((repSecTime / 60) % 60).toInt()
         val seconds = (repSecTime % 60).toInt()
         val formattedTime = if (hours > 0) {
-            String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            String.format(Locale.ROOT,"%02d:%02d:%02d", hours, minutes, seconds)
         } else {
-            String.format("%02d:%02d", minutes, seconds)
+            String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
         }
 
         val status = if (isRunning) getString(R.string.timer_notification_working_status) else getString(R.string.timer_notification_resting_status)

@@ -70,6 +70,13 @@ class TimerService : LifecycleService() {
 
     private var startTimeCalendar: Calendar = Calendar.getInstance()
 
+    private val notificationStatus: String
+        get() = if (isRunning) {
+            getString(R.string.timer_notification_working_status)
+        } else {
+            getString(R.string.timer_notification_resting_status)
+        }
+
     interface TimerServiceListener {
         fun onTimerTick(elapsedTime: Long)
         fun updateUI()
@@ -233,8 +240,7 @@ class TimerService : LifecycleService() {
             String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
         }
 
-        val status =
-            if (isRunning) getString(R.string.timer_notification_working_status) else getString(R.string.timer_notification_resting_status)
+        val status = notificationStatus
         val title = getString(R.string.timer_notification_title, formattedTime, status)
 
         val builder = NotificationCompat.Builder(this, channelId)
@@ -289,8 +295,7 @@ class TimerService : LifecycleService() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val status =
-            if (isRunning) getString(R.string.timer_notification_working_status) else getString(R.string.timer_notification_resting_status)
+        val status = notificationStatus
         val title = getString(R.string.timer_notification_title, "00:00", status)
 
         val notification: Notification = NotificationCompat.Builder(this, channelId)

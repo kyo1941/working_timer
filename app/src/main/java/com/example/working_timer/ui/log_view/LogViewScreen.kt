@@ -161,81 +161,83 @@ fun LogViewScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-        if (state.uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = ButtonBackgroundColor
-                )
-            }
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                itemsIndexed(state.uiState.workList) { index, work ->
-                    WorkItemComposable(
-                        work = work,
-                        onDelete = { actions.onShowDeleteDialog(work) },
-                        onEdit = {
-                            actions.onNavigateToEditWork(
-                                work.id,
-                                work.start_day,
-                                false
+            if (state.uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = ButtonBackgroundColor
+                    )
+                }
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    itemsIndexed(state.uiState.workList) { index, work ->
+                        WorkItemComposable(
+                            work = work,
+                            onDelete = { actions.onShowDeleteDialog(work) },
+                            onEdit = {
+                                actions.onNavigateToEditWork(
+                                    work.id,
+                                    work.start_day,
+                                    false
+                                )
+                            }
+                        )
+                        if (index < state.uiState.workList.lastIndex) {
+                            HorizontalDivider(
+                                color = BorderColor,
+                                thickness = 1.dp
                             )
                         }
-                    )
-                    if (index < state.uiState.workList.lastIndex) {
-                        HorizontalDivider(
-                            color = BorderColor,
-                            thickness = 1.dp
-                        )
                     }
                 }
             }
-        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Spacer(modifier = Modifier.width(8.dp))
-            FloatingActionButton(
-                onClick = {
-                    actions.onNavigateToEditWork(
-                        0,
-                        state.uiState.selectedDay,
-                        true
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Spacer(modifier = Modifier.width(8.dp))
+                FloatingActionButton(
+                    onClick = {
+                        actions.onNavigateToEditWork(
+                            0,
+                            state.uiState.selectedDay,
+                            true
+                        )
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
+                    containerColor = ButtonBackgroundColor,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(24.dp),
+                ) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Filled.Add,
+                        modifier = Modifier
+                            .height(24.dp)
+                            .width(24.dp),
+                        contentDescription = stringResource(id = R.string.log_view_add_button_description)
                     )
-                },
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
-                containerColor = ButtonBackgroundColor,
-                contentColor = Color.White,
-                shape = RoundedCornerShape(24.dp),
-            ) {
-                Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Filled.Add,
-                    modifier = Modifier
-                        .height(24.dp)
-                        .width(24.dp),
-                    contentDescription = stringResource(id = R.string.log_view_add_button_description)
-                )
-            }
-            FloatingActionButton(
-                onClick = actions.onShowDateRangePicker,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
-                containerColor = ButtonBackgroundColor,
-                contentColor = Color.White,
-                shape = RoundedCornerShape(24.dp),
-            ) {
-                Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Filled.CurrencyYen,
-                    contentDescription = stringResource(id = R.string.log_view_calculate_salary_button_description)
-                )
+                }
+                FloatingActionButton(
+                    onClick = actions.onShowDateRangePicker,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
+                    containerColor = ButtonBackgroundColor,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(24.dp),
+                ) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Filled.CurrencyYen,
+                        contentDescription = stringResource(id = R.string.log_view_calculate_salary_button_description)
+                    )
+                }
             }
         }
-            }
     }
 
     // 削除ダイアログ

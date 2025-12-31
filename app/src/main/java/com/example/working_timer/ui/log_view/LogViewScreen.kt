@@ -158,11 +158,14 @@ fun LogViewScreen(
             thickness = 1.dp
         )
 
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
         if (state.uiState.isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.8f),
+                    .fillMaxHeight(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
@@ -170,7 +173,7 @@ fun LogViewScreen(
                 )
             }
         } else {
-            LazyColumn(modifier = Modifier.weight(0.8f)) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
                 itemsIndexed(state.uiState.workList) { index, work ->
                     WorkItemComposable(
                         work = work,
@@ -194,7 +197,7 @@ fun LogViewScreen(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().align(Alignment.BottomStart),
             horizontalArrangement = Arrangement.Start
         ) {
             Spacer(modifier = Modifier.width(8.dp))
@@ -232,6 +235,7 @@ fun LogViewScreen(
                 )
             }
         }
+            }
     }
 
     // 削除ダイアログ

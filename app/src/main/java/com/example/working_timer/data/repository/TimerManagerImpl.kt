@@ -5,11 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.util.Log
-import com.example.working_timer.domain.repository.TimerListener
 import com.example.working_timer.domain.repository.TimerManager
 import com.example.working_timer.service.TimerService
+import com.example.working_timer.service.TimerState
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,28 +25,31 @@ class TimerManagerImpl @Inject constructor(
 ) : TimerManager {
     private var timerService: TimerService? = null
     private var isBound = false
-    private var listener: TimerListener? = null
 
     private var pendingStart = false
+
+    private val _timerState = MutableStateFlow<TimerState>(TimerState())
+    override val timerState = _timerState.asStateFlow()
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var job: Job? = null
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as TimerService.LocalBinder
             timerService = binder.getService()
             isBound = true
-            timerService?.setListener(object : TimerService.TimerServiceListener {
-                override fun onTimerTick(elapsedTime: Long) {
-                    listener?.onTimerTick(elapsedTime)
-                }
-                override fun updateUI() {
-                    listener?.updateUI()
-                }
-            })
 
             if (pendingStart) {
                 timerService?.startTimer()
                 pendingStart = false
-                listener?.updateUI()
+            }
+
+            job?.cancel()
+            job = scope.launch {
+                timerService?.serviceState?.collect { state ->
+                    _timerState.value = state
+                }
             }
         }
 
@@ -48,6 +57,10 @@ class TimerManagerImpl @Inject constructor(
             isBound = false
             timerService = null
         }
+    }
+
+    init {
+        bindService()
     }
 
     override fun startTimer() {
@@ -73,28 +86,11 @@ class TimerManagerImpl @Inject constructor(
         unbindService()
     }
 
-    override fun isTimerRunning(): Boolean {
-        return timerService?.isTimerRunning() ?: false
-    }
-
-    override fun getElapsedTime(): Long {
-        return timerService?.getElapsedTime() ?: 0L
-    }
-
-    override fun setListener(listener: TimerListener) {
-        this.listener = listener
-    }
-
-    override fun removeListener() {
-        this.listener = null
-    }
-
     private fun bindService() {
         Intent(context, TimerService::class.java).also { intent ->
             val bound = context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
             if (!bound) {
                 pendingStart = false
-                listener?.onError("タイマーの開始に失敗しました。")
             }
         }
     }

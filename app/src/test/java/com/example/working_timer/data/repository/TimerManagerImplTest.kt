@@ -51,7 +51,13 @@ class TimerManagerImplTest {
         every { mockTimerService.serviceState } returns serviceState
 
         val connectionSlot = slot<ServiceConnection>()
-        every { mockContext.bindService(any<Intent>(), capture(connectionSlot), any<Int>()) } answers {
+        every {
+            mockContext.bindService(
+                any<Intent>(),
+                capture(connectionSlot),
+                any<Int>()
+            )
+        } answers {
             serviceConnection = connectionSlot.captured
             true
         }
@@ -73,7 +79,13 @@ class TimerManagerImplTest {
 
     @Test
     fun `init時にサービスがbindされる`() {
-        verify { mockContext.bindService(any<Intent>(), any<ServiceConnection>(), Context.BIND_AUTO_CREATE) }
+        verify {
+            mockContext.bindService(
+                any<Intent>(),
+                any<ServiceConnection>(),
+                Context.BIND_AUTO_CREATE
+            )
+        }
     }
 
     @Test
@@ -82,7 +94,13 @@ class TimerManagerImplTest {
             timerManagerImpl.startTimer()
         }
 
-        verify(atLeast = 2) { mockContext.bindService(any<Intent>(), any<ServiceConnection>(), Context.BIND_AUTO_CREATE) }
+        verify(atLeast = 2) {
+            mockContext.bindService(
+                any<Intent>(),
+                any<ServiceConnection>(),
+                Context.BIND_AUTO_CREATE
+            )
+        }
     }
 
     @Test
@@ -164,7 +182,12 @@ class TimerManagerImplTest {
         serviceState.value = next
         advanceUntilIdle()
 
-        serviceConnection.onServiceDisconnected(ComponentName(TEST_COMPONENT_NAME, TEST_COMPONENT_NAME))
+        serviceConnection.onServiceDisconnected(
+            ComponentName(
+                TEST_COMPONENT_NAME,
+                TEST_COMPONENT_NAME
+            )
+        )
         advanceUntilIdle()
 
         assertEquals(next, timerManagerImpl.timerState.value)

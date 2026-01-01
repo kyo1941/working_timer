@@ -201,8 +201,8 @@ class MainViewModelTest {
                 mockWorkRepository.insert(
                     match {
                         it.start_day == TEST_DATE &&
-                            it.start_time == TEST_START_TIME &&
-                            it.elapsed_time == 3600L
+                                it.start_time == TEST_START_TIME &&
+                                it.elapsed_time == 3600L
                     }
                 )
             }

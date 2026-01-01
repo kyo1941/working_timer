@@ -99,6 +99,8 @@ class TimerManagerImpl @Inject constructor(
         if (isBound) {
             context.unbindService(connection)
             isBound = false
+            timerService = null
+            job?.cancel()
         }
     }
 }

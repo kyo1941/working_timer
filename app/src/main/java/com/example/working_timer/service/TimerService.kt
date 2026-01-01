@@ -26,6 +26,9 @@ import com.example.working_timer.navigation.Routes
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -33,17 +36,22 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
+data class TimerState(
+    val isRunning: Boolean = false,
+    val elapsedTime: Long = 0L,
+)
+
 @AndroidEntryPoint
 class TimerService : LifecycleService() {
     @Inject
     lateinit var dataStoreManager: DataStoreManager
-
     private val binder = LocalBinder()
     private var startTime: Long = 0
-    private var elapsedTime: Long = 0
     private var startDate: String? = null
+    private val _serviceState: MutableStateFlow<TimerState> = MutableStateFlow(TimerState())
+    val serviceState = _serviceState.asStateFlow()
     private var startTimeString: String? = null
-    private var isRunning = false
+    private var startTimeCalendar: Calendar = Calendar.getInstance()
     private val handler = Handler(Looper.getMainLooper())
 
     @Inject
@@ -52,13 +60,15 @@ class TimerService : LifecycleService() {
 
     private val runnable = object : Runnable {
         override fun run() {
-            elapsedTime = System.currentTimeMillis() - startTime
-            listener?.onTimerTick(elapsedTime)
+            val currentElapsedTime = System.currentTimeMillis() - startTime
+            _serviceState.update {
+                it.copy(isRunning = true, elapsedTime = currentElapsedTime)
+            }
             updateNotificationChannel()
 
-            if ((elapsedTime / 1000) % 60 == 0L) {
+            if ((currentElapsedTime / 1000) % 60 == 0L) {
                 lifecycleScope.launch(ioDispatcher) {
-                    dataStoreManager.updateElapsedTime(elapsedTime)
+                    dataStoreManager.updateElapsedTime(currentElapsedTime)
                 }
             }
 
@@ -66,21 +76,12 @@ class TimerService : LifecycleService() {
         }
     }
 
-    private var listener: TimerServiceListener? = null
-
-    private var startTimeCalendar: Calendar = Calendar.getInstance()
-
     private val notificationStatus: String
-        get() = if (isRunning) {
+        get() = if (_serviceState.value.isRunning) {
             getString(R.string.timer_notification_working_status)
         } else {
             getString(R.string.timer_notification_resting_status)
         }
-
-    interface TimerServiceListener {
-        fun onTimerTick(elapsedTime: Long)
-        fun updateUI()
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -89,19 +90,19 @@ class TimerService : LifecycleService() {
     }
 
     private fun restoreTimerState() {
-        if (elapsedTime == 0L && startDate == null && startTimeString == null) {
+        if (_serviceState.value.elapsedTime == 0L && startDate == null && startTimeString == null) {
             lifecycleScope.launch(ioDispatcher) {
                 val savedElapsedTime = dataStoreManager.getElapsedTimeSync()
 
                 if (savedElapsedTime > 0) {
-                    elapsedTime = savedElapsedTime
-                    isRunning = false
                     startTimeString = dataStoreManager.getStartTimeSync()
                     startDate = dataStoreManager.getStartDateSync()
 
                     withContext(Dispatchers.Main) {
+                        _serviceState.update {
+                            it.copy(isRunning = false, elapsedTime = savedElapsedTime)
+                        }
                         updateNotificationChannel()
-                        listener?.onTimerTick(elapsedTime)
                     }
                 }
             }
@@ -118,8 +119,8 @@ class TimerService : LifecycleService() {
     }
 
     fun startTimer() {
-        startTime = System.currentTimeMillis() - elapsedTime
-        isRunning = true
+        startTime = System.currentTimeMillis() - _serviceState.value.elapsedTime
+        _serviceState.update { it.copy(isRunning = true) }
         startTimeCalendar = Calendar.getInstance()
 
         val sdfDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -131,7 +132,7 @@ class TimerService : LifecycleService() {
             dataStoreManager.saveTimerState(
                 startDate = formattedDate,
                 startTime = formattedTime,
-                elapsedTime = elapsedTime
+                elapsedTime = _serviceState.value.elapsedTime
             )
         }
 
@@ -141,12 +142,12 @@ class TimerService : LifecycleService() {
 
     fun stopTimer() {
         handler.removeCallbacks(runnable)
-        isRunning = false
 
-        elapsedTime = 0
+        _serviceState.update {
+            it.copy(isRunning = false, elapsedTime = 0L)
+        }
         startDate = null
         startTimeString = null
-        listener?.onTimerTick(elapsedTime) // 停止時に0を通知
 
         lifecycleScope.launch(ioDispatcher) {
             dataStoreManager.clearTimerState()
@@ -154,42 +155,25 @@ class TimerService : LifecycleService() {
 
         stopForeground(STOP_FOREGROUND_REMOVE)
         NotificationManagerCompat.from(this).cancel(1)
-        removeListener()
     }
 
     fun pauseTimer() {
         handler.removeCallbacks(runnable)
-        isRunning = false
+        _serviceState.update { it.copy(isRunning = false) }
 
         lifecycleScope.launch(ioDispatcher) {
-            dataStoreManager.updateElapsedTime(elapsedTime)
+            dataStoreManager.updateElapsedTime(_serviceState.value.elapsedTime)
         }
 
         updateNotificationChannel()
     }
 
     fun resumeTimer() {
-        startTime = System.currentTimeMillis() - elapsedTime
-        isRunning = true
+        _serviceState.update { it.copy(isRunning = true) }
+        startTime = System.currentTimeMillis() - _serviceState.value.elapsedTime
+
         handler.postDelayed(runnable, 0)
     }
-
-    fun isTimerRunning(): Boolean {
-        return isRunning
-    }
-
-    fun getElapsedTime(): Long {
-        return elapsedTime
-    }
-
-    fun setListener(listener: TimerServiceListener) {
-        this.listener = listener
-    }
-
-    fun removeListener() {
-        this.listener = null
-    }
-
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -230,7 +214,7 @@ class TimerService : LifecycleService() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val repSecTime = elapsedTime / 1000
+        val repSecTime = _serviceState.value.elapsedTime / 1000
         val hours = (repSecTime / 3600).toInt()
         val minutes = ((repSecTime / 60) % 60).toInt()
         val seconds = (repSecTime % 60).toInt()
@@ -248,8 +232,7 @@ class TimerService : LifecycleService() {
             .setSmallIcon(R.drawable.ic_launcher_playstore)
             .setContentIntent(pendingIntent)
 
-        if (isRunning) {
-            // 中断ボタンを追加
+        if (_serviceState.value.isRunning) {
             val pauseIntent = Intent(this, TimerActionReceiver::class.java).apply {
                 action = "ACTION_PAUSE_TIMER"
             }
@@ -262,7 +245,6 @@ class TimerService : LifecycleService() {
                 pausePendingIntent
             )
         } else {
-            // 再開ボタンを追加
             val resumeIntent = Intent(this, TimerActionReceiver::class.java).apply {
                 action = "ACTION_RESUME_TIMER"
             }
@@ -315,7 +297,6 @@ class TimerService : LifecycleService() {
             "resume" -> resumeTimer()
             else -> Log.e("TimerService", "Unknown action: $action")
         }
-        listener?.updateUI()
         return START_STICKY
     }
 

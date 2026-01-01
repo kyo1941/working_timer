@@ -1,18 +1,12 @@
 package com.example.working_timer.domain.repository
 
+import com.example.working_timer.service.TimerState
+import kotlinx.coroutines.flow.StateFlow
+
 interface TimerManager {
+    val timerState: StateFlow<TimerState>
     fun startTimer()
     fun pauseTimer()
     fun resumeTimer()
     fun stopTimer()
-    fun isTimerRunning(): Boolean
-    fun getElapsedTime(): Long
-    fun setListener(listener: TimerListener)
-    fun removeListener()
-}
-
-interface TimerListener {
-    fun onTimerTick(elapsedTime: Long)
-    fun updateUI()
-    fun onError(error: String)
 }

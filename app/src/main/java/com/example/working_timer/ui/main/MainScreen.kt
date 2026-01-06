@@ -6,6 +6,8 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -186,13 +188,15 @@ fun MainScreen(
             Row(
                 horizontalArrangement = Arrangement.Center
             ) {
+                val timerAnimation: AnimatedContentTransitionScope<Char>.() -> ContentTransform = {
+                    slideInVertically { height -> height } togetherWith
+                            slideOutVertically { height -> -height }
+                }
                 state.uiState.displayText.forEach { char ->
                     AnimatedContent(
                         targetState = char,
-                        transitionSpec = {
-                            slideInVertically { height -> height } togetherWith
-                                    slideOutVertically { height -> -height }
-                        }
+                        transitionSpec = timerAnimation,
+                        label = "TimerCharAnimation"
                     ) { targetChar ->
                         Text(
                             text = targetChar.toString(),

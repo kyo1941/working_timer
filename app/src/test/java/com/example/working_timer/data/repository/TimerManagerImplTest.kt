@@ -9,7 +9,10 @@ import com.example.working_timer.service.TimerState
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -105,7 +108,7 @@ class TimerManagerImplTest {
 
     @Test
     fun `pendingStart中にserviceConnectedしたらserviceのstartTimerが呼ばれる`() = runTest {
-        timerManagerImpl.startTimer() // pendingStart = true
+        timerManagerImpl.startTimer()
 
         simulateServiceConnection()
         advanceUntilIdle()
@@ -163,6 +166,10 @@ class TimerManagerImplTest {
 
     @Test
     fun `serviceStateが更新されるとtimerManagerのtimerStateに反映される`() = runTest {
+        val valuesDeferred = backgroundScope.async {
+            timerManagerImpl.timerState.take(2).toList(mutableListOf())
+        }
+
         simulateServiceConnection()
         advanceUntilIdle()
 
@@ -170,11 +177,17 @@ class TimerManagerImplTest {
         serviceState.value = next
         advanceUntilIdle()
 
+        val values = valuesDeferred.await()
+        assertTrue(values.contains(next))
         assertEquals(next, timerManagerImpl.timerState.value)
     }
 
     @Test
-    fun `onServiceDisconnected後は最新timerStateは維持されるが操作は呼ばれない`() = runTest {
+    fun `onServiceDisconnected後は未接続扱いになりtimerStateは初期値に戻る`() = runTest {
+        val valuesDeferred = backgroundScope.async {
+            timerManagerImpl.timerState.take(3).toList(mutableListOf())
+        }
+
         simulateServiceConnection()
         advanceUntilIdle()
 
@@ -190,7 +203,9 @@ class TimerManagerImplTest {
         )
         advanceUntilIdle()
 
-        assertEquals(next, timerManagerImpl.timerState.value)
+        val values = valuesDeferred.await()
+        assertTrue(values.contains(next))
+        assertEquals(INITIAL_STATE, timerManagerImpl.timerState.value)
 
         timerManagerImpl.pauseTimer()
         timerManagerImpl.resumeTimer()

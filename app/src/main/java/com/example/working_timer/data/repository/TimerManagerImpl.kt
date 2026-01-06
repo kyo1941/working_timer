@@ -11,51 +11,57 @@ import com.example.working_timer.service.TimerState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class TimerManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : TimerManager {
-    private var timerService: TimerService? = null
     private var isBound = false
 
     private var pendingStart = false
 
-    private val _timerState = MutableStateFlow<TimerState>(TimerState())
-    override val timerState = _timerState.asStateFlow()
+    private val timerServiceFlow = MutableStateFlow<TimerService?>(null)
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private var job: Job? = null
+
+    override val timerState: StateFlow<TimerState> =
+        timerServiceFlow
+            .flatMapLatest { service ->
+                service?.serviceState ?: flowOf(TimerState())
+            }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = TimerState()
+            )
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as TimerService.LocalBinder
-            timerService = binder.getService()
+
+            timerServiceFlow.value = binder.getService()
             isBound = true
 
             if (pendingStart) {
-                timerService?.startTimer()
+                timerServiceFlow.value?.startTimer()
                 pendingStart = false
-            }
-
-            job?.cancel()
-            job = scope.launch {
-                timerService?.serviceState?.collect { state ->
-                    _timerState.value = state
-                }
             }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
             isBound = false
-            timerService = null
+            timerServiceFlow.value = null
         }
     }
 
@@ -69,20 +75,20 @@ class TimerManagerImpl @Inject constructor(
             bindService()
             return
         }
-        timerService?.startTimer()
+        timerServiceFlow.value?.startTimer()
         pendingStart = false
     }
 
     override fun pauseTimer() {
-        timerService?.pauseTimer()
+        timerServiceFlow.value?.pauseTimer()
     }
 
     override fun resumeTimer() {
-        timerService?.resumeTimer()
+        timerServiceFlow.value?.resumeTimer()
     }
 
     override fun stopTimer() {
-        timerService?.stopTimer()
+        timerServiceFlow.value?.stopTimer()
         unbindService()
     }
 
@@ -99,8 +105,7 @@ class TimerManagerImpl @Inject constructor(
         if (isBound) {
             context.unbindService(connection)
             isBound = false
-            timerService = null
-            job?.cancel()
         }
+        timerServiceFlow.value = null
     }
 }

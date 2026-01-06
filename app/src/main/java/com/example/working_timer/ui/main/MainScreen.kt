@@ -5,6 +5,12 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -179,12 +185,28 @@ fun MainScreen(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            Text(
-                text = state.uiState.displayText,
-                textAlign = TextAlign.Center,
-                fontSize = 56.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                val timerAnimation: AnimatedContentTransitionScope<Char>.() -> ContentTransform = {
+                    slideInVertically { height -> height } togetherWith
+                            slideOutVertically { height -> -height }
+                }
+                state.uiState.displayText.forEach { char ->
+                    AnimatedContent(
+                        targetState = char,
+                        transitionSpec = timerAnimation,
+                        label = "TimerCharAnimation"
+                    ) { targetChar ->
+                        Text(
+                            text = targetChar.toString(),
+                            textAlign = TextAlign.Center,
+                            fontSize = 56.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
 
             Spacer(Modifier.weight(1f))
 
@@ -228,7 +250,7 @@ fun MainScreen(
             Spacer(Modifier.weight(1f))
         }
 
-        when(state.uiState.dialogStatus) {
+        when (state.uiState.dialogStatus) {
             is DialogStatus.SaveDialog -> SaveDialog(
                 startDate = state.uiState.dialogStatus.startDate,
                 elapsedTime = state.uiState.dialogStatus.elapsedTime,
@@ -242,6 +264,7 @@ fun MainScreen(
                     actions.onDismissSaveDialog()
                 }
             )
+
             is DialogStatus.TooShortTimeErrorDialog -> ErrorAlertDialog(
                 message = stringResource(R.string.error_time_too_short),
                 onClick = {
@@ -253,6 +276,7 @@ fun MainScreen(
                     actions.onDismissSaveDialog()
                 }
             )
+
             is DialogStatus.DataNotFoundErrorDialog -> ErrorAlertDialog(
                 message = stringResource(R.string.error_data_not_found),
                 onClick = {
@@ -264,6 +288,7 @@ fun MainScreen(
                     actions.onDismissSaveDialog()
                 }
             )
+
             null -> {}
         }
     }

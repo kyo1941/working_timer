@@ -2,6 +2,7 @@ package com.example.working_timer.ui.edit_work
 
 import android.database.sqlite.SQLiteException
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.working_timer.data.db.Work
@@ -37,8 +38,8 @@ sealed interface UiEvent {
 data class EditWorkUiState(
     val startDay: String = "",
     val endDay: String = "",
-    val startTime: String = "",
-    val endTime: String = "",
+    val startTime: String = "00:00",
+    val endTime: String = "00:00",
     val elapsedHour: Long = 0L,
     val elapsedMinute: Long = 0L,
     val showZeroMinutesError: Boolean = false,
@@ -48,6 +49,7 @@ data class EditWorkUiState(
 
 @HiltViewModel
 class EditWorkViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val workRepository: WorkRepository
 ) : ViewModel() {
 
@@ -56,28 +58,42 @@ class EditWorkViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    fun init(id: Int, isNew: Boolean, startDay: String) {
-        if (isNew) {
-            // 新規作成時は初期値を設定する
-            _uiState.update {
-                it.copy(
-                    startDay = startDay,
-                    endDay = startDay,
-                    startTime = "00:00",
-                    endTime = "00:00",
-                    elapsedHour = 0,
-                    elapsedMinute = 0
-                )
+    val id = savedStateHandle.get<Int>("id") ?: 0
+    val startDay = savedStateHandle.get<String>("startDay")
+
+    /**
+     * UiState の初期設定。新規作成の時は id = 0
+     */
+    init {
+        if (id == 0) {
+            startDay?.let {
+                _uiState.update {
+                    it.copy(
+                        startDay = startDay,
+                        endDay = startDay
+                    )
+                }
             }
         } else {
-            // DBから記録を読み込む
-            getWork(id)
+            viewModelScope.launch {
+                workRepository.getWork(id).firstOrNull()?.let { work ->
+                    _uiState.update {
+                        it.copy(
+                            startDay = work.start_day,
+                            endDay = work.end_day,
+                            startTime = work.start_time,
+                            endTime = work.end_time,
+                            elapsedHour = work.elapsed_time / SECOND_IN_HOURS,
+                            elapsedMinute = (work.elapsed_time % SECOND_IN_HOURS) / SECOND_IN_MINUTES
+                        )
+                    }
+                }
+            }
         }
     }
 
     fun saveWork(
         id: Int,
-        isNew: Boolean,
         forceSave: Boolean = false
     ) {
         viewModelScope.launch {
@@ -121,7 +137,7 @@ class EditWorkViewModel @Inject constructor(
                     return@launch
                 }
 
-                if (!isNew) {
+                if (id != 0) {
                     val work = Work(
                         id = id,
                         start_day = currentState.startDay,
@@ -147,23 +163,6 @@ class EditWorkViewModel @Inject constructor(
                 _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.DatabaseError))
             } catch (e: Exception) {
                 _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.UnknownError(e.localizedMessage)))
-            }
-        }
-    }
-
-    private fun getWork(id: Int) {
-        viewModelScope.launch {
-            workRepository.getWork(id).firstOrNull()?.let { work ->
-                _uiState.update {
-                    it.copy(
-                        startDay = work.start_day,
-                        endDay = work.end_day,
-                        startTime = work.start_time,
-                        endTime = work.end_time,
-                        elapsedHour = work.elapsed_time / SECOND_IN_HOURS,
-                        elapsedMinute = (work.elapsed_time % SECOND_IN_HOURS) / SECOND_IN_MINUTES
-                    )
-                }
             }
         }
     }

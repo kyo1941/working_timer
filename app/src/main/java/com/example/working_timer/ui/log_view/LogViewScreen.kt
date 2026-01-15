@@ -41,7 +41,7 @@ data class LogViewScreenState(
 
 data class LogViewScreenActions(
     val onNavigateToTimer: () -> Unit,
-    val onNavigateToEditWork: (Int, String, Boolean) -> Unit,
+    val onNavigateToEditWork: (Int, String) -> Unit,
     val onDateSelected: (Int, Int, Int) -> Unit,
     val onShowDeleteDialog: (Work) -> Unit,
     val onHideDeleteDialog: () -> Unit,
@@ -60,7 +60,7 @@ fun LogViewScreenHolder(
     modifier: Modifier = Modifier,
     viewModel: LogViewViewModel = hiltViewModel(),
     onNavigateToTimer: () -> Unit,
-    onNavigateToEditWork: (Int, String, Boolean) -> Unit
+    onNavigateToEditWork: (Int, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -181,8 +181,7 @@ fun LogViewScreen(
                             onEdit = {
                                 actions.onNavigateToEditWork(
                                     work.id,
-                                    work.start_day,
-                                    false
+                                    work.start_day
                                 )
                             }
                         )
@@ -207,8 +206,7 @@ fun LogViewScreen(
                     onClick = {
                         actions.onNavigateToEditWork(
                             0,
-                            state.uiState.selectedDay,
-                            true
+                            state.uiState.selectedDay
                         )
                     },
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
@@ -501,7 +499,7 @@ fun LogViewScreenPreviewEmpty() {
         ),
         actions = LogViewScreenActions(
             onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _, _ -> },
+            onNavigateToEditWork = { _, _ -> },
             onDateSelected = { _, _, _ -> },
             onShowDeleteDialog = {},
             onHideDeleteDialog = {},
@@ -567,7 +565,7 @@ fun LogViewScreenPreviewWithWorkList() {
         ),
         actions = LogViewScreenActions(
             onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _, _ -> },
+            onNavigateToEditWork = { _, _ -> },
             onDateSelected = { _, _, _ -> },
             onShowDeleteDialog = {},
             onHideDeleteDialog = {},
@@ -615,7 +613,7 @@ fun LogViewScreenPreviewDeleteDialog() {
         ),
         actions = LogViewScreenActions(
             onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _, _ -> },
+            onNavigateToEditWork = { _, _ -> },
             onDateSelected = { _, _, _ -> },
             onShowDeleteDialog = {},
             onHideDeleteDialog = {},
@@ -654,7 +652,7 @@ fun LogViewScreenPreviewSumDialog() {
         ),
         actions = LogViewScreenActions(
             onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _, _ -> },
+            onNavigateToEditWork = { _, _ -> },
             onDateSelected = { _, _, _ -> },
             onShowDeleteDialog = {},
             onHideDeleteDialog = {},
@@ -693,7 +691,7 @@ fun LogViewScreenPreviewDateRangePicker() {
         ),
         actions = LogViewScreenActions(
             onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _, _ -> },
+            onNavigateToEditWork = { _, _ -> },
             onDateSelected = { _, _, _ -> },
             onShowDeleteDialog = {},
             onHideDeleteDialog = {},

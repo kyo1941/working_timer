@@ -74,8 +74,6 @@ fun EditWorkScreenHolder(
     modifier: Modifier = Modifier,
     editWorkViewModel: EditWorkViewModel = hiltViewModel(),
     id: Int,
-    startDay: String,
-    isNew: Boolean,
     onNavigateBack: () -> Unit = {}
 ) {
     val uiState by editWorkViewModel.uiState.collectAsState()
@@ -91,9 +89,6 @@ fun EditWorkScreenHolder(
     var showElapsedPicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        // 初期値を設定する
-        editWorkViewModel.init(id, isNew, startDay)
-
         // イベントを監視する
         editWorkViewModel.uiEvent.collectLatest { event ->
             when (event) {
@@ -102,8 +97,9 @@ fun EditWorkScreenHolder(
                         is EditWorkError.InvalidDateTimeFormat -> context.getString(R.string.edit_work_view_model_error_invalid_date_time_format)
                         is EditWorkError.DatabaseError -> context.getString(R.string.edit_work_view_model_error_database)
                         is EditWorkError.UnknownError -> {
-                            val detail = event.error.message ?:  context.getString(R.string.edit_work_view_model_error_unknown_detail)
-                             context.getString(R.string.edit_work_view_model_error_unknown, detail)
+                            val detail = event.error.message
+                                ?: context.getString(R.string.edit_work_view_model_error_unknown_detail)
+                            context.getString(R.string.edit_work_view_model_error_unknown, detail)
                         }
                     }
                     scope.launch {
@@ -122,7 +118,7 @@ fun EditWorkScreenHolder(
         state = EditWorkScreenState(
             uiState = uiState,
             snackbarHostState = snackbarHostState,
-            isNew = isNew,
+            isNew = (id == 0),
             showStartTimePicker = showStartTimePicker,
             showStartDayPicker = showStartDayPicker,
             showEndTimePicker = showEndTimePicker,
@@ -141,7 +137,7 @@ fun EditWorkScreenHolder(
                     minute
                 )
             },
-            onSaveWork = { editWorkViewModel.saveWork(id, isNew, it) },
+            onSaveWork = { editWorkViewModel.saveWork(id, it) },
             onClearZeroMinutesError = { editWorkViewModel.clearZeroMinutesError() },
             onClearStartEndError = { editWorkViewModel.clearStartEndError() },
             onClearElapsedTimeOver = { editWorkViewModel.clearElapsedTimeOver() },

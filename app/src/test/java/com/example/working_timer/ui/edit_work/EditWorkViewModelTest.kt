@@ -1,5 +1,6 @@
 package com.example.working_timer.ui.edit_work
 
+import androidx.lifecycle.SavedStateHandle
 import com.example.working_timer.data.db.Work
 import com.example.working_timer.domain.repository.WorkRepository
 import com.example.working_timer.util.Constants.SECOND_IN_HOURS
@@ -51,10 +52,12 @@ class EditWorkViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-
+        val savedStateHandle = SavedStateHandle().apply {
+            set("id", 0)
+            set("startDay", TEST_START_DAY)
+        }
         mockWorkRepository = mockk(relaxed = true)
-
-        viewModel = EditWorkViewModel(mockWorkRepository)
+        viewModel = EditWorkViewModel(savedStateHandle, mockWorkRepository)
     }
 
     @After
@@ -102,8 +105,6 @@ class EditWorkViewModelTest {
 
     @Test
     fun `新規作成時に初期値が正しく設定される`() {
-        viewModel.init(id = 0, isNew = true, startDay = TEST_START_DAY)
-
         val uiState = viewModel.uiState.value
         assertEquals(TEST_START_DAY, uiState.startDay)
         assertEquals(TEST_START_DAY, uiState.endDay)
@@ -118,7 +119,8 @@ class EditWorkViewModelTest {
         val testWork = createTestWork()
         setupMockWorkForEdit(testWork)
 
-        viewModel.init(id = TEST_ID, isNew = false, startDay = "")
+        val savedStateHandle = SavedStateHandle().apply { set("id", testWork.id) }
+        val viewModel = EditWorkViewModel(savedStateHandle, mockWorkRepository)
 
         val uiState = viewModel.uiState.value
         assertEquals(TEST_START_DAY, uiState.startDay)
@@ -191,7 +193,7 @@ class EditWorkViewModelTest {
         }
 
         // When
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         // Then
         coVerify { mockWorkRepository.insert(any()) }
@@ -209,7 +211,7 @@ class EditWorkViewModelTest {
             collectedEvent = viewModel.uiEvent.first()
         }
 
-        viewModel.saveWork(id = TEST_ID, isNew = false)
+        viewModel.saveWork(id = TEST_ID)
 
         coVerify { mockWorkRepository.update(any()) }
         assertTrue("SaveSuccessイベントが発生すること", collectedEvent is UiEvent.SaveSuccess)
@@ -229,7 +231,7 @@ class EditWorkViewModelTest {
             collectedEvent = viewModel.uiEvent.first()
         }
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is UiEvent.ShowSnackbar)
     }
@@ -248,7 +250,7 @@ class EditWorkViewModelTest {
             collectedEvent = viewModel.uiEvent.first()
         }
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is UiEvent.ShowSnackbar)
     }
@@ -261,7 +263,7 @@ class EditWorkViewModelTest {
         viewModel.updateEndTime(TEST_END_TIME)
         viewModel.updateElapsedTime(0, 0)
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         assertTrue("0分エラーが表示されること", viewModel.uiState.value.showZeroMinutesError)
     }
@@ -274,7 +276,7 @@ class EditWorkViewModelTest {
         viewModel.updateEndTime(FUTURE_END_TIME)
         viewModel.updateElapsedTime(1, 0)
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         assertTrue("開始終了時刻エラーが表示されること", viewModel.uiState.value.showStartEndError)
     }
@@ -287,7 +289,7 @@ class EditWorkViewModelTest {
         viewModel.updateEndTime(TEST_END_TIME)
         viewModel.updateElapsedTime(LONG_ELAPSED_HOUR, LONG_ELAPSED_MINUTE)
 
-        viewModel.saveWork(id = 0, isNew = true, forceSave = false)
+        viewModel.saveWork(id = 0, forceSave = false)
 
         assertTrue("経過時間超過エラーが表示されること", viewModel.uiState.value.showElapsedTimeOver)
     }
@@ -307,7 +309,7 @@ class EditWorkViewModelTest {
             collectedEvent = viewModel.uiEvent.first()
         }
 
-        viewModel.saveWork(id = 0, isNew = true, forceSave = true)
+        viewModel.saveWork(id = 0, forceSave = true)
 
         assertFalse("経過時間超過エラーが表示されないこと", viewModel.uiState.value.showElapsedTimeOver)
         assertTrue("SaveSuccessイベントが発生すること", collectedEvent is UiEvent.SaveSuccess)
@@ -324,7 +326,7 @@ class EditWorkViewModelTest {
             collectedEvent = viewModel.uiEvent.first()
         }
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is UiEvent.ShowSnackbar)
     }
@@ -337,7 +339,7 @@ class EditWorkViewModelTest {
         viewModel.updateEndDay(TEST_END_DAY)
         viewModel.updateEndTime(TEST_END_TIME)
         viewModel.updateElapsedTime(0, 0)
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         assertTrue("初期状態で0分エラーが設定されること", viewModel.uiState.value.showZeroMinutesError)
 
@@ -353,7 +355,7 @@ class EditWorkViewModelTest {
         viewModel.updateEndDay(FUTURE_END_DAY)
         viewModel.updateEndTime(FUTURE_END_TIME)
         viewModel.updateElapsedTime(1, 0)
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         assertTrue("初期状態で開始終了時刻エラーが設定されること", viewModel.uiState.value.showStartEndError)
 
@@ -369,7 +371,7 @@ class EditWorkViewModelTest {
         viewModel.updateEndDay(TEST_END_DAY)
         viewModel.updateEndTime(TEST_END_TIME)
         viewModel.updateElapsedTime(LONG_ELAPSED_HOUR, LONG_ELAPSED_MINUTE)
-        viewModel.saveWork(id = 0, isNew = true, forceSave = false)
+        viewModel.saveWork(id = 0, forceSave = false)
 
         assertTrue("初期状態で経過時間超過エラーが設定されること", viewModel.uiState.value.showElapsedTimeOver)
 
@@ -382,10 +384,10 @@ class EditWorkViewModelTest {
     fun `初期UI状態は正しいデフォルト値を持つ`() {
         val uiState = viewModel.uiState.value
 
-        assertEquals("", uiState.startDay)
-        assertEquals("", uiState.endDay)
-        assertEquals("", uiState.startTime)
-        assertEquals("", uiState.endTime)
+        assertEquals(TEST_START_DAY, uiState.startDay)
+        assertEquals(TEST_START_DAY, uiState.endDay)
+        assertEquals("00:00", uiState.startTime)
+        assertEquals("00:00", uiState.endTime)
         assertEquals(0, uiState.elapsedHour)
         assertEquals(0, uiState.elapsedMinute)
         assertFalse(uiState.showZeroMinutesError)
@@ -398,7 +400,7 @@ class EditWorkViewModelTest {
         setupSuccessfulInsert()
         setupValidWorkData()
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         coVerify {
             mockWorkRepository.insert(match { work ->
@@ -416,7 +418,7 @@ class EditWorkViewModelTest {
         setupSuccessfulUpdate()
         setupValidWorkData()
 
-        viewModel.saveWork(id = TEST_ID, isNew = false)
+        viewModel.saveWork(id = TEST_ID)
 
         coVerify {
             mockWorkRepository.update(match { work ->
@@ -439,7 +441,7 @@ class EditWorkViewModelTest {
         viewModel.updateEndTime(TEST_END_TIME)
         viewModel.updateElapsedTime(SHORT_ELAPSED_HOUR, SHORT_ELAPSED_MINUTE)
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
 
         val expectedElapsedTime = SHORT_ELAPSED_HOUR * SECOND_IN_HOURS + SHORT_ELAPSED_MINUTE * SECOND_IN_MINUTES
         coVerify {
@@ -462,7 +464,7 @@ class EditWorkViewModelTest {
             collectedEvent = viewModel.uiEvent.first()
         }
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
         testDispatcher.scheduler.runCurrent()
 
         assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is UiEvent.ShowSnackbar)
@@ -481,7 +483,7 @@ class EditWorkViewModelTest {
             collectedEvent = viewModel.uiEvent.first()
         }
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
         testDispatcher.scheduler.runCurrent()
 
         assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is UiEvent.ShowSnackbar)
@@ -492,12 +494,11 @@ class EditWorkViewModelTest {
         val nonExistentId = 999
         coEvery { mockWorkRepository.getWork(nonExistentId) } returns emptyFlow()
 
-        viewModel.init(id = nonExistentId, isNew = false, startDay = "")
         testDispatcher.scheduler.runCurrent()
 
         val uiState = viewModel.uiState.value
-        assertEquals("", uiState.startDay)
-        assertEquals("", uiState.endTime)
+        assertEquals(TEST_START_DAY, uiState.startDay)
+        assertEquals("00:00", uiState.endTime)
         assertEquals(0L, uiState.elapsedHour)
     }
 
@@ -512,9 +513,10 @@ class EditWorkViewModelTest {
             collectedEvent = viewModel.uiEvent.first()
         }
 
-        viewModel.saveWork(id = 0, isNew = true)
+        viewModel.saveWork(id = 0)
         testDispatcher.scheduler.runCurrent()
 
         assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is UiEvent.ShowSnackbar)
     }
 }
+

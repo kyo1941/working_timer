@@ -59,12 +59,11 @@ fun AppNavHost(
                             launchSingleTop = true
                         }
                     },
-                    onNavigateToEditWork = { id, startDay, isNew ->
+                    onNavigateToEditWork = { id, startDay ->
                         navController.navigate(
-                            Routes.EditWork().createRoute(
+                            Routes.EditWork.createRoute(
                                 id = id,
                                 startDay = startDay,
-                                isNew = isNew
                             )
                         ) {
                             launchSingleTop = true
@@ -76,16 +75,13 @@ fun AppNavHost(
         }
 
         composable(
-            route = Routes.EditWork().routes,
+            route = Routes.EditWork.routes,
             arguments = listOf(
                 navArgument("id") { type = NavType.IntType },
-                navArgument("startDay") { type = NavType.StringType },
-                navArgument("isNew") { type = NavType.BoolType }
+                navArgument("startDay") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
-            val startDay = backStackEntry.arguments?.getString("startDay") ?: ""
-            val isNew = backStackEntry.arguments?.getBoolean("isNew") ?: true
 
             ScaffoldWithEdgeToEdge(
                 footer = { /* 編集画面ではフッターを表示しない */ },
@@ -93,8 +89,6 @@ fun AppNavHost(
             ) { paddingValues ->
                 EditWorkScreenHolder(
                     id = id,
-                    startDay = startDay,
-                    isNew = isNew,
                     onNavigateBack = {
                         navController.popBackStack()
                     },

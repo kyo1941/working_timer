@@ -29,7 +29,6 @@ fun MaterialTimePickerDialog(
         is24Hour = true
     )
 
-    // 基本はPickerを初期値にするが，活動時間だけはInputにする
     var isInputMode by remember { mutableStateOf(!showToggleIcon) }
 
     AlertDialog(
@@ -62,7 +61,6 @@ fun MaterialTimePickerDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (showToggleIcon) {
-                        // 左端：モード切り替えアイコン
                         IconButton(onClick = { isInputMode = !isInputMode }) {
                             Icon(
                                 imageVector = if (isInputMode) Icons.Filled.AccessTime else Icons.Filled.Keyboard,
@@ -73,11 +71,9 @@ fun MaterialTimePickerDialog(
                         Spacer(modifier = Modifier.width(16.dp))
                     }
                     Row {
-                        // 右側：キャンセルボタン
                         TextButton(onClick = onDismiss) {
                             Text(stringResource(id = R.string.time_picker_dialog_cancel_button))
                         }
-                        // OKボタン
                         TextButton(onClick = {
                             onTimeSelected(String.format("%02d:%02d", state.hour, state.minute))
                         }) {

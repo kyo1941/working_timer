@@ -23,7 +23,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.DialogProperties
-import com.example.working_timer.ui.components.DatePickerModal
+import com.example.working_timer.ui.components.DatePickerDialog
 import com.example.working_timer.ui.components.MaterialTimePickerDialog
 import com.example.working_timer.R
 import androidx.compose.runtime.collectAsState
@@ -369,7 +369,7 @@ fun EditWorkScreen(
         }
 
         if (state.showStartDayPicker) {
-            DatePickerModal(
+            DatePickerDialog(
                 initialDate = state.uiState.startDay,
                 onDateSelected = {
                     actions.onUpdateStartDay(it)
@@ -380,7 +380,7 @@ fun EditWorkScreen(
         }
 
         if (state.showEndDayPicker) {
-            DatePickerModal(
+            DatePickerDialog(
                 initialDate = state.uiState.endDay,
                 onDateSelected = {
                     actions.onUpdateEndDay(it)

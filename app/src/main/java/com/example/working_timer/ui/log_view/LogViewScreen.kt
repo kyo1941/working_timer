@@ -24,7 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.working_timer.ui.components.DateRangePickerModal
+import com.example.working_timer.ui.components.DateRangePickerDialog
 import com.example.working_timer.R
 import com.example.working_timer.ui.components.WorkItemComposable
 import java.text.NumberFormat
@@ -282,7 +282,7 @@ fun LogViewScreen(
 
     // 日付範囲選択ダイアログ
     if (state.showDateRangePicker) {
-        DateRangePickerModal(
+        DateRangePickerDialog(
             onDateRangeSelected = { pair ->
                 val (startDate, endDate) = pair
                 actions.onDateRangeSelected(startDate, endDate)

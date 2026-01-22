@@ -23,7 +23,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateRangePickerModal(
+fun DateRangePickerDialog(
     onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -100,10 +100,10 @@ fun DateRangePickerModal(
     }
 }
 
-@Preview(showBackground = true, name = "DateRangePickerModal")
+@Preview(showBackground = true, name = "DateRangePickerDialog")
 @Composable
-fun DateRangePickerModalPreview() {
-    DateRangePickerModal(
+fun DateRangePickerDialogPreview() {
+    DateRangePickerDialog(
         onDateRangeSelected = { },
         onDismiss = { }
     )

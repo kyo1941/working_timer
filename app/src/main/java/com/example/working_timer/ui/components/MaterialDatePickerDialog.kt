@@ -7,17 +7,22 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerModal(
+fun DatePickerDialog(
     initialDate: String,
     onDateSelected: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val calendar = Calendar.getInstance()
-    calendar.time = dateFormat.parse(initialDate) ?: Date()
+    val dateFormat = remember {
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+    }
+    val initialSelectedDateMillis = remember(initialDate) {
+        dateFormat.parse(initialDate)?.time ?: System.currentTimeMillis()
+    }
 
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = calendar.timeInMillis,
+        initialSelectedDateMillis = initialSelectedDateMillis,
     )
 
     DatePickerDialog(

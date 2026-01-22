@@ -92,6 +92,10 @@ class TimerManagerImpl @Inject constructor(
         unbindService()
     }
 
+    override fun setActionsEnabled(isEnabled: Boolean) {
+        timerServiceFlow.value?.setActionsEnabled(isEnabled)
+    }
+
     private fun bindService() {
         Intent(context, TimerService::class.java).also { intent ->
             val bound = context.bindService(intent, connection, Context.BIND_AUTO_CREATE)

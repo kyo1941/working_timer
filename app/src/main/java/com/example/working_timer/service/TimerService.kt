@@ -39,6 +39,7 @@ import javax.inject.Inject
 data class TimerState(
     val isRunning: Boolean = false,
     val elapsedTime: Long = 0L,
+    val isActionsEnabled: Boolean = true
 )
 
 @AndroidEntryPoint
@@ -175,6 +176,11 @@ class TimerService : LifecycleService() {
         handler.postDelayed(runnable, 0)
     }
 
+    fun setActionsEnabled(isEnabled: Boolean) {
+        _serviceState.update { it.copy(isActionsEnabled = isEnabled) }
+        updateNotificationChannel()
+    }
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelId = "timer_channel"
@@ -232,30 +238,32 @@ class TimerService : LifecycleService() {
             .setSmallIcon(R.drawable.ic_launcher_playstore)
             .setContentIntent(pendingIntent)
 
-        if (_serviceState.value.isRunning) {
-            val pauseIntent = Intent(this, TimerActionReceiver::class.java).apply {
-                action = "ACTION_PAUSE_TIMER"
+        if (_serviceState.value.isActionsEnabled) {
+            if (_serviceState.value.isRunning) {
+                val pauseIntent = Intent(this, TimerActionReceiver::class.java).apply {
+                    action = "ACTION_PAUSE_TIMER"
+                }
+                val pausePendingIntent = PendingIntent.getBroadcast(
+                    this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
+                )
+                builder.addAction(
+                    R.drawable.ic_launcher_playstore,
+                    getString(R.string.timer_notification_pause_action),
+                    pausePendingIntent
+                )
+            } else {
+                val resumeIntent = Intent(this, TimerActionReceiver::class.java).apply {
+                    action = "ACTION_RESUME_TIMER"
+                }
+                val resumePendingIntent = PendingIntent.getBroadcast(
+                    this, 0, resumeIntent, PendingIntent.FLAG_IMMUTABLE
+                )
+                builder.addAction(
+                    R.drawable.ic_launcher_playstore,
+                    getString(R.string.timer_notification_resume_action),
+                    resumePendingIntent
+                )
             }
-            val pausePendingIntent = PendingIntent.getBroadcast(
-                this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
-            )
-            builder.addAction(
-                R.drawable.ic_launcher_playstore,
-                getString(R.string.timer_notification_pause_action),
-                pausePendingIntent
-            )
-        } else {
-            val resumeIntent = Intent(this, TimerActionReceiver::class.java).apply {
-                action = "ACTION_RESUME_TIMER"
-            }
-            val resumePendingIntent = PendingIntent.getBroadcast(
-                this, 0, resumeIntent, PendingIntent.FLAG_IMMUTABLE
-            )
-            builder.addAction(
-                R.drawable.ic_launcher_playstore,
-                getString(R.string.timer_notification_resume_action),
-                resumePendingIntent
-            )
         }
 
         val notification = builder.build()

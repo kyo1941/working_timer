@@ -9,4 +9,5 @@ interface TimerManager {
     fun pauseTimer()
     fun resumeTimer()
     fun stopTimer()
+    fun setActionsEnabled(isEnabled: Boolean)
 }

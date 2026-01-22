@@ -120,11 +120,13 @@ class MainViewModel @Inject constructor(
                     elapsedTime = elapsedTime
                 )
             }
+            timerManager.setActionsEnabled(false)
         }
     }
 
     fun dismissSaveDialog() {
         dialogStatus.update { null }
+        timerManager.setActionsEnabled(true)
     }
 
     fun saveWork() {
@@ -157,16 +159,17 @@ class MainViewModel @Inject constructor(
             try {
                 workRepository.insert(work)
                 _navigateToLog.emit(Unit)
-                timerManager.stopTimer()
-                dismissSaveDialog()
             } catch (e: Exception) {
                 snackbarEvent.emit(e.message ?: "不明なエラー")
+            } finally {
+                dismissSaveDialog()
+                timerManager.stopTimer()
             }
         }
     }
 
     fun discardWork() {
-        timerManager.stopTimer()
         dismissSaveDialog()
+        timerManager.stopTimer()
     }
 }

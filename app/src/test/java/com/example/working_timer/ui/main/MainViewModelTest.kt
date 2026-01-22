@@ -63,6 +63,7 @@ class MainViewModelTest {
             every { pauseTimer() } just Runs
             every { resumeTimer() } just Runs
             every { stopTimer() } just Runs
+            every { setActionsEnabled(any()) } just Runs
         }
 
         coEvery { mockDataStoreManager.getStartDateSync() } returns null

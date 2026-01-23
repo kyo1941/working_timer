@@ -171,7 +171,7 @@ fun MainScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Row(
             horizontalArrangement = Arrangement.Center

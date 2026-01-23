@@ -19,13 +19,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,8 +55,7 @@ import com.example.working_timer.util.StopButtonColor
 import kotlinx.coroutines.launch
 
 data class MainScreenState(
-    val uiState: MainUiState,
-    val snackbarHostState: SnackbarHostState
+    val uiState: MainUiState
 )
 
 data class MainScreenActions(
@@ -78,10 +73,10 @@ data class MainScreenActions(
 fun MainScreenHolder(
     modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = hiltViewModel(),
+    snackbarHostState: SnackbarHostState,
     onNavigateToLog: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -113,8 +108,7 @@ fun MainScreenHolder(
 
     MainScreen(
         state = MainScreenState(
-            uiState = uiState,
-            snackbarHostState = snackbarHostState
+            uiState = uiState
         ),
         actions = MainScreenActions(
             onNavigateToLog = onNavigateToLog,
@@ -154,143 +148,136 @@ fun MainScreen(
     actions: MainScreenActions,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = { SnackbarHost(state.snackbarHostState) },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.weight(1f))
+
+        state.uiState.timerStatus?.let {
+            Text(
+                text = when (state.uiState.timerStatus) {
+                    TimerStatus.Working -> stringResource(R.string.working_status)
+                    TimerStatus.Resting -> stringResource(R.string.resting_status)
+                },
+                textAlign = TextAlign.Center,
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Bold,
+                color = when (state.uiState.timerStatus) {
+                    TimerStatus.Working -> StatusWorkingColor
+                    TimerStatus.Resting -> StatusPauseColor
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.Center
         ) {
-            Spacer(Modifier.weight(1f))
-
-            state.uiState.timerStatus?.let {
-                Text(
-                    text = when (state.uiState.timerStatus) {
-                        TimerStatus.Working -> stringResource(R.string.working_status)
-                        TimerStatus.Resting -> stringResource(R.string.resting_status)
-                    },
-                    textAlign = TextAlign.Center,
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = when (state.uiState.timerStatus) {
-                        TimerStatus.Working -> StatusWorkingColor
-                        TimerStatus.Resting -> StatusPauseColor
-                    }
-                )
+            val timerAnimation: AnimatedContentTransitionScope<Char>.() -> ContentTransform = {
+                slideInVertically { height -> height } togetherWith
+                        slideOutVertically { height -> -height }
             }
+            state.uiState.displayText.forEach { char ->
+                AnimatedContent(
+                    targetState = char,
+                    transitionSpec = timerAnimation,
+                    label = "TimerCharAnimation"
+                ) { targetChar ->
+                    Text(
+                        text = targetChar.toString(),
+                        textAlign = TextAlign.Center,
+                        fontSize = 56.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
 
-            Spacer(modifier = Modifier.height(48.dp))
+        Spacer(Modifier.weight(1f))
 
-            Row(
+        when (state.uiState.timerStatus) {
+            TimerStatus.Working -> Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                val timerAnimation: AnimatedContentTransitionScope<Char>.() -> ContentTransform = {
-                    slideInVertically { height -> height } togetherWith
-                            slideOutVertically { height -> -height }
-                }
-                state.uiState.displayText.forEach { char ->
-                    AnimatedContent(
-                        targetState = char,
-                        transitionSpec = timerAnimation,
-                        label = "TimerCharAnimation"
-                    ) { targetChar ->
-                        Text(
-                            text = targetChar.toString(),
-                            textAlign = TextAlign.Center,
-                            fontSize = 56.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
+                Spacer(Modifier.weight(1f))
 
-            Spacer(Modifier.weight(1f))
-
-            when (state.uiState.timerStatus) {
-                TimerStatus.Working -> Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Spacer(Modifier.weight(1f))
-
-                    TimerButton(
-                        text = stringResource(R.string.stop_timer_button_text),
-                        color = StopButtonColor,
-                        onClick = actions.onStopTimer
-                    )
-
-                    Spacer(Modifier.weight(1f))
-
-                    TimerButton(
-                        text = stringResource(R.string.pause_timer_button_text),
-                        color = PauseButtonColor,
-                        onClick = actions.onPauseTimer
-                    )
-
-                    Spacer(Modifier.weight(1f))
-                }
-
-                TimerStatus.Resting -> TimerButton(
-                    text = stringResource(R.string.resume_timer_button_text),
-                    color = ResumeButtonColor,
-                    onClick = actions.onResumeTimer
+                TimerButton(
+                    text = stringResource(R.string.stop_timer_button_text),
+                    color = StopButtonColor,
+                    onClick = actions.onStopTimer
                 )
 
-                null -> TimerButton(
-                    text = stringResource(R.string.start_timer_button_text),
-                    color = StartButtonColor,
-                    onClick = actions.onStartTimer
+                Spacer(Modifier.weight(1f))
+
+                TimerButton(
+                    text = stringResource(R.string.pause_timer_button_text),
+                    color = PauseButtonColor,
+                    onClick = actions.onPauseTimer
                 )
+
+                Spacer(Modifier.weight(1f))
             }
 
-            Spacer(Modifier.weight(1f))
+            TimerStatus.Resting -> TimerButton(
+                text = stringResource(R.string.resume_timer_button_text),
+                color = ResumeButtonColor,
+                onClick = actions.onResumeTimer
+            )
+
+            null -> TimerButton(
+                text = stringResource(R.string.start_timer_button_text),
+                color = StartButtonColor,
+                onClick = actions.onStartTimer
+            )
         }
 
-        when (state.uiState.dialogStatus) {
-            is DialogStatus.SaveDialog -> SaveDialog(
-                startDate = state.uiState.dialogStatus.startDate,
-                elapsedTime = state.uiState.dialogStatus.elapsedTime,
-                onConfirm = actions.onSaveWork,
-                onNeutral = {
-                    actions.onResumeTimer()
-                    actions.onDismissSaveDialog()
-                },
-                onDismiss = {
-                    actions.onDiscardWork()
-                    actions.onDismissSaveDialog()
-                }
-            )
+        Spacer(Modifier.weight(1f))
+    }
 
-            is DialogStatus.TooShortTimeErrorDialog -> ErrorAlertDialog(
-                message = stringResource(R.string.error_time_too_short),
-                onClick = {
-                    actions.onResumeTimer()
-                    actions.onDismissSaveDialog()
-                },
-                onDismiss = {
-                    actions.onDiscardWork()
-                    actions.onDismissSaveDialog()
-                }
-            )
+    when (state.uiState.dialogStatus) {
+        is DialogStatus.SaveDialog -> SaveDialog(
+            startDate = state.uiState.dialogStatus.startDate,
+            elapsedTime = state.uiState.dialogStatus.elapsedTime,
+            onConfirm = actions.onSaveWork,
+            onNeutral = {
+                actions.onResumeTimer()
+                actions.onDismissSaveDialog()
+            },
+            onDismiss = {
+                actions.onDiscardWork()
+                actions.onDismissSaveDialog()
+            }
+        )
 
-            is DialogStatus.DataNotFoundErrorDialog -> ErrorAlertDialog(
-                message = stringResource(R.string.error_data_not_found),
-                onClick = {
-                    actions.onResumeTimer()
-                    actions.onDismissSaveDialog()
-                },
-                onDismiss = {
-                    actions.onDiscardWork()
-                    actions.onDismissSaveDialog()
-                }
-            )
+        is DialogStatus.TooShortTimeErrorDialog -> ErrorAlertDialog(
+            message = stringResource(R.string.error_time_too_short),
+            onClick = {
+                actions.onResumeTimer()
+                actions.onDismissSaveDialog()
+            },
+            onDismiss = {
+                actions.onDiscardWork()
+                actions.onDismissSaveDialog()
+            }
+        )
 
-            null -> {}
-        }
+        is DialogStatus.DataNotFoundErrorDialog -> ErrorAlertDialog(
+            message = stringResource(R.string.error_data_not_found),
+            onClick = {
+                actions.onResumeTimer()
+                actions.onDismissSaveDialog()
+            },
+            onDismiss = {
+                actions.onDiscardWork()
+                actions.onDismissSaveDialog()
+            }
+        )
+
+        null -> {}
     }
 }
 
@@ -346,8 +333,7 @@ fun MainScreenPreviewBeforeStart() {
     val state = MainUiState(timerStatus = null)
     MainScreen(
         state = MainScreenState(
-            uiState = state,
-            snackbarHostState = remember { SnackbarHostState() }
+            uiState = state
         ),
         actions = MainScreenActions(
             onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
@@ -365,8 +351,7 @@ fun MainScreenPreviewWorking() {
     )
     MainScreen(
         state = MainScreenState(
-            uiState = state,
-            snackbarHostState = remember { SnackbarHostState() }
+            uiState = state
         ),
         actions = MainScreenActions(
             onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
@@ -384,8 +369,7 @@ fun MainScreenPreviewPaused() {
     )
     MainScreen(
         state = MainScreenState(
-            uiState = state,
-            snackbarHostState = remember { SnackbarHostState() }
+            uiState = state
         ),
         actions = MainScreenActions(
             onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
@@ -408,8 +392,7 @@ fun MainScreenPreviewSaveDialog() {
 
     MainScreen(
         state = MainScreenState(
-            uiState = sampleState,
-            snackbarHostState = remember { SnackbarHostState() }
+            uiState = sampleState
         ),
         actions = MainScreenActions(
             onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
@@ -427,8 +410,7 @@ fun MainScreenPreviewSaveDialogError() {
     )
     MainScreen(
         state = MainScreenState(
-            uiState = state,
-            snackbarHostState = remember { SnackbarHostState() }
+            uiState = state
         ),
         actions = MainScreenActions(
             onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},

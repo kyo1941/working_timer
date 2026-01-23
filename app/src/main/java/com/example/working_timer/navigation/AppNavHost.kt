@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -33,11 +36,14 @@ fun AppNavHost(
             Routes.Timer.routes,
             deepLinks = listOf(navDeepLink { uriPattern = Routes.TimerDeepLink.routes })
         ) {
+            val snackbarHostState = remember { SnackbarHostState() }
             ScaffoldWithEdgeToEdge(
                 footer = footer,
+                snackbarHostState = snackbarHostState,
                 contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
             ) { paddingValues ->
                 MainScreenHolder(
+                    snackbarHostState = snackbarHostState,
                     onNavigateToLog = {
                         navController.navigate(Routes.LogView.routes) {
                             launchSingleTop = true
@@ -82,13 +88,16 @@ fun AppNavHost(
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
+            val snackbarHostState = remember { SnackbarHostState() }
 
             ScaffoldWithEdgeToEdge(
                 footer = { /* 編集画面ではフッターを表示しない */ },
+                snackbarHostState = snackbarHostState,
                 contentWindowInsets = WindowInsets.safeDrawing
             ) { paddingValues ->
                 EditWorkScreenHolder(
                     id = id,
+                    snackbarHostState = snackbarHostState,
                     onNavigateBack = {
                         navController.popBackStack()
                     },
@@ -103,10 +112,14 @@ fun AppNavHost(
 private fun ScaffoldWithEdgeToEdge(
     footer: @Composable () -> Unit,
     contentWindowInsets: WindowInsets,
+    snackbarHostState: SnackbarHostState? = null,
     content: @Composable (padding: PaddingValues) -> Unit
 ) {
     Scaffold(
         bottomBar = footer,
+        snackbarHost = {
+            snackbarHostState?.let { SnackbarHost(it) }
+        },
         contentWindowInsets = contentWindowInsets
     ) { paddingValues ->
         content(paddingValues)

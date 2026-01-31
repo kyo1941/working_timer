@@ -1,6 +1,7 @@
 package com.example.working_timer.ui.log_view
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.view.LayoutInflater
 import android.widget.CalendarView
 import androidx.compose.foundation.layout.*
@@ -8,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CurrencyYen
 import androidx.compose.material3.*
@@ -15,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -126,114 +129,65 @@ fun LogViewScreen(
     actions: LogViewScreenActions,
     modifier: Modifier = Modifier
 ) {
-    // Date formatter for calendar updates
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
-        AndroidView(
-            factory = { context ->
-                val inflater = LayoutInflater.from(context)
-                val view = inflater.inflate(R.layout.calender_view, null)
-                val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
-                calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                    actions.onDateSelected(year, month, dayOfMonth)
-                }
-                view
-            },
-            update = { view ->
-                val calendarView = view as CalendarView
-                val dateMillis =
-                    if (state.uiState.selectedDay.isNotEmpty()) sdf.parse(state.uiState.selectedDay)?.time else null
-                if (dateMillis != null) {
-                    calendarView.date = dateMillis
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        HorizontalDivider(
-            color = BorderColor,
-            thickness = 1.dp
-        )
-
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            if (state.uiState.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        color = ButtonBackgroundColor
-                    )
-                }
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    itemsIndexed(state.uiState.workList) { index, work ->
-                        WorkItemComposable(
-                            work = work,
-                            onDelete = { actions.onShowDeleteDialog(work) },
-                            onEdit = {
-                                actions.onNavigateToEditWork(
-                                    work.id,
-                                    work.start_day
-                                )
-                            }
-                        )
-                        if (index < state.uiState.workList.lastIndex) {
-                            HorizontalDivider(
-                                color = BorderColor,
-                                thickness = 1.dp
-                            )
-                        }
-                    }
-                }
-            }
-
-            Row(
+    if (isLandscape) {
+        Row(modifier = modifier.fillMaxSize()) {
+            CalendarSection(
+                state = state,
+                actions = actions,
+                sdf = sdf,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomStart),
-                horizontalArrangement = Arrangement.Start
+                    .weight(1.1f)
+                    .fillMaxHeight()
+            )
+
+            VerticalDivider(
+                color = BorderColor,
+                thickness = 1.dp
+            )
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             ) {
-                Spacer(modifier = Modifier.width(8.dp))
-                FloatingActionButton(
-                    onClick = {
-                        actions.onNavigateToEditWork(
-                            0,
-                            state.uiState.selectedDay
-                        )
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
-                    containerColor = ButtonBackgroundColor,
-                    contentColor = Color.White,
-                    shape = RoundedCornerShape(24.dp),
-                ) {
-                    Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Filled.Add,
-                        modifier = Modifier
-                            .height(24.dp)
-                            .width(24.dp),
-                        contentDescription = stringResource(id = R.string.log_view_add_button_description)
-                    )
-                }
-                FloatingActionButton(
-                    onClick = actions.onShowDateRangePicker,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
-                    containerColor = ButtonBackgroundColor,
-                    contentColor = Color.White,
-                    shape = RoundedCornerShape(24.dp),
-                ) {
-                    Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Filled.CurrencyYen,
-                        contentDescription = stringResource(id = R.string.log_view_calculate_salary_button_description)
-                    )
-                }
+                WorkListSection(state, actions, Modifier.fillMaxSize())
+
+                LogViewBottomButtons(
+                    state = state,
+                    actions = actions,
+                    modifier = Modifier.align(Alignment.BottomStart)
+                )
+            }
+        }
+    } else {
+        Column(
+            modifier = modifier.fillMaxSize()
+        ) {
+            CalendarSection(
+                state = state,
+                actions = actions,
+                sdf = sdf,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            HorizontalDivider(
+                color = BorderColor,
+                thickness = 1.dp
+            )
+
+            Box(
+                modifier = Modifier.weight(1f)
+            ) {
+                WorkListSection(state, actions, Modifier.fillMaxSize())
+
+                LogViewBottomButtons(
+                    state = state,
+                    actions = actions,
+                    modifier = Modifier.align(Alignment.BottomStart)
+                )
             }
         }
     }
@@ -293,7 +247,119 @@ fun LogViewScreen(
 }
 
 @Composable
-fun SumDialog(
+private fun CalendarSection(
+    state: LogViewScreenState,
+    actions: LogViewScreenActions,
+    sdf: SimpleDateFormat,
+    modifier: Modifier = Modifier
+) {
+    AndroidView(
+        factory = { context ->
+            val inflater = LayoutInflater.from(context)
+            val view = inflater.inflate(R.layout.calender_view, null)
+            val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
+            calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+                actions.onDateSelected(year, month, dayOfMonth)
+            }
+            view
+        },
+        update = { view ->
+            val calendarView = view as? CalendarView
+            val dateMillis =
+                if (state.uiState.selectedDay.isNotEmpty()) sdf.parse(state.uiState.selectedDay)?.time else null
+            if (dateMillis != null && calendarView != null) {
+                calendarView.date = dateMillis
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun WorkListSection(
+    state: LogViewScreenState,
+    actions: LogViewScreenActions,
+    modifier: Modifier = Modifier
+) {
+    if (state.uiState.isLoading) {
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = ButtonBackgroundColor
+            )
+        }
+    } else {
+        LazyColumn(modifier = modifier) {
+            itemsIndexed(state.uiState.workList) { index, work ->
+                WorkItemComposable(
+                    work = work,
+                    onDelete = { actions.onShowDeleteDialog(work) },
+                    onEdit = {
+                        actions.onNavigateToEditWork(
+                            work.id,
+                            work.start_day
+                        )
+                    }
+                )
+                if (index < state.uiState.workList.lastIndex) {
+                    HorizontalDivider(
+                        color = BorderColor,
+                        thickness = 1.dp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LogViewBottomButtons(
+    state: LogViewScreenState,
+    actions: LogViewScreenActions,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .padding(horizontal = 8.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        FloatingActionButton(
+            onClick = {
+                actions.onNavigateToEditWork(
+                    0,
+                    state.uiState.selectedDay
+                )
+            },
+            containerColor = ButtonBackgroundColor,
+            contentColor = Color.White,
+            shape = RoundedCornerShape(24.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                modifier = Modifier
+                    .height(24.dp)
+                    .width(24.dp),
+                contentDescription = stringResource(id = R.string.log_view_add_button_description)
+            )
+        }
+        FloatingActionButton(
+            onClick = actions.onShowDateRangePicker,
+            containerColor = ButtonBackgroundColor,
+            contentColor = Color.White,
+            shape = RoundedCornerShape(24.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.CurrencyYen,
+                contentDescription = stringResource(id = R.string.log_view_calculate_salary_button_description)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SumDialog(
     startDate: Long?,
     endDate: Long?,
     totalHours: Long,
@@ -431,7 +497,7 @@ fun SumDialog(
 
 
 @Composable
-fun SegmentedControl(
+private fun SegmentedControl(
     items: List<String>,
     selectedIndex: Int,
     onSelectionChange: (Int) -> Unit,
@@ -476,7 +542,7 @@ fun SegmentedControl(
 
 @Preview(showBackground = true, name = "Empty State")
 @Composable
-fun LogViewScreenPreviewEmpty() {
+private fun LogViewScreenPreviewEmpty() {
     val emptyUiState = LogViewUiState(
         selectedDay = "2025-01-02",
         workList = emptyList(),
@@ -516,7 +582,7 @@ fun LogViewScreenPreviewEmpty() {
 
 @Preview(showBackground = true, name = "With Work List")
 @Composable
-fun LogViewScreenPreviewWithWorkList() {
+private fun LogViewScreenPreviewWithWorkList() {
     val sampleWorkList = listOf(
         Work(
             id = 1,
@@ -582,7 +648,7 @@ fun LogViewScreenPreviewWithWorkList() {
 
 @Preview(showBackground = true, name = "Delete Dialog")
 @Composable
-fun LogViewScreenPreviewDeleteDialog() {
+private fun LogViewScreenPreviewDeleteDialog() {
     val workToDelete = Work(
         id = 1,
         start_day = "2025-01-02",
@@ -630,7 +696,7 @@ fun LogViewScreenPreviewDeleteDialog() {
 
 @Preview(showBackground = true, name = "Sum Dialog")
 @Composable
-fun LogViewScreenPreviewSumDialog() {
+private fun LogViewScreenPreviewSumDialog() {
     val uiStateWithSumDialog = LogViewUiState(
         selectedDay = "2025-01-02",
         workList = emptyList(),
@@ -669,7 +735,7 @@ fun LogViewScreenPreviewSumDialog() {
 
 @Preview(showBackground = true, name = "Date Range Picker")
 @Composable
-fun LogViewScreenPreviewDateRangePicker() {
+private fun LogViewScreenPreviewDateRangePicker() {
     val uiState = LogViewUiState(
         selectedDay = "2025-01-02",
         workList = emptyList(),

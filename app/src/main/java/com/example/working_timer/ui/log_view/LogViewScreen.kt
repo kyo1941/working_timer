@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CurrencyYen
 import androidx.compose.material3.*
@@ -126,7 +127,6 @@ fun LogViewScreen(
     actions: LogViewScreenActions,
     modifier: Modifier = Modifier
 ) {
-    // Date formatter for calendar updates
     val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
     Column(
@@ -163,9 +163,7 @@ fun LogViewScreen(
         ) {
             if (state.uiState.isLoading) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
@@ -215,7 +213,7 @@ fun LogViewScreen(
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Filled.Add,
+                        imageVector = Icons.Filled.Add,
                         modifier = Modifier
                             .height(24.dp)
                             .width(24.dp),
@@ -230,7 +228,7 @@ fun LogViewScreen(
                     shape = RoundedCornerShape(24.dp),
                 ) {
                     Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Filled.CurrencyYen,
+                        imageVector = Icons.Filled.CurrencyYen,
                         contentDescription = stringResource(id = R.string.log_view_calculate_salary_button_description)
                     )
                 }
@@ -293,7 +291,7 @@ fun LogViewScreen(
 }
 
 @Composable
-fun SumDialog(
+private fun SumDialog(
     startDate: Long?,
     endDate: Long?,
     totalHours: Long,
@@ -431,7 +429,7 @@ fun SumDialog(
 
 
 @Composable
-fun SegmentedControl(
+private fun SegmentedControl(
     items: List<String>,
     selectedIndex: Int,
     onSelectionChange: (Int) -> Unit,
@@ -476,7 +474,7 @@ fun SegmentedControl(
 
 @Preview(showBackground = true, name = "Empty State")
 @Composable
-fun LogViewScreenPreviewEmpty() {
+private fun LogViewScreenPreviewEmpty() {
     val emptyUiState = LogViewUiState(
         selectedDay = "2025-01-02",
         workList = emptyList(),
@@ -516,7 +514,7 @@ fun LogViewScreenPreviewEmpty() {
 
 @Preview(showBackground = true, name = "With Work List")
 @Composable
-fun LogViewScreenPreviewWithWorkList() {
+private fun LogViewScreenPreviewWithWorkList() {
     val sampleWorkList = listOf(
         Work(
             id = 1,
@@ -582,7 +580,7 @@ fun LogViewScreenPreviewWithWorkList() {
 
 @Preview(showBackground = true, name = "Delete Dialog")
 @Composable
-fun LogViewScreenPreviewDeleteDialog() {
+private fun LogViewScreenPreviewDeleteDialog() {
     val workToDelete = Work(
         id = 1,
         start_day = "2025-01-02",
@@ -630,7 +628,7 @@ fun LogViewScreenPreviewDeleteDialog() {
 
 @Preview(showBackground = true, name = "Sum Dialog")
 @Composable
-fun LogViewScreenPreviewSumDialog() {
+private fun LogViewScreenPreviewSumDialog() {
     val uiStateWithSumDialog = LogViewUiState(
         selectedDay = "2025-01-02",
         workList = emptyList(),
@@ -669,7 +667,7 @@ fun LogViewScreenPreviewSumDialog() {
 
 @Preview(showBackground = true, name = "Date Range Picker")
 @Composable
-fun LogViewScreenPreviewDateRangePicker() {
+private fun LogViewScreenPreviewDateRangePicker() {
     val uiState = LogViewUiState(
         selectedDay = "2025-01-02",
         workList = emptyList(),

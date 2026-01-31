@@ -264,8 +264,7 @@ private fun CalendarSection(
             view
         },
         update = { view ->
-            val calendarView =
-                view.findViewById<CalendarView>(R.id.calendarView) ?: (view as? CalendarView)
+            val calendarView = view as? CalendarView
             val dateMillis =
                 if (state.uiState.selectedDay.isNotEmpty()) sdf.parse(state.uiState.selectedDay)?.time else null
             if (dateMillis != null && calendarView != null) {

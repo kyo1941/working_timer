@@ -777,3 +777,109 @@ private fun LogViewScreenPreviewDateRangePicker() {
         )
     )
 }
+
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "Empty State Landscape")
+@Composable
+private fun LogViewScreenPreviewEmptyLandscape() {
+    val emptyUiState = LogViewUiState(
+        selectedDay = "2025-01-02",
+        workList = emptyList(),
+        showDeleteDialog = false,
+        workToDelete = null,
+        showSumDialog = false,
+        sumStartDate = null,
+        sumEndDate = null,
+        isLoading = true,
+        totalHours = 0L,
+        totalMinutes = 0L,
+        totalWage = 0L,
+        timeCalculationMode = TimeCalculationMode.NORMAL
+    )
+
+    LogViewScreen(
+        state = LogViewScreenState(
+            uiState = emptyUiState,
+            showDateRangePicker = false
+        ),
+        actions = LogViewScreenActions(
+            onNavigateToTimer = {},
+            onNavigateToEditWork = { _, _ -> },
+            onDateSelected = { _, _, _ -> },
+            onShowDeleteDialog = {},
+            onHideDeleteDialog = {},
+            onDeleteWork = {},
+            onShowDateRangePicker = {},
+            onHideDateRangePicker = {},
+            onDateRangeSelected = { _, _ -> },
+            onHideSumDialog = {},
+            onUpdateTotalWage = {},
+            onSetTimeCalculationMode = {}
+        )
+    )
+}
+
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "With Work List Landscape")
+@Composable
+private fun LogViewScreenPreviewWithWorkListLandscape() {
+    val sampleWorkList = listOf(
+        Work(
+            id = 1,
+            start_day = "2025-01-02",
+            end_day = "2025-01-02",
+            start_time = "09:00",
+            end_time = "17:00",
+            elapsed_time = 4800
+        ),
+        Work(
+            id = 2,
+            start_day = "2025-01-02",
+            end_day = "2025-01-02",
+            start_time = "10:00",
+            end_time = "14:00",
+            elapsed_time = 2400
+        ),
+        Work(
+            id = 3,
+            start_day = "2025-01-02",
+            end_day = "2025-01-02",
+            start_time = "18:00",
+            end_time = "22:00",
+            elapsed_time = 3800
+        )
+    )
+
+    val uiStateWithWork = LogViewUiState(
+        selectedDay = "2025-01-02",
+        workList = sampleWorkList,
+        showDeleteDialog = false,
+        workToDelete = null,
+        showSumDialog = false,
+        sumStartDate = null,
+        sumEndDate = null,
+        totalHours = 0L,
+        totalMinutes = 0L,
+        totalWage = 0L,
+        timeCalculationMode = TimeCalculationMode.NORMAL
+    )
+
+    LogViewScreen(
+        state = LogViewScreenState(
+            uiState = uiStateWithWork,
+            showDateRangePicker = false
+        ),
+        actions = LogViewScreenActions(
+            onNavigateToTimer = {},
+            onNavigateToEditWork = { _, _ -> },
+            onDateSelected = { _, _, _ -> },
+            onShowDeleteDialog = {},
+            onHideDeleteDialog = {},
+            onDeleteWork = {},
+            onShowDateRangePicker = {},
+            onHideDateRangePicker = {},
+            onDateRangeSelected = { _, _ -> },
+            onHideSumDialog = {},
+            onUpdateTotalWage = {},
+            onSetTimeCalculationMode = {}
+        )
+    )
+}

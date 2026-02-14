@@ -418,3 +418,36 @@ fun MainScreenPreviewSaveDialogError() {
         )
     )
 }
+
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "BeforeStart Landscape")
+@Composable
+fun MainScreenPreviewBeforeStartLandscape() {
+    val state = MainUiState(timerStatus = null)
+    MainScreen(
+        state = MainScreenState(
+            uiState = state
+        ),
+        actions = MainScreenActions(
+            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        )
+    )
+}
+
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "Working Landscape")
+@Composable
+fun MainScreenPreviewWorkingLandscape() {
+    val state = MainUiState(
+        timerStatus = TimerStatus.Working,
+        elapsedTime = 5025000L,
+    )
+    MainScreen(
+        state = MainScreenState(
+            uiState = state
+        ),
+        actions = MainScreenActions(
+            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+        )
+    )
+}

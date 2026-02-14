@@ -569,20 +569,7 @@ private fun LogViewScreenPreviewEmpty() {
             uiState = emptyUiState,
             showDateRangePicker = false
         ),
-        actions = LogViewScreenActions(
-            onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _ -> },
-            onDateSelected = { _, _, _ -> },
-            onShowDeleteDialog = {},
-            onHideDeleteDialog = {},
-            onDeleteWork = {},
-            onShowDateRangePicker = {},
-            onHideDateRangePicker = {},
-            onDateRangeSelected = { _, _ -> },
-            onHideSumDialog = {},
-            onUpdateTotalWage = {},
-            onSetTimeCalculationMode = {}
-        )
+        actions = previewLogViewScreenActions
     )
 }
 
@@ -635,20 +622,7 @@ private fun LogViewScreenPreviewWithWorkList() {
             uiState = uiStateWithWork,
             showDateRangePicker = false
         ),
-        actions = LogViewScreenActions(
-            onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _ -> },
-            onDateSelected = { _, _, _ -> },
-            onShowDeleteDialog = {},
-            onHideDeleteDialog = {},
-            onDeleteWork = {},
-            onShowDateRangePicker = {},
-            onHideDateRangePicker = {},
-            onDateRangeSelected = { _, _ -> },
-            onHideSumDialog = {},
-            onUpdateTotalWage = {},
-            onSetTimeCalculationMode = {}
-        )
+        actions = previewLogViewScreenActions
     )
 }
 
@@ -683,20 +657,7 @@ private fun LogViewScreenPreviewDeleteDialog() {
             uiState = uiStateWithDeleteDialog,
             showDateRangePicker = false
         ),
-        actions = LogViewScreenActions(
-            onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _ -> },
-            onDateSelected = { _, _, _ -> },
-            onShowDeleteDialog = {},
-            onHideDeleteDialog = {},
-            onDeleteWork = {},
-            onShowDateRangePicker = {},
-            onHideDateRangePicker = {},
-            onDateRangeSelected = { _, _ -> },
-            onHideSumDialog = {},
-            onUpdateTotalWage = {},
-            onSetTimeCalculationMode = {}
-        )
+        actions = previewLogViewScreenActions
     )
 }
 
@@ -722,20 +683,7 @@ private fun LogViewScreenPreviewSumDialog() {
             uiState = uiStateWithSumDialog,
             showDateRangePicker = false
         ),
-        actions = LogViewScreenActions(
-            onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _ -> },
-            onDateSelected = { _, _, _ -> },
-            onShowDeleteDialog = {},
-            onHideDeleteDialog = {},
-            onDeleteWork = {},
-            onShowDateRangePicker = {},
-            onHideDateRangePicker = {},
-            onDateRangeSelected = { _, _ -> },
-            onHideSumDialog = {},
-            onUpdateTotalWage = {},
-            onSetTimeCalculationMode = {}
-        )
+        actions = previewLogViewScreenActions
     )
 }
 
@@ -761,20 +709,7 @@ private fun LogViewScreenPreviewDateRangePicker() {
             uiState = uiState,
             showDateRangePicker = true
         ),
-        actions = LogViewScreenActions(
-            onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _ -> },
-            onDateSelected = { _, _, _ -> },
-            onShowDeleteDialog = {},
-            onHideDeleteDialog = {},
-            onDeleteWork = {},
-            onShowDateRangePicker = {},
-            onHideDateRangePicker = {},
-            onDateRangeSelected = { _, _ -> },
-            onHideSumDialog = {},
-            onUpdateTotalWage = {},
-            onSetTimeCalculationMode = {}
-        )
+        actions = previewLogViewScreenActions
     )
 }
 
@@ -801,20 +736,7 @@ private fun LogViewScreenPreviewEmptyLandscape() {
             uiState = emptyUiState,
             showDateRangePicker = false
         ),
-        actions = LogViewScreenActions(
-            onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _ -> },
-            onDateSelected = { _, _, _ -> },
-            onShowDeleteDialog = {},
-            onHideDeleteDialog = {},
-            onDeleteWork = {},
-            onShowDateRangePicker = {},
-            onHideDateRangePicker = {},
-            onDateRangeSelected = { _, _ -> },
-            onHideSumDialog = {},
-            onUpdateTotalWage = {},
-            onSetTimeCalculationMode = {}
-        )
+        actions = previewLogViewScreenActions
     )
 }
 
@@ -867,19 +789,21 @@ private fun LogViewScreenPreviewWithWorkListLandscape() {
             uiState = uiStateWithWork,
             showDateRangePicker = false
         ),
-        actions = LogViewScreenActions(
-            onNavigateToTimer = {},
-            onNavigateToEditWork = { _, _ -> },
-            onDateSelected = { _, _, _ -> },
-            onShowDeleteDialog = {},
-            onHideDeleteDialog = {},
-            onDeleteWork = {},
-            onShowDateRangePicker = {},
-            onHideDateRangePicker = {},
-            onDateRangeSelected = { _, _ -> },
-            onHideSumDialog = {},
-            onUpdateTotalWage = {},
-            onSetTimeCalculationMode = {}
-        )
+        actions = previewLogViewScreenActions
     )
 }
+
+private val previewLogViewScreenActions = LogViewScreenActions(
+    onNavigateToTimer = {},
+    onNavigateToEditWork = { _, _ -> },
+    onDateSelected = { _, _, _ -> },
+    onShowDeleteDialog = {},
+    onHideDeleteDialog = {},
+    onDeleteWork = {},
+    onShowDateRangePicker = {},
+    onHideDateRangePicker = {},
+    onDateRangeSelected = { _, _ -> },
+    onHideSumDialog = {},
+    onUpdateTotalWage = {},
+    onSetTimeCalculationMode = {}
+)

@@ -335,10 +335,7 @@ fun MainScreenPreviewBeforeStart() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -353,10 +350,7 @@ fun MainScreenPreviewWorking() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -371,10 +365,7 @@ fun MainScreenPreviewPaused() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -394,10 +385,7 @@ fun MainScreenPreviewSaveDialog() {
         state = MainScreenState(
             uiState = sampleState
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -412,10 +400,7 @@ fun MainScreenPreviewSaveDialogError() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -427,10 +412,7 @@ fun MainScreenPreviewBeforeStartLandscape() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -445,9 +427,11 @@ fun MainScreenPreviewWorkingLandscape() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
+
+private val previewMainScreenActions = MainScreenActions(
+    onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+    onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+)

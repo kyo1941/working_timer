@@ -491,28 +491,7 @@ fun EditWorkScreenPreviewNew() {
             showEndDayPicker = false,
             showElapsedPicker = false
         ),
-        actions = EditWorkScreenActions(
-            onNavigateBack = {},
-            onUpdateStartTime = {},
-            onUpdateEndTime = {},
-            onUpdateStartDay = {},
-            onUpdateEndDay = {},
-            onUpdateElapsedTime = { _, _ -> },
-            onSaveWork = {},
-            onClearZeroMinutesError = {},
-            onClearStartEndError = {},
-            onClearElapsedTimeOver = {},
-            onShowStartTimePicker = {},
-            onHideStartTimePicker = {},
-            onShowStartDayPicker = {},
-            onHideStartDayPicker = {},
-            onShowEndTimePicker = {},
-            onHideEndTimePicker = {},
-            onShowEndDayPicker = {},
-            onHideEndDayPicker = {},
-            onShowElapsedPicker = {},
-            onHideElapsedPicker = {}
-        )
+        actions = previewEditWorkScreenActions
     )
 }
 
@@ -536,28 +515,7 @@ fun EditWorkScreenPreviewEdit() {
             showEndDayPicker = false,
             showElapsedPicker = false
         ),
-        actions = EditWorkScreenActions(
-            onNavigateBack = {},
-            onUpdateStartTime = {},
-            onUpdateEndTime = {},
-            onUpdateStartDay = {},
-            onUpdateEndDay = {},
-            onUpdateElapsedTime = { _, _ -> },
-            onSaveWork = {},
-            onClearZeroMinutesError = {},
-            onClearStartEndError = {},
-            onClearElapsedTimeOver = {},
-            onShowStartTimePicker = {},
-            onHideStartTimePicker = {},
-            onShowStartDayPicker = {},
-            onHideStartDayPicker = {},
-            onShowEndTimePicker = {},
-            onHideEndTimePicker = {},
-            onShowEndDayPicker = {},
-            onHideEndDayPicker = {},
-            onShowElapsedPicker = {},
-            onHideElapsedPicker = {}
-        )
+        actions = previewEditWorkScreenActions
     )
 }
 
@@ -582,28 +540,7 @@ fun EditWorkScreenPreviewZeroMinutesError() {
             showEndDayPicker = false,
             showElapsedPicker = false
         ),
-        actions = EditWorkScreenActions(
-            onNavigateBack = {},
-            onUpdateStartTime = {},
-            onUpdateEndTime = {},
-            onUpdateStartDay = {},
-            onUpdateEndDay = {},
-            onUpdateElapsedTime = { _, _ -> },
-            onSaveWork = {},
-            onClearZeroMinutesError = {},
-            onClearStartEndError = {},
-            onClearElapsedTimeOver = {},
-            onShowStartTimePicker = {},
-            onHideStartTimePicker = {},
-            onShowStartDayPicker = {},
-            onHideStartDayPicker = {},
-            onShowEndTimePicker = {},
-            onHideEndTimePicker = {},
-            onShowEndDayPicker = {},
-            onHideEndDayPicker = {},
-            onShowElapsedPicker = {},
-            onHideElapsedPicker = {}
-        )
+        actions = previewEditWorkScreenActions
     )
 }
 
@@ -628,28 +565,7 @@ fun EditWorkScreenPreviewStartEndError() {
             showEndDayPicker = false,
             showElapsedPicker = false
         ),
-        actions = EditWorkScreenActions(
-            onNavigateBack = {},
-            onUpdateStartTime = {},
-            onUpdateEndTime = {},
-            onUpdateStartDay = {},
-            onUpdateEndDay = {},
-            onUpdateElapsedTime = { _, _ -> },
-            onSaveWork = {},
-            onClearZeroMinutesError = {},
-            onClearStartEndError = {},
-            onClearElapsedTimeOver = {},
-            onShowStartTimePicker = {},
-            onHideStartTimePicker = {},
-            onShowStartDayPicker = {},
-            onHideStartDayPicker = {},
-            onShowEndTimePicker = {},
-            onHideEndTimePicker = {},
-            onShowEndDayPicker = {},
-            onHideEndDayPicker = {},
-            onShowElapsedPicker = {},
-            onHideElapsedPicker = {}
-        )
+        actions = previewEditWorkScreenActions
     )
 }
 
@@ -674,28 +590,7 @@ fun EditWorkScreenPreviewElapsedTimeOver() {
             showEndDayPicker = false,
             showElapsedPicker = false
         ),
-        actions = EditWorkScreenActions(
-            onNavigateBack = {},
-            onUpdateStartTime = {},
-            onUpdateEndTime = {},
-            onUpdateStartDay = {},
-            onUpdateEndDay = {},
-            onUpdateElapsedTime = { _, _ -> },
-            onSaveWork = {},
-            onClearZeroMinutesError = {},
-            onClearStartEndError = {},
-            onClearElapsedTimeOver = {},
-            onShowStartTimePicker = {},
-            onHideStartTimePicker = {},
-            onShowStartDayPicker = {},
-            onHideStartDayPicker = {},
-            onShowEndTimePicker = {},
-            onHideEndTimePicker = {},
-            onShowEndDayPicker = {},
-            onHideEndDayPicker = {},
-            onShowElapsedPicker = {},
-            onHideElapsedPicker = {}
-        )
+        actions = previewEditWorkScreenActions
     )
 }
 
@@ -719,28 +614,7 @@ fun EditWorkScreenPreviewNewLandscape() {
             showEndDayPicker = false,
             showElapsedPicker = false
         ),
-        actions = EditWorkScreenActions(
-            onNavigateBack = {},
-            onUpdateStartTime = {},
-            onUpdateEndTime = {},
-            onUpdateStartDay = {},
-            onUpdateEndDay = {},
-            onUpdateElapsedTime = { _, _ -> },
-            onSaveWork = {},
-            onClearZeroMinutesError = {},
-            onClearStartEndError = {},
-            onClearElapsedTimeOver = {},
-            onShowStartTimePicker = {},
-            onHideStartTimePicker = {},
-            onShowStartDayPicker = {},
-            onHideStartDayPicker = {},
-            onShowEndTimePicker = {},
-            onHideEndTimePicker = {},
-            onShowEndDayPicker = {},
-            onHideEndDayPicker = {},
-            onShowElapsedPicker = {},
-            onHideElapsedPicker = {}
-        )
+        actions = previewEditWorkScreenActions
     )
 }
 
@@ -764,27 +638,29 @@ fun EditWorkScreenPreviewEditLandscape() {
             showEndDayPicker = false,
             showElapsedPicker = false
         ),
-        actions = EditWorkScreenActions(
-            onNavigateBack = {},
-            onUpdateStartTime = {},
-            onUpdateEndTime = {},
-            onUpdateStartDay = {},
-            onUpdateEndDay = {},
-            onUpdateElapsedTime = { _, _ -> },
-            onSaveWork = {},
-            onClearZeroMinutesError = {},
-            onClearStartEndError = {},
-            onClearElapsedTimeOver = {},
-            onShowStartTimePicker = {},
-            onHideStartTimePicker = {},
-            onShowStartDayPicker = {},
-            onHideStartDayPicker = {},
-            onShowEndTimePicker = {},
-            onHideEndTimePicker = {},
-            onShowEndDayPicker = {},
-            onHideEndDayPicker = {},
-            onShowElapsedPicker = {},
-            onHideElapsedPicker = {}
-        )
+        actions = previewEditWorkScreenActions
     )
 }
+
+private val previewEditWorkScreenActions = EditWorkScreenActions(
+    onNavigateBack = {},
+    onUpdateStartTime = {},
+    onUpdateEndTime = {},
+    onUpdateStartDay = {},
+    onUpdateEndDay = {},
+    onUpdateElapsedTime = { _, _ -> },
+    onSaveWork = {},
+    onClearZeroMinutesError = {},
+    onClearStartEndError = {},
+    onClearElapsedTimeOver = {},
+    onShowStartTimePicker = {},
+    onHideStartTimePicker = {},
+    onShowStartDayPicker = {},
+    onHideStartDayPicker = {},
+    onShowEndTimePicker = {},
+    onHideEndTimePicker = {},
+    onShowEndDayPicker = {},
+    onHideEndDayPicker = {},
+    onShowElapsedPicker = {},
+    onHideElapsedPicker = {}
+)

@@ -134,14 +134,26 @@ fun LogViewScreen(
 
     if (isLandscape) {
         Row(modifier = modifier.fillMaxSize()) {
-            CalendarSection(
-                state = state,
-                actions = actions,
-                sdf = sdf,
+            Column(
                 modifier = Modifier
                     .weight(1.1f)
                     .fillMaxHeight()
-            )
+            ) {
+                CalendarSection(
+                    state = state,
+                    actions = actions,
+                    sdf = sdf,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                )
+
+                LogViewBottomButtons(
+                    state = state,
+                    actions = actions,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             VerticalDivider(
                 color = BorderColor,
@@ -154,12 +166,6 @@ fun LogViewScreen(
                     .fillMaxHeight()
             ) {
                 WorkListSection(state, actions, Modifier.fillMaxSize())
-
-                LogViewBottomButtons(
-                    state = state,
-                    actions = actions,
-                    modifier = Modifier.align(Alignment.BottomStart)
-                )
             }
         }
     } else {

@@ -335,10 +335,7 @@ fun MainScreenPreviewBeforeStart() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -353,10 +350,7 @@ fun MainScreenPreviewWorking() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -371,10 +365,7 @@ fun MainScreenPreviewPaused() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -394,10 +385,7 @@ fun MainScreenPreviewSaveDialog() {
         state = MainScreenState(
             uiState = sampleState
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
 
@@ -412,9 +400,38 @@ fun MainScreenPreviewSaveDialogError() {
         state = MainScreenState(
             uiState = state
         ),
-        actions = MainScreenActions(
-            onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-            onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
-        )
+        actions = previewMainScreenActions
     )
 }
+
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "BeforeStart Landscape")
+@Composable
+fun MainScreenPreviewBeforeStartLandscape() {
+    val state = MainUiState(timerStatus = null)
+    MainScreen(
+        state = MainScreenState(
+            uiState = state
+        ),
+        actions = previewMainScreenActions
+    )
+}
+
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "Working Landscape")
+@Composable
+fun MainScreenPreviewWorkingLandscape() {
+    val state = MainUiState(
+        timerStatus = TimerStatus.Working,
+        elapsedTime = 5025000L,
+    )
+    MainScreen(
+        state = MainScreenState(
+            uiState = state
+        ),
+        actions = previewMainScreenActions
+    )
+}
+
+private val previewMainScreenActions = MainScreenActions(
+    onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
+    onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+)

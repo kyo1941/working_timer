@@ -372,6 +372,7 @@ fun SumDialog(
                         onWageChange(wage)
                     },
                     label = { Text(stringResource(id = R.string.log_view_sum_dialog_hourly_wage_label)) },
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )

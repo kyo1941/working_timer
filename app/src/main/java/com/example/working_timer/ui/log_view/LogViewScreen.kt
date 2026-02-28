@@ -367,11 +367,13 @@ fun SumDialog(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = MaterialTheme.typography.titleMedium.fontSize
                     ),
-                    onValueChange = {
-                        wage = it.toLongOrNull() ?: 0L
+                    onValueChange = { input ->
+                        // Empty の時にのみ 0 にフォールバックされる
+                        wage = input.filter { it.isDigit() }.take(7).toLongOrNull() ?: 0L
                         onWageChange(wage)
                     },
                     label = { Text(stringResource(id = R.string.log_view_sum_dialog_hourly_wage_label)) },
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )

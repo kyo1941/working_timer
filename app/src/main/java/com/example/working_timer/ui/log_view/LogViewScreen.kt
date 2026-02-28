@@ -368,7 +368,7 @@ fun SumDialog(
                         fontSize = MaterialTheme.typography.titleMedium.fontSize
                     ),
                     onValueChange = { input ->
-                        wage = input.filter { it.isDigit() }.toLongOrNull() ?: wage
+                        wage = input.filter { it.isDigit() }.take(7).toLongOrNull() ?: wage
                         onWageChange(wage)
                     },
                     label = { Text(stringResource(id = R.string.log_view_sum_dialog_hourly_wage_label)) },

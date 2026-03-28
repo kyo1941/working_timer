@@ -17,6 +17,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextAlign
+import android.content.res.Configuration
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -161,181 +163,377 @@ fun EditWorkScreen(
     actions: EditWorkScreenActions,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        val context = LocalContext.current
-        Text(
-            text = context.getString(if (state.isNew) R.string.new_record else R.string.edit_record),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 40.dp)
-                .padding(vertical = 8.dp)
-        )
+    val context = LocalContext.current
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-        Spacer(modifier = Modifier.height(48.dp))
-
-        Text(
-            text = stringResource(id = R.string.edit_work_screen_start_label),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 40.dp)
-                .padding(bottom = 8.dp),
-            textAlign = TextAlign.Start
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 40.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+    if (isLandscape) {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TextButton(onClick = actions.onShowStartDayPicker) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(formatMonthDay(state.uiState.startDay))
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
+            Text(
+                text = context.getString(if (state.isNew) R.string.new_record else R.string.edit_record),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(vertical = 8.dp)
+                    .padding(top = 24.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                // 左側: 開始、終了
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.edit_work_screen_start_label),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 40.dp)
+                            .padding(bottom = 8.dp),
+                        textAlign = TextAlign.Start
                     )
-                )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = actions.onShowStartDayPicker) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(formatMonthDay(state.uiState.startDay))
+                                    }
+                                },
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    textDecoration = TextDecoration.Underline,
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(32.dp))
+                        TextButton(onClick = actions.onShowStartTimePicker) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(state.uiState.startTime)
+                                    }
+                                },
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    textDecoration = TextDecoration.Underline,
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = stringResource(id = R.string.edit_work_screen_end_label),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 40.dp)
+                            .padding(bottom = 8.dp),
+                        textAlign = TextAlign.Start
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = actions.onShowEndDayPicker) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(formatMonthDay(state.uiState.endDay))
+                                    }
+                                },
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    textDecoration = TextDecoration.Underline,
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(32.dp))
+                        TextButton(onClick = actions.onShowEndTimePicker) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(state.uiState.endTime)
+                                    }
+                                },
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    textDecoration = TextDecoration.Underline,
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+                    }
+                }
+
+                // 右側: 活動時間
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.edit_work_screen_elapsed_time_label),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 40.dp)
+                            .padding(bottom = 8.dp),
+                        textAlign = TextAlign.Start
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = actions.onShowElapsedPicker) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    if (state.uiState.elapsedHour > 0) {
+                                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                            append(String.format("%2d", state.uiState.elapsedHour))
+                                        }
+                                        append(stringResource(id = R.string.edit_work_screen_hour_unit))
+                                    }
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append(String.format("%2d", state.uiState.elapsedMinute))
+                                    }
+                                    append(stringResource(id = R.string.edit_work_screen_minute_unit))
+                                },
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    textDecoration = TextDecoration.Underline,
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+                    }
+                }
             }
-            Spacer(modifier = Modifier.width(32.dp))
-            TextButton(onClick = actions.onShowStartTimePicker) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(state.uiState.startTime)
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
-                    )
-                )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = actions.onNavigateBack,
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
+                ) {
+                    Text(stringResource(id = R.string.edit_work_screen_cancel_button))
+                }
+
+                Spacer(modifier = Modifier.width(64.dp))
+
+                Button(
+                    onClick = { actions.onSaveWork(false) },
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
+                ) {
+                    Text(stringResource(id = R.string.edit_work_screen_save_button))
+                }
             }
         }
-
-        Text(
-            text = stringResource(id = R.string.edit_work_screen_end_label),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 40.dp)
-                .padding(bottom = 8.dp),
-            textAlign = TextAlign.Start
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 40.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+    } else {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TextButton(onClick = actions.onShowEndDayPicker) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(formatMonthDay(state.uiState.endDay))
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.width(32.dp))
-            TextButton(onClick = actions.onShowEndTimePicker) {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(state.uiState.endTime)
-                        }
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-        }
+            Text(
+                text = context.getString(if (state.isNew) R.string.new_record else R.string.edit_record),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(vertical = 8.dp)
+            )
 
-        Text(
-            text = stringResource(id = R.string.edit_work_screen_elapsed_time_label),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 40.dp)
-                .padding(bottom = 8.dp),
-            textAlign = TextAlign.Start
-        )
+            Spacer(modifier = Modifier.height(48.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 40.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = actions.onShowElapsedPicker) {
-                Text(
-                    text = buildAnnotatedString {
-                        if (state.uiState.elapsedHour > 0) {
+            Text(
+                text = stringResource(id = R.string.edit_work_screen_start_label),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 40.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = actions.onShowStartDayPicker) {
+                    Text(
+                        text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(String.format("%2d", state.uiState.elapsedHour))
+                                append(formatMonthDay(state.uiState.startDay))
                             }
-                            append(stringResource(id = R.string.edit_work_screen_hour_unit))
-                        }
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(String.format("%2d", state.uiState.elapsedMinute))
-                        }
-                        append(stringResource(id = R.string.edit_work_screen_minute_unit))
-                    },
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
                     )
-                )
+                }
+                Spacer(modifier = Modifier.width(32.dp))
+                TextButton(onClick = actions.onShowStartTimePicker) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(state.uiState.startTime)
+                            }
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.weight(0.2f))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = actions.onNavigateBack,
+            Text(
+                text = stringResource(id = R.string.edit_work_screen_end_label),
                 modifier = Modifier
-                    .width(120.dp)
-                    .height(56.dp)
-            ) {
-                Text(stringResource(id = R.string.edit_work_screen_cancel_button))
-            }
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
+            )
 
-            Spacer(modifier = Modifier.width(64.dp))
-
-            Button(
-                onClick = { actions.onSaveWork(false) },
+            Row(
                 modifier = Modifier
-                    .width(120.dp)
-                    .height(56.dp)
+                    .fillMaxWidth()
+                    .padding(bottom = 40.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(id = R.string.edit_work_screen_save_button))
+                TextButton(onClick = actions.onShowEndDayPicker) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(formatMonthDay(state.uiState.endDay))
+                            }
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
+                Spacer(modifier = Modifier.width(32.dp))
+                TextButton(onClick = actions.onShowEndTimePicker) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(state.uiState.endTime)
+                            }
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(id = R.string.edit_work_screen_elapsed_time_label),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp)
+                    .padding(bottom = 8.dp),
+                textAlign = TextAlign.Start
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 40.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = actions.onShowElapsedPicker) {
+                    Text(
+                        text = buildAnnotatedString {
+                            if (state.uiState.elapsedHour > 0) {
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append(String.format("%2d", state.uiState.elapsedHour))
+                                }
+                                append(stringResource(id = R.string.edit_work_screen_hour_unit))
+                            }
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(String.format("%2d", state.uiState.elapsedMinute))
+                            }
+                            append(stringResource(id = R.string.edit_work_screen_minute_unit))
+                        },
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(0.2f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = actions.onNavigateBack,
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
+                ) {
+                    Text(stringResource(id = R.string.edit_work_screen_cancel_button))
+                }
+
+                Spacer(modifier = Modifier.width(64.dp))
+
+                Button(
+                    onClick = { actions.onSaveWork(false) },
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
+                ) {
+                    Text(stringResource(id = R.string.edit_work_screen_save_button))
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+        }
     }
 
     if (state.showStartTimePicker) {

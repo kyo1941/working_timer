@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -157,60 +159,31 @@ fun MainScreen(
     }
 }
 
-@Preview(showBackground = true, name = "BeforeStart")
-@Composable
-fun MainScreenPreviewBeforeStart() = MainScreen(
-    state = MainScreenState(uiState = MainUiState(timerStatus = null)),
-    actions = previewMainScreenActions
-)
-
-@Preview(showBackground = true, name = "Working")
-@Composable
-fun MainScreenPreviewWorking() = MainScreen(
-    state = MainScreenState(uiState = MainUiState(timerStatus = TimerStatus.Working, elapsedTime = 5025000L)),
-    actions = previewMainScreenActions
-)
-
-@Preview(showBackground = true, name = "Paused")
-@Composable
-fun MainScreenPreviewPaused() = MainScreen(
-    state = MainScreenState(uiState = MainUiState(timerStatus = TimerStatus.Resting, elapsedTime = 754000L)),
-    actions = previewMainScreenActions
-)
-
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreviewSaveDialog() = MainScreen(
-    state = MainScreenState(
-        uiState = MainUiState(
+private class MainUiStateProvider : PreviewParameterProvider<MainUiState> {
+    override val values = sequenceOf(
+        MainUiState(timerStatus = null),
+        MainUiState(timerStatus = TimerStatus.Working, elapsedTime = 5025000L),
+        MainUiState(timerStatus = TimerStatus.Resting, elapsedTime = 754000L),
+        MainUiState(
             timerStatus = TimerStatus.Working,
             elapsedTime = 5025000L,
             dialogStatus = DialogStatus.SaveDialog(startDate = "2025-09-02", elapsedTime = 5025000L)
-        )
-    ),
+        ),
+        MainUiState(timerStatus = TimerStatus.Working, dialogStatus = DialogStatus.TooShortTimeErrorDialog),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview(@PreviewParameter(MainUiStateProvider::class) uiState: MainUiState) = MainScreen(
+    state = MainScreenState(uiState = uiState),
     actions = previewMainScreenActions
 )
 
-@Preview(showBackground = true, name = "SaveDialog_Error")
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape")
 @Composable
-fun MainScreenPreviewSaveDialogError() = MainScreen(
-    state = MainScreenState(
-        uiState = MainUiState(timerStatus = TimerStatus.Working, dialogStatus = DialogStatus.TooShortTimeErrorDialog)
-    ),
-    actions = previewMainScreenActions
-)
-
-@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "BeforeStart Landscape")
-@Composable
-fun MainScreenPreviewBeforeStartLandscape() = MainScreen(
-    state = MainScreenState(uiState = MainUiState(timerStatus = null)),
-    actions = previewMainScreenActions
-)
-
-@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "Working Landscape")
-@Composable
-fun MainScreenPreviewWorkingLandscape() = MainScreen(
-    state = MainScreenState(uiState = MainUiState(timerStatus = TimerStatus.Working, elapsedTime = 5025000L)),
+fun MainScreenPreviewLandscape(@PreviewParameter(MainUiStateProvider::class) uiState: MainUiState) = MainScreen(
+    state = MainScreenState(uiState = uiState),
     actions = previewMainScreenActions
 )
 

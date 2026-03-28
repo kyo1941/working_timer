@@ -149,13 +149,13 @@ fun LogViewScreen(
                 thickness = 1.dp
             )
 
-            Box(
+            WorkListSection(
+                state = state,
+                actions = actions,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-            ) {
-                WorkListSection(state, actions, Modifier.fillMaxSize())
-            }
+            )
         }
     } else {
         Column(

@@ -6,5 +6,5 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
 
     id("com.google.dagger.hilt.android") version "2.57.2" apply false
-    id("io.gitlab.arturbosch.detekt") version "1.23.3" apply false
+    alias(libs.plugins.detekt) apply false
 }

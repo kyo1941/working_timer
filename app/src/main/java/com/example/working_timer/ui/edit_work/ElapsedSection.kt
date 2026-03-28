@@ -45,12 +45,12 @@ internal fun ElapsedSection(
                     text = buildAnnotatedString {
                         if (state.uiState.elapsedHour > 0) {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(String.format("%2d", state.uiState.elapsedHour))
+                                append(state.uiState.elapsedHour.toString())
                             }
                             append(stringResource(id = R.string.edit_work_screen_hour_unit))
                         }
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(String.format("%2d", state.uiState.elapsedMinute))
+                            append(state.uiState.elapsedMinute.toString())
                         }
                         append(stringResource(id = R.string.edit_work_screen_minute_unit))
                     },

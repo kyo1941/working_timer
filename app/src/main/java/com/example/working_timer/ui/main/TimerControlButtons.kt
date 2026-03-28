@@ -49,13 +49,15 @@ internal fun TimerControlButtons(
         TimerStatus.Resting -> TimerButton(
             text = stringResource(R.string.resume_timer_button_text),
             color = ResumeButtonColor,
-            onClick = onResumeTimer
+            onClick = onResumeTimer,
+            modifier = modifier
         )
 
         null -> TimerButton(
             text = stringResource(R.string.start_timer_button_text),
             color = StartButtonColor,
-            onClick = onStartTimer
+            onClick = onStartTimer,
+            modifier = modifier
         )
     }
 }

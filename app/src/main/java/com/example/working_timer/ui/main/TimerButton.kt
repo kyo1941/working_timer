@@ -11,12 +11,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-internal fun TimerButton(text: String, color: Color, onClick: () -> Unit) {
+internal fun TimerButton(text: String, color: Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
     FloatingActionButton(
         onClick = onClick,
         containerColor = color,
         shape = RoundedCornerShape(40.dp),
-        modifier = Modifier.size(100.dp)
+        modifier = modifier.size(100.dp)
     ) {
         Text(text, fontSize = 20.sp, color = Color.White)
     }

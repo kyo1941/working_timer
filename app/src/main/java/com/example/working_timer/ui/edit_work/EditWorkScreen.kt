@@ -169,9 +169,7 @@ fun EditWorkScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 40.dp)
-                    .padding(vertical = 8.dp)
-                    .padding(top = 24.dp)
+                    .padding(start = 40.dp, top = 32.dp, bottom = 8.dp)
             )
 
             Row(

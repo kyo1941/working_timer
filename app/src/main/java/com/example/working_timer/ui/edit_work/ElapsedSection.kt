@@ -1,5 +1,6 @@
 package com.example.working_timer.ui.edit_work
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,7 +38,7 @@ internal fun ElapsedSection(
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = actions.onShowElapsedPicker) {
@@ -45,12 +46,12 @@ internal fun ElapsedSection(
                     text = buildAnnotatedString {
                         if (state.uiState.elapsedHour > 0) {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(state.uiState.elapsedHour.toString())
+                                append(String.format("%2d", state.uiState.elapsedHour))
                             }
                             append(stringResource(id = R.string.edit_work_screen_hour_unit))
                         }
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(state.uiState.elapsedMinute.toString())
+                            append(String.format("%2d", state.uiState.elapsedMinute))
                         }
                         append(stringResource(id = R.string.edit_work_screen_minute_unit))
                     },

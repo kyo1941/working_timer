@@ -14,7 +14,8 @@
 | **UI** | Jetpack Compose |
 | **アーキテクチャ** | MVVM |
 | **データベース** | Room<br> DataStore<br> |
-| **テスト** | JUnit<br> MockK<br> |
+| **テスト** | JUnit<br> MockK<br> Turbine<br> |
+| **静的解析** | Detekt |
 | **CI** | GitHub Actions |
 | **その他** | Dagger Hilt<br> Navigation Compose<br> Kotlin Coroutines |
 
@@ -39,7 +40,8 @@
 │       └── WorkRepositoryImpl.kt           # 作業内容のCRUDを実装するクラス
 │
 ├── di
-│   └── AppModule.kt                        # HiltのDIコンテナ
+│   ├── AppModule.kt                        # HiltのDIコンテナ
+│   └── IoDispatcher.kt                     # IOディスパッチャの提供
 │
 ├── domain
 │   └── repository
@@ -56,13 +58,8 @@
 │   └── TimerService.kt                     # タイマーを管理するService
 │
 ├── ui
-│   ├── components
-│   │   ├── DataRangePickerModal.kt         # 期間指定のモーダルダイアログ
-│   │   ├── FooterNavigationBar.kt          # フッターのナビゲーションバー
-│   │   ├── MaterialDatePickerDialog.kt     # Material Designの日付選択ダイアログ
-│   │   ├── MaterialTimePickerDialog.kt     # Material Designの時間選択ダイアログ
-│   │   └── WorkItemComposable.kt           # 作業内容を表示するComposable
-│   │ 
+│   ├── components/                         # 共通Composable
+│   │
 │   ├── edit_work
 │   │   ├── EditWorkScreen.kt               # 作業内容の編集画面
 │   │   └── EditWorkViewModel.kt            # 作業内容の編集画面のViewModel

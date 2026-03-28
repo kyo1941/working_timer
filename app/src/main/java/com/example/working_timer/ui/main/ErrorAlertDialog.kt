@@ -19,7 +19,7 @@ internal fun ErrorAlertDialog(
         onDismissRequest = {},
         title = {
             Text(
-                text = stringResource(R.string.title_save_dialog),
+                text = stringResource(R.string.title_error_dialog),
                 style = typography.headlineSmall
             )
         },

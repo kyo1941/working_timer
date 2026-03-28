@@ -13,4 +13,3 @@ val BorderColor = Color(0xFFBEBEBE)
 
 val BackgroundColor = Color(0xFFF2F2F2)
 val StatusDefaultColor = Color.Black
-

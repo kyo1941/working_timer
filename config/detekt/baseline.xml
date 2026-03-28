@@ -1,0 +1,271 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ArgumentListWrapping:AppNavHost.kt$( WindowInsetsSides.Top + WindowInsetsSides.Horizontal)</ID>
+    <ID>ArgumentListWrapping:AppNavHost.kt$(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)</ID>
+    <ID>ArgumentListWrapping:DataRangePickerModal.kt$( id = R.string.date_range_picker_headline, startDate, endDate)</ID>
+    <ID>ArgumentListWrapping:DataRangePickerModal.kt$( id = R.string.date_range_picker_headline, startDate, endLabel)</ID>
+    <ID>ArgumentListWrapping:DataRangePickerModal.kt$(id = R.string.date_range_picker_headline, startDate, endDate)</ID>
+    <ID>ArgumentListWrapping:DataRangePickerModal.kt$(id = R.string.date_range_picker_headline, startDate, endLabel)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$( R.string.edit_work_view_model_error_database)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$( R.string.edit_work_view_model_error_invalid_date_time_format)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$(R.string.edit_work_view_model_error_database)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$(R.string.edit_work_view_model_error_invalid_date_time_format)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$EditWorkScreenStateProvider$( startTime = "09:00", endTime = "09:00", elapsedHour = 0, elapsedMinute = 0, showZeroMinutesError = true)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$EditWorkScreenStateProvider$( startTime = "09:00", endTime = "17:00", elapsedHour = 10, elapsedMinute = 0, showElapsedTimeOver = true)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$EditWorkScreenStateProvider$( startTime = "14:30", endTime = "17:45", elapsedHour = 3, elapsedMinute = 15)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$EditWorkScreenStateProvider$( startTime = "18:00", endTime = "09:00", elapsedHour = 0, elapsedMinute = 30, showStartEndError = true)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$EditWorkScreenStateProvider$(startTime = "09:00", endTime = "09:00", elapsedHour = 0, elapsedMinute = 0, showZeroMinutesError = true)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$EditWorkScreenStateProvider$(startTime = "09:00", endTime = "17:00", elapsedHour = 10, elapsedMinute = 0, showElapsedTimeOver = true)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$EditWorkScreenStateProvider$(startTime = "14:30", endTime = "17:45", elapsedHour = 3, elapsedMinute = 15)</ID>
+    <ID>ArgumentListWrapping:EditWorkScreen.kt$EditWorkScreenStateProvider$(startTime = "18:00", endTime = "09:00", elapsedHour = 0, elapsedMinute = 30, showStartEndError = true)</ID>
+    <ID>ArgumentListWrapping:MainScreen.kt$( onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {}, onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {} )</ID>
+    <ID>ArgumentListWrapping:MaterialTimePickerDialog.kt$( id = R.string.time_picker_dialog_mode_switch_description)</ID>
+    <ID>ArgumentListWrapping:MaterialTimePickerDialog.kt$(id = R.string.time_picker_dialog_mode_switch_description)</ID>
+    <ID>ArgumentListWrapping:TimerService.kt$TimerService$( this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE )</ID>
+    <ID>ArgumentListWrapping:TimerService.kt$TimerService$( this, 0, resumeIntent, PendingIntent.FLAG_IMMUTABLE )</ID>
+    <ID>ConstructorParameterNaming:Work.kt$Work$val elapsed_time: Long</ID>
+    <ID>ConstructorParameterNaming:Work.kt$Work$val end_day: String</ID>
+    <ID>ConstructorParameterNaming:Work.kt$Work$val end_time: String</ID>
+    <ID>ConstructorParameterNaming:Work.kt$Work$val start_day: String</ID>
+    <ID>ConstructorParameterNaming:Work.kt$Work$val start_time: String</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:SaveDialog.kt$val (labelStartDate, valueStartDate, labelElapsedTime, valueElapsedTime) = createRefs()</ID>
+    <ID>FinalNewline:AppDatabase.kt$com.example.working_timer.data.db.AppDatabase.kt</ID>
+    <ID>FinalNewline:AppModule.kt$com.example.working_timer.di.AppModule.kt</ID>
+    <ID>FinalNewline:AppNavHost.kt$com.example.working_timer.navigation.AppNavHost.kt</ID>
+    <ID>FinalNewline:Constants.kt$com.example.working_timer.util.Constants.kt</ID>
+    <ID>FinalNewline:DataStoreManager.kt$com.example.working_timer.domain.repository.DataStoreManager.kt</ID>
+    <ID>FinalNewline:DataStoreManagerImpl.kt$com.example.working_timer.data.repository.DataStoreManagerImpl.kt</ID>
+    <ID>FinalNewline:ExampleUnitTest.kt$com.example.working_timer.ExampleUnitTest.kt</ID>
+    <ID>FinalNewline:IoDispatcher.kt$com.example.working_timer.di.IoDispatcher.kt</ID>
+    <ID>FinalNewline:MainViewModel.kt$com.example.working_timer.ui.main.MainViewModel.kt</ID>
+    <ID>FinalNewline:MyApplication.kt$com.example.working_timer.MyApplication.kt</ID>
+    <ID>FinalNewline:Routes.kt$com.example.working_timer.navigation.Routes.kt</ID>
+    <ID>FinalNewline:TimerActionReceiver.kt$com.example.working_timer.service.TimerActionReceiver.kt</ID>
+    <ID>FinalNewline:TimerManagerImpl.kt$com.example.working_timer.data.repository.TimerManagerImpl.kt</ID>
+    <ID>FinalNewline:Work.kt$com.example.working_timer.data.db.Work.kt</ID>
+    <ID>FinalNewline:WorkDao.kt$com.example.working_timer.data.db.WorkDao.kt</ID>
+    <ID>FinalNewline:WorkRepository.kt$com.example.working_timer.domain.repository.WorkRepository.kt</ID>
+    <ID>FinalNewline:WorkRepositoryImpl.kt$com.example.working_timer.data.repository.WorkRepositoryImpl.kt</ID>
+    <ID>FunctionReturnTypeSpacing:SaveDialog.kt$@Composable private fun formatElapsedTime(elapsedTime: Long) : String</ID>
+    <ID>ImplicitDefaultLocale:ElapsedSection.kt$String.format("%2d", state.uiState.elapsedHour)</ID>
+    <ID>ImplicitDefaultLocale:ElapsedSection.kt$String.format("%2d", state.uiState.elapsedMinute)</ID>
+    <ID>ImplicitDefaultLocale:MaterialTimePickerDialog.kt$String.format("%02d:%02d", state.hour, state.minute)</ID>
+    <ID>ImportOrdering:AppModule.kt$import android.content.Context import androidx.datastore.core.DataStore import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler import androidx.datastore.preferences.core.Preferences import androidx.datastore.preferences.core.emptyPreferences import androidx.datastore.preferences.preferencesDataStoreFile import androidx.datastore.preferences.core.PreferenceDataStoreFactory import androidx.room.Room import com.example.working_timer.data.db.AppDatabase import com.example.working_timer.data.db.WorkDao import com.example.working_timer.data.repository.DataStoreManagerImpl import com.example.working_timer.data.repository.TimerManagerImpl import com.example.working_timer.data.repository.WorkRepositoryImpl import com.example.working_timer.domain.repository.DataStoreManager import com.example.working_timer.domain.repository.TimerManager import com.example.working_timer.domain.repository.WorkRepository import com.example.working_timer.util.SharedPrefKeys import dagger.Binds import dagger.Module import dagger.Provides import dagger.hilt.InstallIn import dagger.hilt.android.qualifiers.ApplicationContext import dagger.hilt.components.SingletonComponent import kotlinx.coroutines.CoroutineDispatcher import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.SupervisorJob import javax.inject.Singleton</ID>
+    <ID>ImportOrdering:DataRangePickerModal.kt$import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.heightIn import androidx.compose.foundation.layout.padding import androidx.compose.runtime.Composable import androidx.compose.ui.Modifier import androidx.compose.ui.res.stringResource import androidx.compose.ui.unit.dp import androidx.compose.material3.DatePickerDialog import androidx.compose.material3.DateRangePicker import androidx.compose.material3.rememberDateRangePickerState import androidx.compose.material3.Text import androidx.compose.material3.TextButton import androidx.compose.material3.ExperimentalMaterial3Api import androidx.compose.ui.text.font.FontWeight import androidx.compose.ui.text.style.TextAlign import androidx.compose.ui.tooling.preview.Preview import com.example.working_timer.R import java.text.SimpleDateFormat import java.util.*</ID>
+    <ID>ImportOrdering:DataStoreManagerImplTest.kt$import androidx.datastore.preferences.core.PreferenceDataStoreFactory import com.example.working_timer.util.Constants.SECOND_IN_HOURS import com.example.working_timer.util.SharedPrefKeys import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.flow.first import kotlinx.coroutines.test.TestScope import kotlinx.coroutines.test.UnconfinedTestDispatcher import kotlinx.coroutines.test.runTest import kotlinx.coroutines.test.setMain import kotlinx.coroutines.test.resetMain import org.junit.After import org.junit.Before import org.junit.Test import org.junit.Assert.* import org.junit.Rule import org.junit.rules.TemporaryFolder import java.io.File</ID>
+    <ID>ImportOrdering:EditWorkScreen.kt$import androidx.compose.runtime.Composable import androidx.compose.runtime.getValue import androidx.compose.runtime.setValue import androidx.compose.runtime.mutableStateOf import androidx.compose.runtime.remember import androidx.compose.foundation.layout.* import androidx.compose.material3.* import androidx.compose.ui.Modifier import androidx.compose.ui.unit.dp import androidx.compose.ui.Alignment import androidx.compose.foundation.layout.Row import androidx.compose.runtime.LaunchedEffect import androidx.compose.ui.res.stringResource import android.content.res.Configuration import androidx.compose.ui.platform.LocalConfiguration import androidx.compose.ui.platform.LocalContext import androidx.compose.ui.text.font.FontWeight import com.example.working_timer.R import androidx.compose.runtime.collectAsState import androidx.compose.runtime.rememberCoroutineScope import androidx.compose.ui.tooling.preview.Preview import androidx.compose.ui.tooling.preview.PreviewParameter import androidx.compose.ui.tooling.preview.PreviewParameterProvider import androidx.hilt.navigation.compose.hiltViewModel import kotlinx.coroutines.flow.collectLatest import kotlinx.coroutines.launch</ID>
+    <ID>ImportOrdering:EditWorkViewModel.kt$import android.database.sqlite.SQLiteException import android.util.Log import androidx.lifecycle.SavedStateHandle import androidx.lifecycle.ViewModel import androidx.lifecycle.viewModelScope import com.example.working_timer.data.db.Work import com.example.working_timer.domain.repository.WorkRepository import com.example.working_timer.util.Constants.SECOND_IN_HOURS import com.example.working_timer.util.Constants.SECOND_IN_MINUTES import dagger.hilt.android.lifecycle.HiltViewModel import kotlinx.coroutines.flow.MutableSharedFlow import kotlinx.coroutines.flow.asStateFlow import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.flow.SharedFlow import kotlinx.coroutines.flow.StateFlow import kotlinx.coroutines.flow.asSharedFlow import kotlinx.coroutines.flow.firstOrNull import kotlinx.coroutines.flow.update import kotlinx.coroutines.launch import java.text.ParseException import java.text.SimpleDateFormat import java.util.Locale import javax.inject.Inject</ID>
+    <ID>ImportOrdering:EditWorkViewModelTest.kt$import androidx.lifecycle.SavedStateHandle import com.example.working_timer.data.db.Work import com.example.working_timer.domain.repository.WorkRepository import com.example.working_timer.util.Constants.SECOND_IN_HOURS import com.example.working_timer.util.Constants.SECOND_IN_MINUTES import io.mockk.* import kotlinx.coroutines.launch import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.flow.flowOf import kotlinx.coroutines.flow.first import kotlinx.coroutines.test.* import org.junit.After import org.junit.Before import org.junit.Test import org.junit.Assert.* import android.database.sqlite.SQLiteException import kotlinx.coroutines.flow.emptyFlow</ID>
+    <ID>ImportOrdering:ExampleUnitTest.kt$import org.junit.Test import org.junit.Assert.*</ID>
+    <ID>ImportOrdering:LogViewViewModelTest.kt$import com.example.working_timer.data.db.Work import com.example.working_timer.domain.repository.WorkRepository import com.example.working_timer.util.Constants.SECOND_IN_HOURS import io.mockk.coEvery import io.mockk.coVerify import io.mockk.mockk import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.flow.first import kotlinx.coroutines.test.StandardTestDispatcher import kotlinx.coroutines.test.advanceUntilIdle import kotlinx.coroutines.test.runTest import kotlinx.coroutines.test.setMain import kotlinx.coroutines.test.resetMain import org.junit.After import org.junit.Before import org.junit.Test import org.junit.Assert.*</ID>
+    <ID>ImportOrdering:MainViewModel.kt$import androidx.lifecycle.ViewModel import androidx.lifecycle.viewModelScope import com.example.working_timer.data.db.Work import com.example.working_timer.domain.repository.DataStoreManager import com.example.working_timer.domain.repository.TimerManager import com.example.working_timer.domain.repository.WorkRepository import com.example.working_timer.service.TimerState import com.example.working_timer.util.Constants.ONE_MINUTE_MS import dagger.hilt.android.lifecycle.HiltViewModel import kotlinx.coroutines.flow.MutableSharedFlow import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.flow.StateFlow import kotlinx.coroutines.flow.combine import kotlinx.coroutines.flow.stateIn import kotlinx.coroutines.flow.SharingStarted import kotlinx.coroutines.flow.update import kotlinx.coroutines.launch import java.text.SimpleDateFormat import java.util.Calendar import java.util.Date import java.util.Locale import javax.inject.Inject</ID>
+    <ID>ImportOrdering:MainViewModelTest.kt$import app.cash.turbine.test import com.example.working_timer.domain.repository.DataStoreManager import com.example.working_timer.domain.repository.TimerManager import com.example.working_timer.domain.repository.WorkRepository import com.example.working_timer.service.TimerState import com.example.working_timer.util.Constants.ONE_HOUR_MS import com.example.working_timer.util.Constants.ONE_MINUTE_MS import io.mockk.every import io.mockk.coEvery import io.mockk.coVerify import io.mockk.just import io.mockk.mockk import io.mockk.Runs import io.mockk.verify import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.test.UnconfinedTestDispatcher import kotlinx.coroutines.test.runTest import kotlinx.coroutines.test.setMain import kotlinx.coroutines.test.resetMain import org.junit.After import org.junit.Assert.* import org.junit.Before import org.junit.Test</ID>
+    <ID>ImportOrdering:MaterialTimePickerDialog.kt$import androidx.compose.foundation.layout.* import androidx.compose.material.icons.Icons import androidx.compose.material.icons.filled.AccessTime import androidx.compose.material.icons.filled.Keyboard import androidx.compose.material3.* import androidx.compose.runtime.* import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.res.stringResource import androidx.compose.ui.unit.dp import androidx.compose.ui.unit.sp import androidx.compose.foundation.layout.Box import com.example.working_timer.R</ID>
+    <ID>ImportOrdering:TimerManagerImplTest.kt$import android.content.ComponentName import android.content.Context import android.content.Intent import android.content.ServiceConnection import com.example.working_timer.service.TimerService import com.example.working_timer.service.TimerState import io.mockk.* import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.async import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.flow.take import kotlinx.coroutines.flow.toList import kotlinx.coroutines.test.StandardTestDispatcher import kotlinx.coroutines.test.advanceUntilIdle import kotlinx.coroutines.test.runTest import kotlinx.coroutines.test.setMain import kotlinx.coroutines.test.resetMain import org.junit.After import org.junit.Assert.* import org.junit.Before import org.junit.Test</ID>
+    <ID>ImportOrdering:WorkItemComposable.kt$import androidx.compose.foundation.layout.* import androidx.compose.material.icons.filled.Edit import androidx.compose.material.icons.filled.Delete import androidx.compose.material3.Icon import androidx.compose.material3.IconButton import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.res.stringResource import androidx.compose.ui.unit.dp import androidx.compose.ui.text.font.FontWeight import com.example.working_timer.R import com.example.working_timer.data.db.Work</ID>
+    <ID>ImportOrdering:WorkRepositoryImplTest.kt$import com.example.working_timer.data.db.Work import com.example.working_timer.data.db.WorkDao import io.mockk.coEvery import io.mockk.coVerify import io.mockk.every import io.mockk.mockk import io.mockk.verify import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.flow.first import kotlinx.coroutines.flow.flowOf import kotlinx.coroutines.test.StandardTestDispatcher import kotlinx.coroutines.test.advanceUntilIdle import kotlinx.coroutines.test.runTest import kotlinx.coroutines.test.setMain import kotlinx.coroutines.test.resetMain import org.junit.After import org.junit.Before import org.junit.Test import org.junit.Assert.*</ID>
+    <ID>Indentation:EditWorkViewModelTest.kt$EditWorkViewModelTest$ </ID>
+    <ID>Indentation:MainViewModelTest.kt$MainViewModelTest$ </ID>
+    <ID>Indentation:TimerDisplaySection.kt$ </ID>
+    <ID>LongMethod:AppNavHost.kt$@Composable fun AppNavHost( navController: NavHostController, startDestination: String = Routes.Timer.routes, footer: @Composable () -&gt; Unit, )</ID>
+    <ID>LongMethod:DataRangePickerModal.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DateRangePickerDialog( onDateRangeSelected: (Pair&lt;Long?, Long?&gt;) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongMethod:EditWorkDialogs.kt$@Composable internal fun EditWorkDialogs( state: EditWorkScreenState, actions: EditWorkScreenActions )</ID>
+    <ID>LongMethod:EditWorkScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EditWorkScreen( state: EditWorkScreenState, actions: EditWorkScreenActions, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:EditWorkScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EditWorkScreenHolder( modifier: Modifier = Modifier, editWorkViewModel: EditWorkViewModel = hiltViewModel(), id: Int, snackbarHostState: SnackbarHostState, onNavigateBack: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:EditWorkViewModel.kt$EditWorkViewModel$fun saveWork( id: Int, forceSave: Boolean = false )</ID>
+    <ID>LongMethod:LogViewScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LogViewScreen( state: LogViewScreenState, actions: LogViewScreenActions, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:MainScreen.kt$@Composable fun MainScreenHolder( modifier: Modifier = Modifier, mainViewModel: MainViewModel = hiltViewModel(), snackbarHostState: SnackbarHostState, onNavigateToLog: () -&gt; Unit )</ID>
+    <ID>LongMethod:MaterialTimePickerDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MaterialTimePickerDialog( initialTime: Pair&lt;Int, Int&gt;, onDismiss: () -&gt; Unit, onTimeSelected: (String) -&gt; Unit, showToggleIcon: Boolean = true )</ID>
+    <ID>LongMethod:SaveDialog.kt$@Composable fun SaveDialog( startDate: String, elapsedTime: Long, onConfirm: () -&gt; Unit, onNeutral: () -&gt; Unit, onDismiss: () -&gt; Unit, )</ID>
+    <ID>LongMethod:SumDialog.kt$@Composable internal fun SumDialog( startDate: Long?, endDate: Long?, totalHours: Long, totalMinutes: Long, totalWage: Long, calculationMode: TimeCalculationMode, onDismiss: () -&gt; Unit, onWageChange: (Long) -&gt; Unit, onCalculationModeChange: (TimeCalculationMode) -&gt; Unit )</ID>
+    <ID>LongMethod:TimerService.kt$TimerService$private fun updateNotificationChannel()</ID>
+    <ID>LongMethod:WorkItemComposable.kt$@Composable fun WorkItemComposable( work: Work, onDelete: () -&gt; Unit, onEdit: () -&gt; Unit )</ID>
+    <ID>MagicNumber:DeleteConfirmDialog.kt$0.1f</ID>
+    <ID>MagicNumber:EditWorkDialogs.kt$0.1f</ID>
+    <ID>MagicNumber:EditWorkScreen.kt$0.2f</ID>
+    <ID>MagicNumber:LogViewScreen.kt$1.1f</ID>
+    <ID>MagicNumber:MainViewModel.kt$MainViewModel$60</ID>
+    <ID>MagicNumber:SaveDialog.kt$3600</ID>
+    <ID>MagicNumber:SaveDialog.kt$60</ID>
+    <ID>MagicNumber:SumDialog.kt$7</ID>
+    <ID>MagicNumber:TimerService.kt$TimerService$3600</ID>
+    <ID>MagicNumber:TimerService.kt$TimerService$60</ID>
+    <ID>MagicNumber:WorkItemComposable.kt$3600</ID>
+    <ID>MagicNumber:WorkItemComposable.kt$60</ID>
+    <ID>MaximumLineLength:LogViewViewModel.kt$LogViewViewModel$ </ID>
+    <ID>MultiLineIfElse:SegmentedControl.kt$Color.Transparent</ID>
+    <ID>MultiLineIfElse:SegmentedControl.kt$Color.White</ID>
+    <ID>MultiLineIfElse:SegmentedControl.kt$MaterialTheme.colorScheme.onSurface</ID>
+    <ID>MultiLineIfElse:SegmentedControl.kt$MaterialTheme.colorScheme.primary</ID>
+    <ID>NoBlankLineBeforeRbrace:EditWorkViewModel.kt$EditWorkViewModel$ </ID>
+    <ID>NoBlankLineBeforeRbrace:MainScreenDialogs.kt$ </ID>
+    <ID>NoBlankLineBeforeRbrace:MaterialTimePickerDialog.kt$ </ID>
+    <ID>NoBlankLineBeforeRbrace:SaveDialog.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:Color.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:DataRangePickerModal.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:DataStoreManagerImplTest.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:EditWorkScreen.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:EditWorkViewModelTest.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:MaterialTimePickerDialog.kt$ </ID>
+    <ID>NoConsecutiveBlankLines:SaveDialog.kt$ </ID>
+    <ID>NoMultipleSpaces:LogViewViewModel.kt$TimeCalculationMode.NORMAL$ </ID>
+    <ID>NoMultipleSpaces:LogViewViewModel.kt$TimeCalculationMode.ROUND_UP$ </ID>
+    <ID>NoMultipleSpaces:MaterialTimePickerDialog.kt$ </ID>
+    <ID>NoMultipleSpaces:Work.kt$Work$ </ID>
+    <ID>NoUnusedImports:DataStoreManagerImplTest.kt$com.example.working_timer.data.repository.DataStoreManagerImplTest.kt</ID>
+    <ID>NoUnusedImports:WorkListSection.kt$com.example.working_timer.ui.log_view.WorkListSection.kt</ID>
+    <ID>NoWildcardImports:DataStoreManagerImplTest.kt$import org.junit.Assert.*</ID>
+    <ID>NoWildcardImports:EditWorkScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>NoWildcardImports:EditWorkScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>NoWildcardImports:EditWorkViewModelTest.kt$import io.mockk.*</ID>
+    <ID>NoWildcardImports:EditWorkViewModelTest.kt$import kotlinx.coroutines.test.*</ID>
+    <ID>NoWildcardImports:EditWorkViewModelTest.kt$import org.junit.Assert.*</ID>
+    <ID>NoWildcardImports:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+    <ID>NoWildcardImports:LogViewScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>NoWildcardImports:LogViewViewModelTest.kt$import org.junit.Assert.*</ID>
+    <ID>NoWildcardImports:MainViewModelTest.kt$import org.junit.Assert.*</ID>
+    <ID>NoWildcardImports:MaterialDatePickerDialog.kt$import androidx.compose.material3.*</ID>
+    <ID>NoWildcardImports:MaterialDatePickerDialog.kt$import androidx.compose.runtime.*</ID>
+    <ID>NoWildcardImports:MaterialTimePickerDialog.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>NoWildcardImports:MaterialTimePickerDialog.kt$import androidx.compose.material3.*</ID>
+    <ID>NoWildcardImports:MaterialTimePickerDialog.kt$import androidx.compose.runtime.*</ID>
+    <ID>NoWildcardImports:TimerManagerImplTest.kt$import io.mockk.*</ID>
+    <ID>NoWildcardImports:TimerManagerImplTest.kt$import org.junit.Assert.*</ID>
+    <ID>NoWildcardImports:WorkItemComposable.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>NoWildcardImports:WorkRepositoryImplTest.kt$import org.junit.Assert.*</ID>
+    <ID>PackageName:AppDatabase.kt$package com.example.working_timer.data.db</ID>
+    <ID>PackageName:AppModule.kt$package com.example.working_timer.di</ID>
+    <ID>PackageName:AppNavHost.kt$package com.example.working_timer.navigation</ID>
+    <ID>PackageName:CalendarSection.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:Color.kt$package com.example.working_timer.util</ID>
+    <ID>PackageName:Constants.kt$package com.example.working_timer.util</ID>
+    <ID>PackageName:DataRangePickerModal.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageName:DataStoreManager.kt$package com.example.working_timer.domain.repository</ID>
+    <ID>PackageName:DataStoreManagerImpl.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageName:DataStoreManagerImplTest.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageName:DateTimeSection.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageName:DeleteConfirmDialog.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:EditWorkActionButtons.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageName:EditWorkDialogs.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageName:EditWorkScreen.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageName:EditWorkViewModel.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageName:EditWorkViewModelTest.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageName:ElapsedSection.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageName:ErrorAlertDialog.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:ExampleUnitTest.kt$package com.example.working_timer</ID>
+    <ID>PackageName:FooterNavigationBar.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageName:IoDispatcher.kt$package com.example.working_timer.di</ID>
+    <ID>PackageName:LogViewBottomButtons.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:LogViewScreen.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:LogViewViewModel.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:LogViewViewModelTest.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:MainActivity.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:MainScreen.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:MainScreenDialogs.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:MainViewModel.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:MainViewModelTest.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:MaterialDatePickerDialog.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageName:MaterialTimePickerDialog.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageName:MyApplication.kt$package com.example.working_timer</ID>
+    <ID>PackageName:Routes.kt$package com.example.working_timer.navigation</ID>
+    <ID>PackageName:SaveDialog.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageName:SegmentedControl.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:SumDialog.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:TimerActionReceiver.kt$package com.example.working_timer.service</ID>
+    <ID>PackageName:TimerButton.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:TimerControlButtons.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:TimerDisplaySection.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:TimerManager.kt$package com.example.working_timer.domain.repository</ID>
+    <ID>PackageName:TimerManagerImpl.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageName:TimerManagerImplTest.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageName:TimerService.kt$package com.example.working_timer.service</ID>
+    <ID>PackageName:TimerStatusSection.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageName:Work.kt$package com.example.working_timer.data.db</ID>
+    <ID>PackageName:WorkDao.kt$package com.example.working_timer.data.db</ID>
+    <ID>PackageName:WorkItemComposable.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageName:WorkListSection.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageName:WorkRepository.kt$package com.example.working_timer.domain.repository</ID>
+    <ID>PackageName:WorkRepositoryImpl.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageName:WorkRepositoryImplTest.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageNaming:AppDatabase.kt$package com.example.working_timer.data.db</ID>
+    <ID>PackageNaming:AppModule.kt$package com.example.working_timer.di</ID>
+    <ID>PackageNaming:AppNavHost.kt$package com.example.working_timer.navigation</ID>
+    <ID>PackageNaming:CalendarSection.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:Color.kt$package com.example.working_timer.util</ID>
+    <ID>PackageNaming:Constants.kt$package com.example.working_timer.util</ID>
+    <ID>PackageNaming:DataRangePickerModal.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageNaming:DataStoreManager.kt$package com.example.working_timer.domain.repository</ID>
+    <ID>PackageNaming:DataStoreManagerImpl.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageNaming:DataStoreManagerImplTest.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageNaming:DateTimeSection.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageNaming:DeleteConfirmDialog.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:EditWorkActionButtons.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageNaming:EditWorkDialogs.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageNaming:EditWorkScreen.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageNaming:EditWorkViewModel.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageNaming:EditWorkViewModelTest.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageNaming:ElapsedSection.kt$package com.example.working_timer.ui.edit_work</ID>
+    <ID>PackageNaming:ErrorAlertDialog.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:ExampleUnitTest.kt$package com.example.working_timer</ID>
+    <ID>PackageNaming:FooterNavigationBar.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageNaming:IoDispatcher.kt$package com.example.working_timer.di</ID>
+    <ID>PackageNaming:LogViewBottomButtons.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:LogViewScreen.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:LogViewViewModel.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:LogViewViewModelTest.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:MainActivity.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:MainScreen.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:MainScreenDialogs.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:MainViewModel.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:MainViewModelTest.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:MaterialDatePickerDialog.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageNaming:MaterialTimePickerDialog.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageNaming:MyApplication.kt$package com.example.working_timer</ID>
+    <ID>PackageNaming:Routes.kt$package com.example.working_timer.navigation</ID>
+    <ID>PackageNaming:SaveDialog.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageNaming:SegmentedControl.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:SumDialog.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:TimerActionReceiver.kt$package com.example.working_timer.service</ID>
+    <ID>PackageNaming:TimerButton.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:TimerControlButtons.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:TimerDisplaySection.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:TimerManager.kt$package com.example.working_timer.domain.repository</ID>
+    <ID>PackageNaming:TimerManagerImpl.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageNaming:TimerManagerImplTest.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageNaming:TimerService.kt$package com.example.working_timer.service</ID>
+    <ID>PackageNaming:TimerStatusSection.kt$package com.example.working_timer.ui.main</ID>
+    <ID>PackageNaming:Work.kt$package com.example.working_timer.data.db</ID>
+    <ID>PackageNaming:WorkDao.kt$package com.example.working_timer.data.db</ID>
+    <ID>PackageNaming:WorkItemComposable.kt$package com.example.working_timer.ui.components</ID>
+    <ID>PackageNaming:WorkListSection.kt$package com.example.working_timer.ui.log_view</ID>
+    <ID>PackageNaming:WorkRepository.kt$package com.example.working_timer.domain.repository</ID>
+    <ID>PackageNaming:WorkRepositoryImpl.kt$package com.example.working_timer.data.repository</ID>
+    <ID>PackageNaming:WorkRepositoryImplTest.kt$package com.example.working_timer.data.repository</ID>
+    <ID>SwallowedException:DateTimeSection.kt$e: Exception</ID>
+    <ID>SwallowedException:EditWorkViewModel.kt$EditWorkViewModel$e: SQLiteException</ID>
+    <ID>TooGenericExceptionCaught:DateTimeSection.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:EditWorkViewModel.kt$EditWorkViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MainViewModel.kt$MainViewModel$e: Exception</ID>
+    <ID>UnusedPrivateMember:EditWorkScreen.kt$@Preview(showBackground = true) @Composable private fun EditWorkScreenPreview( @PreviewParameter(EditWorkScreenStateProvider::class) state: EditWorkScreenState )</ID>
+    <ID>UnusedPrivateMember:EditWorkScreen.kt$@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape") @Composable private fun EditWorkScreenPreviewLandscape( @PreviewParameter(EditWorkScreenStateProvider::class) state: EditWorkScreenState )</ID>
+    <ID>UnusedPrivateMember:LogViewScreen.kt$@Preview(showBackground = true) @Composable private fun LogViewScreenPreview( @PreviewParameter(LogViewScreenStateProvider::class) state: LogViewScreenState )</ID>
+    <ID>UnusedPrivateMember:LogViewScreen.kt$@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape") @Composable private fun LogViewScreenPreviewLandscape( @PreviewParameter(LogViewScreenStateProvider::class) state: LogViewScreenState )</ID>
+    <ID>UnusedPrivateMember:SaveDialog.kt$@Composable @Preview private fun SaveDialogPreview()</ID>
+    <ID>WildcardImport:DataRangePickerModal.kt$import java.util.*</ID>
+    <ID>WildcardImport:DataStoreManagerImplTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:EditWorkViewModelTest.kt$import io.mockk.*</ID>
+    <ID>WildcardImport:EditWorkViewModelTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:LogViewViewModelTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:MainViewModelTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:MaterialDatePickerDialog.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:MaterialDatePickerDialog.kt$import java.util.*</ID>
+    <ID>WildcardImport:MaterialTimePickerDialog.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:TimerManagerImplTest.kt$import io.mockk.*</ID>
+    <ID>WildcardImport:TimerManagerImplTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:WorkRepositoryImplTest.kt$import org.junit.Assert.*</ID>
+    <ID>Wrapping:EditWorkViewModelTest.kt$EditWorkViewModelTest$(</ID>
+  </CurrentIssues>
+</SmellBaseline>

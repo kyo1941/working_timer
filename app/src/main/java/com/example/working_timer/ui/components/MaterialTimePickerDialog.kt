@@ -1,6 +1,7 @@
 package com.example.working_timer.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Keyboard
@@ -11,9 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.Box
 import com.example.working_timer.R
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +63,9 @@ fun MaterialTimePickerDialog(
                         IconButton(onClick = { isInputMode = !isInputMode }) {
                             Icon(
                                 imageVector = if (isInputMode) Icons.Filled.AccessTime else Icons.Filled.Keyboard,
-                                contentDescription = stringResource(id = R.string.time_picker_dialog_mode_switch_description)
+                                contentDescription = stringResource(
+                                    id = R.string.time_picker_dialog_mode_switch_description
+                                )
                             )
                         }
                     } else {
@@ -80,11 +81,10 @@ fun MaterialTimePickerDialog(
                             Text(stringResource(id = R.string.time_picker_dialog_ok_button))
                         }
                     }
-
                 }
             }
         },
         confirmButton = {}, // カスタムするので空
-        dismissButton = {}  // カスタムするので空
+        dismissButton = {} // カスタムするので空
     )
 }

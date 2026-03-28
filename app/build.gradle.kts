@@ -1,4 +1,5 @@
 import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,22 +7,25 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp.gradle.plugin)
     id("com.google.dagger.hilt.android")
-    id("io.gitlab.arturbosch.detekt") version "1.23.3"
+    alias(libs.plugins.detekt)
 }
 
 detekt {
-    toolVersion = "1.23.3"
+    toolVersion = libs.versions.detekt.get()
     config = files("${project.rootDir}/config/detekt/detekt.yml")
     buildUponDefaultConfig = true
+    baseline = file("${project.rootDir}/config/detekt/baseline.xml")
 
-    // TODO: ローカルでのみ自動修正を行い、CIでは行わないようにする
-    autoCorrect = true
-
-    // FIXME: 特定のファイルのみを解析対象にしているが、プロジェクト全体を解析するように変更する
-    source.setFrom(files("src/main/java/com/example/working_timer/ui/main/MainViewModel.kt"))
+    // Gradleプロパティ detekt.autoCorrect で制御（デフォルト: false）
+    // ローカルでは gradle.properties に detekt.autoCorrect=true を設定済み
+    autoCorrect = project.findProperty("detekt.autoCorrect")?.toString()?.toBoolean() ?: false
 }
 
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
+tasks.withType<Detekt>().configureEach {
+    jvmTarget = "1.8"
+}
+
+tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
 }
 
@@ -123,4 +127,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.14.6")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("app.cash.turbine:turbine:1.2.1")
+
+    detektPlugins(libs.detekt.formatting)
 }

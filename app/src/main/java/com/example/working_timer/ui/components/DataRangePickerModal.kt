@@ -3,23 +3,22 @@ package com.example.working_timer.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DateRangePicker
-import androidx.compose.material3.rememberDateRangePickerState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.working_timer.R
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,8 +77,16 @@ fun DateRangePickerDialog(
                 val endLabel = stringResource(id = R.string.date_range_picker_end_date_label)
 
                 val displayText = when {
-                    startDate.isNotEmpty() && endDate.isNotEmpty() -> stringResource(id = R.string.date_range_picker_headline, startDate, endDate)
-                    startDate.isNotEmpty() -> stringResource(id = R.string.date_range_picker_headline, startDate, endLabel)
+                    startDate.isNotEmpty() && endDate.isNotEmpty() -> stringResource(
+                        id = R.string.date_range_picker_headline,
+                        startDate,
+                        endDate
+                    )
+                    startDate.isNotEmpty() -> stringResource(
+                        id = R.string.date_range_picker_headline,
+                        startDate,
+                        endLabel
+                    )
                     else -> stringResource(id = R.string.date_range_picker_headline, startLabel, endLabel)
                 }
 

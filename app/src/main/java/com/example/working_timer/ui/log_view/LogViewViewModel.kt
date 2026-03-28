@@ -20,8 +20,8 @@ import kotlin.math.ceil
 import kotlin.math.floor
 
 enum class TimeCalculationMode {
-    NORMAL,    // 通常計算
-    ROUND_UP,  // 繰り上げ
+    NORMAL, // 通常計算
+    ROUND_UP, // 繰り上げ
     ROUND_DOWN // 繰り下げ
 }
 

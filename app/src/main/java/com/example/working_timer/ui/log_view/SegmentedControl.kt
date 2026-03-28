@@ -37,8 +37,11 @@ internal fun SegmentedControl(
                         .padding(horizontal = 2.dp),
                     shape = RoundedCornerShape(6.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary
-                        else Color.Transparent
+                        containerColor = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color.Transparent
+                        }
                     ),
                     onClick = { onSelectionChange(index) }
                 ) {
@@ -48,8 +51,11 @@ internal fun SegmentedControl(
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         textAlign = TextAlign.Center,
-                        color = if (isSelected) Color.White
-                        else MaterialTheme.colorScheme.onSurface,
+                        color = if (isSelected) {
+                            Color.White
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                         fontSize = MaterialTheme.typography.bodySmall.fontSize
                     )
                 }

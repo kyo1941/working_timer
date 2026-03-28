@@ -244,7 +244,10 @@ class TimerService : LifecycleService() {
                     action = "ACTION_PAUSE_TIMER"
                 }
                 val pausePendingIntent = PendingIntent.getBroadcast(
-                    this, 0, pauseIntent, PendingIntent.FLAG_IMMUTABLE
+                    this,
+                    0,
+                    pauseIntent,
+                    PendingIntent.FLAG_IMMUTABLE
                 )
                 builder.addAction(
                     R.drawable.ic_launcher_playstore,
@@ -256,7 +259,10 @@ class TimerService : LifecycleService() {
                     action = "ACTION_RESUME_TIMER"
                 }
                 val resumePendingIntent = PendingIntent.getBroadcast(
-                    this, 0, resumeIntent, PendingIntent.FLAG_IMMUTABLE
+                    this,
+                    0,
+                    resumeIntent,
+                    PendingIntent.FLAG_IMMUTABLE
                 )
                 builder.addAction(
                     R.drawable.ic_launcher_playstore,

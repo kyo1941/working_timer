@@ -1,23 +1,23 @@
 package com.example.working_timer.ui.edit_work
 
+import android.database.sqlite.SQLiteException
 import androidx.lifecycle.SavedStateHandle
 import com.example.working_timer.data.db.Work
 import com.example.working_timer.domain.repository.WorkRepository
 import com.example.working_timer.util.Constants.SECOND_IN_HOURS
 import com.example.working_timer.util.Constants.SECOND_IN_MINUTES
 import io.mockk.*
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
-import android.database.sqlite.SQLiteException
-import kotlinx.coroutines.flow.emptyFlow
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EditWorkViewModelTest {
@@ -403,13 +403,15 @@ class EditWorkViewModelTest {
         viewModel.saveWork(id = 0)
 
         coVerify {
-            mockWorkRepository.insert(match { work ->
-                work.start_day == TEST_START_DAY &&
-                work.start_time == TEST_START_TIME &&
-                work.end_day == TEST_END_DAY &&
-                work.end_time == TEST_END_TIME &&
-                work.elapsed_time == TEST_ELAPSED_TIME
-            })
+            mockWorkRepository.insert(
+                match { work ->
+                    work.start_day == TEST_START_DAY &&
+                        work.start_time == TEST_START_TIME &&
+                        work.end_day == TEST_END_DAY &&
+                        work.end_time == TEST_END_TIME &&
+                        work.elapsed_time == TEST_ELAPSED_TIME
+                }
+            )
         }
     }
 
@@ -421,14 +423,16 @@ class EditWorkViewModelTest {
         viewModel.saveWork(id = TEST_ID)
 
         coVerify {
-            mockWorkRepository.update(match { work ->
-                work.id == TEST_ID &&
-                work.start_day == TEST_START_DAY &&
-                work.start_time == TEST_START_TIME &&
-                work.end_day == TEST_END_DAY &&
-                work.end_time == TEST_END_TIME &&
-                work.elapsed_time == TEST_ELAPSED_TIME
-            })
+            mockWorkRepository.update(
+                match { work ->
+                    work.id == TEST_ID &&
+                        work.start_day == TEST_START_DAY &&
+                        work.start_time == TEST_START_TIME &&
+                        work.end_day == TEST_END_DAY &&
+                        work.end_time == TEST_END_TIME &&
+                        work.elapsed_time == TEST_ELAPSED_TIME
+                }
+            )
         }
     }
 
@@ -445,9 +449,11 @@ class EditWorkViewModelTest {
 
         val expectedElapsedTime = SHORT_ELAPSED_HOUR * SECOND_IN_HOURS + SHORT_ELAPSED_MINUTE * SECOND_IN_MINUTES
         coVerify {
-            mockWorkRepository.insert(match { work ->
-                work.elapsed_time == expectedElapsedTime
-            })
+            mockWorkRepository.insert(
+                match { work ->
+                    work.elapsed_time == expectedElapsedTime
+                }
+            )
         }
     }
 
@@ -519,4 +525,3 @@ class EditWorkViewModelTest {
         assertTrue("ShowSnackbarイベントが発生すること", collectedEvent is UiEvent.ShowSnackbar)
     }
 }
-

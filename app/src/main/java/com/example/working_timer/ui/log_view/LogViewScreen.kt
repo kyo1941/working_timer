@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.working_timer.data.db.Work
@@ -223,94 +225,55 @@ fun LogViewScreen(
     }
 }
 
-@Preview(showBackground = true, name = "Empty State")
-@Composable
-private fun LogViewScreenPreviewEmpty() = LogViewScreen(
-    state = LogViewScreenState(
-        uiState = LogViewUiState(selectedDay = "2025-01-02", isLoading = true),
-        showDateRangePicker = false
-    ),
-    actions = previewLogViewScreenActions
-)
-
-@Preview(showBackground = true, name = "With Work List")
-@Composable
-private fun LogViewScreenPreviewWithWorkList() = LogViewScreen(
-    state = LogViewScreenState(
-        uiState = LogViewUiState(
-            selectedDay = "2025-01-02",
-            workList = previewSampleWorkList
+private class LogViewScreenStateProvider : PreviewParameterProvider<LogViewScreenState> {
+    override val values = sequenceOf(
+        LogViewScreenState(
+            uiState = LogViewUiState(selectedDay = "2025-01-02", isLoading = true),
+            showDateRangePicker = false
         ),
-        showDateRangePicker = false
-    ),
-    actions = previewLogViewScreenActions
-)
-
-@Preview(showBackground = true, name = "Delete Dialog")
-@Composable
-private fun LogViewScreenPreviewDeleteDialog() = LogViewScreen(
-    state = LogViewScreenState(
-        uiState = LogViewUiState(
-            selectedDay = "2025-01-02",
-            workList = listOf(previewSampleWork),
-            showDeleteDialog = true,
-            workToDelete = previewSampleWork
+        LogViewScreenState(
+            uiState = LogViewUiState(selectedDay = "2025-01-02", workList = previewSampleWorkList),
+            showDateRangePicker = false
         ),
-        showDateRangePicker = false
-    ),
-    actions = previewLogViewScreenActions
-)
-
-@Preview(showBackground = true, name = "Sum Dialog")
-@Composable
-private fun LogViewScreenPreviewSumDialog() = LogViewScreen(
-    state = LogViewScreenState(
-        uiState = LogViewUiState(
-            selectedDay = "2025-01-02",
-            showSumDialog = true,
-            sumStartDate = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000L,
-            sumEndDate = System.currentTimeMillis(),
-            totalHours = 40L,
-            totalMinutes = 30L,
-            totalWage = 40500L
+        LogViewScreenState(
+            uiState = LogViewUiState(
+                selectedDay = "2025-01-02",
+                workList = listOf(previewSampleWork),
+                showDeleteDialog = true,
+                workToDelete = previewSampleWork
+            ),
+            showDateRangePicker = false
         ),
-        showDateRangePicker = false
-    ),
-    actions = previewLogViewScreenActions
-)
-
-@Preview(showBackground = true, name = "Date Range Picker")
-@Composable
-private fun LogViewScreenPreviewDateRangePicker() = LogViewScreen(
-    state = LogViewScreenState(
-        uiState = LogViewUiState(selectedDay = "2025-01-02"),
-        showDateRangePicker = true
-    ),
-    actions = previewLogViewScreenActions
-)
-
-@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "Empty State Landscape")
-@Composable
-private fun LogViewScreenPreviewEmptyLandscape() = LogViewScreen(
-    state = LogViewScreenState(
-        uiState = LogViewUiState(selectedDay = "2025-01-02", isLoading = true),
-        showDateRangePicker = false
-    ),
-    actions = previewLogViewScreenActions
-)
-
-@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "With Work List Landscape")
-@Composable
-private fun LogViewScreenPreviewWithWorkListLandscape() = LogViewScreen(
-    state = LogViewScreenState(
-        uiState = LogViewUiState(
-            selectedDay = "2025-01-02",
-            workList = previewSampleWorkList
+        LogViewScreenState(
+            uiState = LogViewUiState(
+                selectedDay = "2025-01-02",
+                showSumDialog = true,
+                sumStartDate = 1746057600000L,
+                sumEndDate = 1746662400000L,
+                totalHours = 40L,
+                totalMinutes = 30L,
+                totalWage = 40500L
+            ),
+            showDateRangePicker = false
         ),
-        showDateRangePicker = false
-    ),
-    actions = previewLogViewScreenActions
-)
+        LogViewScreenState(
+            uiState = LogViewUiState(selectedDay = "2025-01-02"),
+            showDateRangePicker = true
+        ),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LogViewScreenPreview(
+    @PreviewParameter(LogViewScreenStateProvider::class) state: LogViewScreenState
+) = LogViewScreen(state = state, actions = previewLogViewScreenActions)
+
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape")
+@Composable
+private fun LogViewScreenPreviewLandscape(
+    @PreviewParameter(LogViewScreenStateProvider::class) state: LogViewScreenState
+) = LogViewScreen(state = state, actions = previewLogViewScreenActions)
 
 private val previewSampleWork = Work(
     id = 1,

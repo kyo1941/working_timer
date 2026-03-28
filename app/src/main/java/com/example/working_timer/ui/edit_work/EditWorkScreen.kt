@@ -21,6 +21,8 @@ import com.example.working_timer.R
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -263,176 +265,55 @@ fun EditWorkScreen(
     EditWorkDialogs(state, actions)
 }
 
-@Preview(showBackground = true, name = "EditWorkScreen - 新規作成")
-@Composable
-fun EditWorkScreenPreviewNew() {
-    EditWorkScreen(
-        state = EditWorkScreenState(
-            uiState = EditWorkUiState(
-                startDay = "2024-03-15",
-                endDay = "2024-03-15",
-                startTime = "09:00",
-                endTime = "18:00",
-                elapsedHour = 8,
-                elapsedMinute = 0
-            ),
-            isNew = true,
-            showStartTimePicker = false,
-            showStartDayPicker = false,
-            showEndTimePicker = false,
-            showEndDayPicker = false,
-            showElapsedPicker = false
+private class EditWorkScreenStateProvider : PreviewParameterProvider<EditWorkScreenState> {
+    private val baseState = EditWorkScreenState(
+        uiState = EditWorkUiState(
+            startDay = "2024-03-15",
+            endDay = "2024-03-15",
+            startTime = "09:00",
+            endTime = "18:00",
+            elapsedHour = 8,
+            elapsedMinute = 0
         ),
-        actions = previewEditWorkScreenActions
+        isNew = true,
+        showStartTimePicker = false,
+        showStartDayPicker = false,
+        showEndTimePicker = false,
+        showEndDayPicker = false,
+        showElapsedPicker = false
     )
-}
 
-@Preview(showBackground = true, name = "EditWorkScreen - 編集")
-@Composable
-fun EditWorkScreenPreviewEdit() {
-    EditWorkScreen(
-        state = EditWorkScreenState(
-            uiState = EditWorkUiState(
-                startDay = "2024-03-15",
-                endDay = "2024-03-15",
-                startTime = "14:30",
-                endTime = "17:45",
-                elapsedHour = 3,
-                elapsedMinute = 15
-            ),
+    override val values = sequenceOf(
+        baseState,
+        baseState.copy(
             isNew = false,
-            showStartTimePicker = false,
-            showStartDayPicker = false,
-            showEndTimePicker = false,
-            showEndDayPicker = false,
-            showElapsedPicker = false
+            uiState = baseState.uiState.copy(startTime = "14:30", endTime = "17:45", elapsedHour = 3, elapsedMinute = 15)
         ),
-        actions = previewEditWorkScreenActions
-    )
-}
-
-@Preview(showBackground = true, name = "EditWorkScreen - 0分エラーダイアログ")
-@Composable
-fun EditWorkScreenPreviewZeroMinutesError() {
-    EditWorkScreen(
-        state = EditWorkScreenState(
-            uiState = EditWorkUiState(
-                startDay = "2024-03-15",
-                endDay = "2024-03-15",
-                startTime = "09:00",
-                endTime = "09:00",
-                elapsedHour = 0,
-                elapsedMinute = 0,
-                showZeroMinutesError = true
-            ),
-            isNew = true,
-            showStartTimePicker = false,
-            showStartDayPicker = false,
-            showEndTimePicker = false,
-            showEndDayPicker = false,
-            showElapsedPicker = false
+        baseState.copy(
+            uiState = baseState.uiState.copy(startTime = "09:00", endTime = "09:00", elapsedHour = 0, elapsedMinute = 0, showZeroMinutesError = true)
         ),
-        actions = previewEditWorkScreenActions
-    )
-}
-
-@Preview(showBackground = true, name = "EditWorkScreen - 開始終了時刻エラーダイアログ")
-@Composable
-fun EditWorkScreenPreviewStartEndError() {
-    EditWorkScreen(
-        state = EditWorkScreenState(
-            uiState = EditWorkUiState(
-                startDay = "2024-03-15",
-                endDay = "2024-03-15",
-                startTime = "18:00",
-                endTime = "09:00",
-                elapsedHour = 0,
-                elapsedMinute = 30,
-                showStartEndError = true
-            ),
+        baseState.copy(
             isNew = false,
-            showStartTimePicker = false,
-            showStartDayPicker = false,
-            showEndTimePicker = false,
-            showEndDayPicker = false,
-            showElapsedPicker = false
+            uiState = baseState.uiState.copy(startTime = "18:00", endTime = "09:00", elapsedHour = 0, elapsedMinute = 30, showStartEndError = true)
         ),
-        actions = previewEditWorkScreenActions
-    )
-}
-
-@Preview(showBackground = true, name = "EditWorkScreen - 活動時間超過警告ダイアログ")
-@Composable
-fun EditWorkScreenPreviewElapsedTimeOver() {
-    EditWorkScreen(
-        state = EditWorkScreenState(
-            uiState = EditWorkUiState(
-                startDay = "2024-03-15",
-                endDay = "2024-03-15",
-                startTime = "09:00",
-                endTime = "17:00",
-                elapsedHour = 10,
-                elapsedMinute = 0,
-                showElapsedTimeOver = true
-            ),
+        baseState.copy(
             isNew = false,
-            showStartTimePicker = false,
-            showStartDayPicker = false,
-            showEndTimePicker = false,
-            showEndDayPicker = false,
-            showElapsedPicker = false
+            uiState = baseState.uiState.copy(startTime = "09:00", endTime = "17:00", elapsedHour = 10, elapsedMinute = 0, showElapsedTimeOver = true)
         ),
-        actions = previewEditWorkScreenActions
     )
 }
 
-@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "EditWorkScreen - 新規作成 Landscape")
+@Preview(showBackground = true)
 @Composable
-fun EditWorkScreenPreviewNewLandscape() {
-    EditWorkScreen(
-        state = EditWorkScreenState(
-            uiState = EditWorkUiState(
-                startDay = "2024-03-15",
-                endDay = "2024-03-15",
-                startTime = "09:00",
-                endTime = "18:00",
-                elapsedHour = 8,
-                elapsedMinute = 0
-            ),
-            isNew = true,
-            showStartTimePicker = false,
-            showStartDayPicker = false,
-            showEndTimePicker = false,
-            showEndDayPicker = false,
-            showElapsedPicker = false
-        ),
-        actions = previewEditWorkScreenActions
-    )
-}
+private fun EditWorkScreenPreview(
+    @PreviewParameter(EditWorkScreenStateProvider::class) state: EditWorkScreenState
+) = EditWorkScreen(state = state, actions = previewEditWorkScreenActions)
 
-@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape", name = "EditWorkScreen - 編集 Landscape")
+@Preview(showBackground = true, device = "spec:parent=pixel_5,orientation=landscape")
 @Composable
-fun EditWorkScreenPreviewEditLandscape() {
-    EditWorkScreen(
-        state = EditWorkScreenState(
-            uiState = EditWorkUiState(
-                startDay = "2024-03-15",
-                endDay = "2024-03-15",
-                startTime = "14:30",
-                endTime = "17:45",
-                elapsedHour = 3,
-                elapsedMinute = 15
-            ),
-            isNew = false,
-            showStartTimePicker = false,
-            showStartDayPicker = false,
-            showEndTimePicker = false,
-            showEndDayPicker = false,
-            showElapsedPicker = false
-        ),
-        actions = previewEditWorkScreenActions
-    )
-}
+private fun EditWorkScreenPreviewLandscape(
+    @PreviewParameter(EditWorkScreenStateProvider::class) state: EditWorkScreenState
+) = EditWorkScreen(state = state, actions = previewEditWorkScreenActions)
 
 private val previewEditWorkScreenActions = EditWorkScreenActions(
     onNavigateBack = {},

@@ -188,6 +188,12 @@ fun MainScreenPreviewLandscape(@PreviewParameter(MainUiStateProvider::class) uiS
 )
 
 private val previewMainScreenActions = MainScreenActions(
-    onNavigateToLog = {}, onStartTimer = {}, onStopTimer = {}, onPauseTimer = {},
-    onResumeTimer = {}, onDiscardWork = {}, onSaveWork = {}, onDismissSaveDialog = {}
+    onNavigateToLog = {},
+    onStartTimer = {},
+    onStopTimer = {},
+    onPauseTimer = {},
+    onResumeTimer = {},
+    onDiscardWork = {},
+    onSaveWork = {},
+    onDismissSaveDialog = {}
 )

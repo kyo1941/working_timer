@@ -1,32 +1,31 @@
 package com.example.working_timer.ui.edit_work
 
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.foundation.layout.Row
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.res.stringResource
-import android.content.res.Configuration
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.example.working_timer.R
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.working_timer.R
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
 
 data class EditWorkScreenState(
     val uiState: EditWorkUiState,
@@ -87,8 +86,12 @@ fun EditWorkScreenHolder(
             when (event) {
                 is UiEvent.ShowSnackbar -> {
                     val message = when (event.error) {
-                        is EditWorkError.InvalidDateTimeFormat -> context.getString(R.string.edit_work_view_model_error_invalid_date_time_format)
-                        is EditWorkError.DatabaseError -> context.getString(R.string.edit_work_view_model_error_database)
+                        is EditWorkError.InvalidDateTimeFormat -> context.getString(
+                            R.string.edit_work_view_model_error_invalid_date_time_format
+                        )
+                        is EditWorkError.DatabaseError -> context.getString(
+                            R.string.edit_work_view_model_error_database
+                        )
                         is EditWorkError.UnknownError -> {
                             val detail = event.error.message
                                 ?: context.getString(R.string.edit_work_view_model_error_unknown_detail)
@@ -285,18 +288,41 @@ private class EditWorkScreenStateProvider : PreviewParameterProvider<EditWorkScr
         baseState,
         baseState.copy(
             isNew = false,
-            uiState = baseState.uiState.copy(startTime = "14:30", endTime = "17:45", elapsedHour = 3, elapsedMinute = 15)
+            uiState = baseState.uiState.copy(
+                startTime = "14:30",
+                endTime = "17:45",
+                elapsedHour = 3,
+                elapsedMinute = 15
+            )
         ),
         baseState.copy(
-            uiState = baseState.uiState.copy(startTime = "09:00", endTime = "09:00", elapsedHour = 0, elapsedMinute = 0, showZeroMinutesError = true)
+            uiState = baseState.uiState.copy(
+                startTime = "09:00",
+                endTime = "09:00",
+                elapsedHour = 0,
+                elapsedMinute = 0,
+                showZeroMinutesError = true
+            )
         ),
         baseState.copy(
             isNew = false,
-            uiState = baseState.uiState.copy(startTime = "18:00", endTime = "09:00", elapsedHour = 0, elapsedMinute = 30, showStartEndError = true)
+            uiState = baseState.uiState.copy(
+                startTime = "18:00",
+                endTime = "09:00",
+                elapsedHour = 0,
+                elapsedMinute = 30,
+                showStartEndError = true
+            )
         ),
         baseState.copy(
             isNew = false,
-            uiState = baseState.uiState.copy(startTime = "09:00", endTime = "17:00", elapsedHour = 10, elapsedMinute = 0, showElapsedTimeOver = true)
+            uiState = baseState.uiState.copy(
+                startTime = "09:00",
+                endTime = "17:00",
+                elapsedHour = 10,
+                elapsedMinute = 0,
+                showElapsedTimeOver = true
+            )
         ),
     )
 }

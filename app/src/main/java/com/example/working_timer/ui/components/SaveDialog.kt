@@ -23,7 +23,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.working_timer.R
 import com.example.working_timer.util.BackgroundColor
 
-
 @Composable
 fun SaveDialog(
     startDate: String,
@@ -123,12 +122,11 @@ fun SaveDialog(
                 }
             }
         }
-
     }
 }
 
 @Composable
-private fun formatElapsedTime(elapsedTime: Long) : String {
+private fun formatElapsedTime(elapsedTime: Long): String {
     val totalSeconds = elapsedTime / 1000
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60

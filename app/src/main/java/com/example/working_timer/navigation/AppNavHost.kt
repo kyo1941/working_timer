@@ -40,7 +40,9 @@ fun AppNavHost(
             ScaffoldWithEdgeToEdge(
                 footer = footer,
                 snackbarHostState = snackbarHostState,
-                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                contentWindowInsets = WindowInsets.safeDrawing.only(
+                    WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+                )
             ) { paddingValues ->
                 MainScreenHolder(
                     snackbarHostState = snackbarHostState,
@@ -57,7 +59,9 @@ fun AppNavHost(
         composable(Routes.LogView.routes) {
             ScaffoldWithEdgeToEdge(
                 footer = footer,
-                contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                contentWindowInsets = WindowInsets.safeDrawing.only(
+                    WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+                )
             ) { paddingValues ->
                 LogViewScreenHolder(
                     onNavigateToTimer = {

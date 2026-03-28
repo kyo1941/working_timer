@@ -23,7 +23,7 @@ internal fun TimerDisplaySection(displayText: String, modifier: Modifier = Modif
     ) {
         val timerAnimation: AnimatedContentTransitionScope<Char>.() -> ContentTransform = {
             slideInVertically { height -> height } togetherWith
-                    slideOutVertically { height -> -height }
+                slideOutVertically { height -> -height }
         }
         displayText.forEach { char ->
             AnimatedContent(

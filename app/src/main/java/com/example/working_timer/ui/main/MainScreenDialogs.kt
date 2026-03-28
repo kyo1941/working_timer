@@ -51,6 +51,5 @@ internal fun MainScreenDialogs(
                 onDismissSaveDialog()
             }
         )
-
     }
 }

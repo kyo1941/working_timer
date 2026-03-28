@@ -11,11 +11,11 @@ import com.example.working_timer.util.Constants.SECOND_IN_HOURS
 import com.example.working_timer.util.Constants.SECOND_IN_MINUTES
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -158,7 +158,6 @@ class EditWorkViewModel @Inject constructor(
                     workRepository.insert(work)
                 }
                 _uiEvent.emit(UiEvent.SaveSuccess)
-
             } catch (e: SQLiteException) {
                 _uiEvent.emit(UiEvent.ShowSnackbar(EditWorkError.DatabaseError))
             } catch (e: Exception) {

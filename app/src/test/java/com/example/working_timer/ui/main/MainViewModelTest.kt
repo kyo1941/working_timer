@@ -7,20 +7,20 @@ import com.example.working_timer.domain.repository.WorkRepository
 import com.example.working_timer.service.TimerState
 import com.example.working_timer.util.Constants.ONE_HOUR_MS
 import com.example.working_timer.util.Constants.ONE_MINUTE_MS
-import io.mockk.every
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.Runs
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.test.resetMain
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -202,8 +202,8 @@ class MainViewModelTest {
                 mockWorkRepository.insert(
                     match {
                         it.start_day == TEST_DATE &&
-                                it.start_time == TEST_START_TIME &&
-                                it.elapsed_time == 3600L
+                            it.start_time == TEST_START_TIME &&
+                            it.elapsed_time == 3600L
                     }
                 )
             }

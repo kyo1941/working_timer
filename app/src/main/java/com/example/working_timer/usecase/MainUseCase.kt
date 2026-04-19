@@ -6,8 +6,8 @@ interface MainUseCase {
     fun resumeTimer()
     fun stopTimer()
 
-    fun dismissSaveDialog()
+    suspend fun dismissSaveDialog()
 
-    fun saveWork()
-    fun discardWork()
+    suspend fun saveWork()
+    suspend fun discardWork()
 }
